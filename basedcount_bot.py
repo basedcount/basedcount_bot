@@ -13,8 +13,8 @@ from datetime import timedelta, datetime
 # Custom Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased
 from flairs import checkFlair
-from admin import commandsList, savePath, backupSavePath
-from passwords import bot
+from admin import commandsList
+from passwords import bot, savePath, backupSavePath
 
 
 # Connect to Reddit
