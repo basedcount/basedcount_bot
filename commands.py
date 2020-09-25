@@ -4,7 +4,7 @@ import json
 from random import randint
 import ranks
 from collections import Counter
-from admin import savePath
+from passwords import savePath
 
 myBasedNoUserReply = ["Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect.",
 						"[mybasedcount_clever_response_1](https://www.youtube.com/watch?v=YzKM5g_FwYU&ab_channel=TheMar%C3%ADas)",
