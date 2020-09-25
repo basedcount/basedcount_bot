@@ -2,7 +2,7 @@
 
 import json
 from subprocess import call
-from admin import savePath
+from passwords import savePath
 
 class Command:
 	def __init__(self, name, function):
