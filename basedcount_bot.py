@@ -125,7 +125,7 @@ def readComments():
 						flair = str(checkFlair(parentFlair))
 
 						# Make sure bot isn't the parent
-						if parentAuthor not in excludedParents:
+						if (parentAuthor not in excludedParents) and (parentAuthor not in author):
 
 							# Check for cheating
 							cheating = False
