@@ -135,9 +135,12 @@ def readComments():
 
 							# Calculate based count and decide what to reply
 							if not cheating:
-								replyMessage = based(parentAuthor, flair)
+								if flair != 'Unflaired':
+									replyMessage = based(parentAuthor, flair)
+								else:
+									replyMessage = "Don't flair the Unflaired scum!"
 								if replyMessage:
-									comment.reply(replyMessage)
+										comment.reply(replyMessage)
 								break
 
 # ------------- Commands
