@@ -18,6 +18,7 @@ def add(name, tag):
 	flairList.append(Flair(name, tag))
 
 add('Unflaired', 'None')
+add('Grey Centrist', ':CENTG:')
 add('Centrist', ':centrist:')
 add('AuthCenter', ':auth:')
 add('AuthLeft', ':authleft:')
