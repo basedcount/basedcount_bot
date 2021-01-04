@@ -138,7 +138,7 @@ def readComments():
 								if flair != 'Unflaired':
 									replyMessage = based(parentAuthor, flair)
 								else:
-									replyMessage = "Don't flair the Unflaired scum!"
+									replyMessage = "Don't base the Unflaired scum!"
 								if replyMessage:
 										comment.reply(replyMessage)
 								break
