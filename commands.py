@@ -26,13 +26,13 @@ basedCountNoUserReply = ["I don't know who that is, and I definitely never paid 
 def based(user, flair, pill):
 	count = addBasedCount(user, flair)
 
-	pills = checkPills(user, pill)
+	pills = addPills(user, pill)
 
 	rank = ranks.rankName(int(count), user)
 	rankUp = ranks.rankMessage(int(count))
 	replyMessage = ''
 	if ((int(count)%5) == 0):
-		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
 		if rankUp:
 			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills 
 	elif int(count) == 1:
@@ -42,7 +42,7 @@ def based(user, flair, pill):
 def myBasedCount(user):
 	
 	count = str(checkBasedCount(user))
-	pills = checkPills(user, 'None')
+	pills = checkPills(user)
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
 		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
@@ -105,7 +105,10 @@ def addBasedCount(user, flair):
 		count = int(basedCountDatabase['users'][user]['count']) + 1
 
 	# Update databased
-	basedCountDatabase['users'][user] = {'count':str(count)}
+	if 'count' not in basedCountDatabase['users'][user]:
+		basedCountDatabase['users'][user] = {'count':str(count)}
+	else:
+		basedCountDatabase['users'][user]['count'] = str(count)
 	basedCountDatabase['users'][user]['flair'] = flair
 	with open(savePath + 'dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
@@ -122,23 +125,38 @@ def checkBasedCount(user):
 		count = int(basedCountDatabase['users'][user]['count'])
 	return count
 
-def checkPills(user, pill):
+def checkPills(user):
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
 	# Check if existing user and calculate pill list
 	if user not in basedCountDatabase['users']:
-		pills = 'None'
-	else:
+		return 'None'
+	if 'pills' not in basedCountDatabase['users'][user]:
+		return 'None'
+	return str(basedCountDatabase['users'][user]['pills'])
+
+
+def addPills(user, pill):
+	with open(savePath + 'dataBased.json') as dataBased:
+		basedCountDatabase = json.load(dataBased)
+
+	if user not in basedCountDatabase['users']:
+		return 'None'
+
+	if pill != 'None':
 		if 'pills' not in basedCountDatabase['users'][user]:
-			basedCountDatabase['users'][user]['pills'] = []
-		if pill != 'None'
-			basedCountDatabase['users'][user]['pills'].append(pill)
-		pills = ''
-		for p in basedCountDatabase['users'][user]['pills']:
-			pills = pills + ', ' + p
-		if pills.startswith(', '):
-			pills = pills[2:]
-		if pills == '':
-			pills = 'None'
-	return pills
+
+			basedCountDatabase['users'][user]['pills'] = {}
+			basedCountDatabase['users'][user]['pills'] = pill
+			with open(savePath + 'dataBased.json', 'w') as dataBased:
+				json.dump(basedCountDatabase, dataBased)
+			return pill
+
+		oldPills = str(basedCountDatabase['users'][user]['pills'])
+		basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
+		with open(savePath + 'dataBased.json', 'w') as dataBased:
+			json.dump(basedCountDatabase, dataBased)
+		pills = oldPills + ', ' + pill
+		return pills
+	return 'None'
