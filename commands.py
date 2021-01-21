@@ -23,15 +23,18 @@ basedCountNoUserReply = ["I don't know who that is, and I definitely never paid 
 
 # === User Commands ===
 
-def based(user, flair=None):
+def based(user, flair, pill):
 	count = addBasedCount(user, flair)
+
+	pills = checkPills(user, pill)
+
 	rank = ranks.rankName(int(count), user)
 	rankUp = ranks.rankMessage(int(count))
 	replyMessage = ''
 	if ((int(count)%5) == 0):
-		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
 		if rankUp:
-			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp
+			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills 
 	elif int(count) == 1:
 		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards \n\n I am a bot. Reply /info for more info."
 	return replyMessage
@@ -39,9 +42,10 @@ def based(user, flair=None):
 def myBasedCount(user):
 	
 	count = str(checkBasedCount(user))
+	pills = checkPills(user, 'None')
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank
+		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
 	else:
 		replyMessage = myBasedNoUserReply[randint(0, len(myBasedNoUserReply)-1)]
 	return replyMessage
@@ -57,9 +61,10 @@ def basedCountUser(string):
 
 	# Retrieve count
 	count = str(checkBasedCount(user))
+	pills = checkPills(user)
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank
+		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
 	else:
 		replyMessage = basedCountNoUserReply[randint(0,len(basedCountNoUserReply)-1)]
 	return replyMessage
@@ -89,7 +94,7 @@ def mostBased():
 
 # === Databased Searching and Updating ===
 
-def addBasedCount(user, flair=None):
+def addBasedCount(user, flair):
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
@@ -116,3 +121,24 @@ def checkBasedCount(user):
 	else:
 		count = int(basedCountDatabase['users'][user]['count'])
 	return count
+
+def checkPills(user, pill):
+	with open(savePath + 'dataBased.json') as dataBased:
+		basedCountDatabase = json.load(dataBased)
+
+	# Check if existing user and calculate pill list
+	if user not in basedCountDatabase['users']:
+		pills = 'None'
+	else:
+		if 'pills' not in basedCountDatabase['users'][user]:
+			basedCountDatabase['users'][user]['pills'] = []
+		if pill != 'None'
+			basedCountDatabase['users'][user]['pills'].append(pill)
+		pills = ''
+		for p in basedCountDatabase['users'][user]['pills']:
+			pills = pills + ', ' + p
+		if pills.startswith(', '):
+			pills = pills[2:]
+		if pills == '':
+			pills = 'None'
+	return pills

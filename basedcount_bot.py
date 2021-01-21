@@ -32,7 +32,7 @@ infoMessage = 'I am a bot created to keep track of how based users are. If you h
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']
 excludedParents = ['basedcount_bot']
-botName_Variations = ['basedcount_bot', 'u/basedcount_bot', '/u/basedcount_bot']
+botName_Variations = ['basedcount_bot ', 'u/basedcount_bot ', '/u/basedcount_bot ', 'basedcount_bot', 'u/basedcount_bot', '/u/basedcount_bot']
 based_Variations = ['based', 'baste']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
@@ -133,10 +133,20 @@ def readComments():
 								if parentText.lower().startswith(v):
 									cheating = True
 
+							pill = 'None'
+							if 'pilled' in commenttext.lower():
+								pill = commenttext.partition('pilled')[0]
+								for v in based_Variations:
+									if (v + ' and ') in pill:
+										pill = pill.replace('based and ', '')
+									if pillText[-1]=='-':
+										pill = pill[:-1]
+
+
 							# Calculate based count and decide what to reply
 							if not cheating:
 								if flair != 'Unflaired':
-									replyMessage = based(parentAuthor, flair)
+									replyMessage = based(parentAuthor, flair, pill)
 								else:
 									replyMessage = "Don't base the Unflaired scum!"
 								if replyMessage:
@@ -148,7 +158,7 @@ def readComments():
 					comment.reply(infoMessage)
 
 				for v in myBasedCount_Variations:
-					if commenttext.lower().startswith(v):
+					if v in commenttext.lower():
 						replyMessage = myBasedCount(author)
 						comment.reply(replyMessage)
 						break
@@ -160,7 +170,7 @@ def readComments():
 						break
 
 				for v in mostBased_Variations:
-					if commenttext.lower().startswith(v):
+					if v in commenttext.lower():
 						replyMessage = mostBased()
 						comment.reply(replyMessage)
 						break
