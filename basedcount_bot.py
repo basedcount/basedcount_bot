@@ -137,9 +137,12 @@ def readComments():
 							pill = 'None'
 							if 'pilled' in commenttext.lower():
 								pill = commenttext.partition('pilled')[0]
-								for v in based_Variations:
-									if (v + ' and ') in pill.lower():
-										pill = pill.lower().replace(v + ' and ', '')
+								if (len(pill) < 50) and ('.' not in pill):
+									for v in based_Variations:
+										if v in pill.lower():
+											pill = pill.lower().replace(v, '')
+									if pill.startswith(' and '):
+										pill.lower().replace(' and ', '')
 									if pill[-1]=='-':
 										pill = pill[:-1]
 
