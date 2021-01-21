@@ -106,11 +106,12 @@ def addBasedCount(user, flair):
 	# Check if existing user and calculate based count
 	if user not in basedCountDatabase['users']:
 		count = 1
+		basedCountDatabase['users'][user] = {}
 	else:
 		count = int(basedCountDatabase['users'][user]['count']) + 1
 
 	# Update databased
-	if 'count' not in basedCountDatabase['users'][user]:
+	if 'count' not in str(basedCountDatabase['users'][user]):
 		basedCountDatabase['users'][user] = {'count':str(count)}
 	else:
 		basedCountDatabase['users'][user]['count'] = str(count)
