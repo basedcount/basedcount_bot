@@ -37,6 +37,7 @@ based_Variations = ['based', 'baste']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
+bannedWords = ['nigger', 'nigga', 'negro', 'child', 'pedo', 'faggot', ]
 
 
 
