@@ -160,3 +160,26 @@ def addPills(user, pill):
 		pills = oldPills + ', ' + pill
 		return pills
 	return 'None'
+
+def removePill(user, string):
+	delete = string.lower().replace('/removepill ', '')
+
+	with open(savePath + 'dataBased.json') as dataBased:
+		basedCountDatabase = json.load(dataBased)
+
+	oldPills = str(basedCountDatabase['users'][user]['pills'])
+	print(delete)
+	print(oldPills)
+	if delete in oldPills:
+		pills = oldPills.replace(delete, '')
+	else:
+		return "I didn't see that pill in your list."
+	if pills.startswith(', '):
+		pills = pills[2:]
+	if pills.endswith(', '):
+		pills = pills[:-2]
+	basedCountDatabase['users'][user]['pills'] = pills
+
+	with open(savePath + 'dataBased.json', 'w') as dataBased:
+			json.dump(basedCountDatabase, dataBased)
+	return "Pill removed. Your pills: " + pills
