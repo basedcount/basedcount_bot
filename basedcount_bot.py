@@ -26,7 +26,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.4.5'
+version = 'Bot v2.4.6'
 infoMessage = 'I am a bot created to keep track of how based users are. If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a human operator. You can also check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation rather than simply following what your political alignment dictates, often used as a sign of respect but not necessarily agreement\n\n' + version + '\n\n Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill'
 
 # Vocabulary
@@ -135,7 +135,7 @@ def readComments():
 							# Check for cheating
 							cheating = False
 							for v in based_Variations:
-								if parentText.lower().startswith(v):
+								if parentText.lower().startswith(v) and (len(parentText) < 50):
 									cheating = True
 
 							# Check for pills
