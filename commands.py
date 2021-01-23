@@ -184,6 +184,8 @@ def removePill(user, string):
 		pills = pills[2:]
 	if pills.endswith(', '):
 		pills = pills[:-2]
+	if ", , " in pills:
+		pills = pills.replace(", , ", ", ")
 	basedCountDatabase['users'][user]['pills'] = pills
 
 	with open(savePath + 'dataBased.json', 'w') as dataBased:
