@@ -26,7 +26,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.4.6'
+version = 'Bot v2.4.7'
 infoMessage = 'I am a bot created to keep track of how based users are. If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a human operator. You can also check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation rather than simply following what your political alignment dictates, often used as a sign of respect but not necessarily agreement\n\n' + version + '\n\n Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill'
 
 # Vocabulary
@@ -143,17 +143,22 @@ def readComments():
 							if 'pilled' in commenttext.lower():
 								pill = commenttext.partition('pilled')[0]
 								if (len(pill) < 50) and ('.' not in pill):
-									for w in bannedWords:
-										if w not in pill:
-											for v in based_Variations:
-												if v in pill.lower():
-													pill = pill.lower().replace(v, '')
-											if pill.startswith(' and '):
-												pill = pill.lower().replace(' and ', '')
-											if pill.startswith(' but '):
-												pill = pill.lower().replace(' but ', '')
-											if pill[-1]=='-':
-												pill = pill[:-1]
+									for v in based_Variations:
+										if pill.lower().startswith(v):
+											pill = pill.lower().replace(v, '')
+									if pill.startswith(' and '):
+										pill = pill.lower().replace(' and ', '')
+									if pill.startswith(' but '):
+										pill = pill.lower().replace(' but ', '')
+									if pill[-1]=='-':
+										pill = pill[:-1]
+									if pill[-1]==' ':
+										pill = pill[:-1]
+									if pill[0]==' ':
+										pill = pill[1:]
+								for w in bannedWords:
+									if w in pill:
+										pill = 'None'
 
 
 							# Calculate based count and decide what to reply
