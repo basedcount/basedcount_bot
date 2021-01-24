@@ -15,6 +15,7 @@ from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from admin import commandsList
 from passwords import bot, savePath, backupSavePath
+from cheating import checkForCheating, sendCheatReport
 
 
 # Connect to Reddit
@@ -26,7 +27,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.4.7'
+version = 'Bot v2.5.0'
 infoMessage = 'I am a bot created to keep track of how based users are. If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a human operator. You can also check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation rather than simply following what your political alignment dictates, often used as a sign of respect but not necessarily agreement\n\n' + version + '\n\n Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill'
 
 # Vocabulary
@@ -160,11 +161,12 @@ def readComments():
 									if w in pill:
 										pill = 'None'
 
-
 							# Calculate based count and decide what to reply
 							if not cheating:
 								if flair != 'Unflaired':
 									replyMessage = based(parentAuthor, flair, pill)
+									checkForCheating(author, parentAuthor)
+									sendCheatReport()
 								else:
 									replyMessage = "Don't base the Unflaired scum!"
 								if replyMessage:
