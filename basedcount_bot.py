@@ -27,18 +27,27 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.5.0'
-infoMessage = 'I am a bot created to keep track of how based users are. If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a human operator. You can also check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation rather than simply following what your political alignment dictates, often used as a sign of respect but not necessarily agreement\n\n' + version + '\n\n Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill'
+version = 'Bot v2.5.2'
+infoMessage = 'I am a bot created to keep track of how based users are. '
+				+ 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '
+				+ 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/)'
+				+ '\n\nIf you have any suggestions or questions, please message them to me with the subject '
+				+ 'of "Suggestion" or "Question" to automatically forward them to a human operator. '
+				+ '\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation '
+				+ 'rather than simply following what your political alignment dictates, '
+				+ 'often used as a sign of respect but not necessarily agreement'
+				+ '\n\n' + version
+				+ '\n\n**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill**'
 
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']
 excludedParents = ['basedcount_bot']
-botName_Variations = ['basedcount_bot ', 'u/basedcount_bot ', '/u/basedcount_bot ', 'basedcount_bot', 'u/basedcount_bot', '/u/basedcount_bot']
+botName_Variations = ['/u/basedcount_bot ', 'u/basedcount_bot ', 'basedcount_bot ', '/u/basedcount_bot', 'u/basedcount_bot', 'basedcount_bot']
 based_Variations = ['based', 'baste']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
-bannedWords = ['nigger', 'nigga', 'negro', 'child', 'pedo', 'faggot', ]
+bannedWords = ['nigger', 'nigga', 'negro', 'child', 'pedo', 'faggot', 'rape']
 
 
 
@@ -51,7 +60,7 @@ def checkMail():
 			content = str(message.body)
 
 # --------- Check Questions and Suggestions and then reply
-			if (str(message.subject).lower() in 'suggestion') or (str(message.subject).lower() in 'question'):
+			if ('suggestion' in str(message.subject).lower()) or ('question' in str(message.subject).lower()):
 				if str(message.subject).lower() in 'suggestion':
 					message.reply('Thank you for your suggestion. I have forwarded it to a human operator.')
 				if str(message.subject).lower() in 'question':
@@ -107,7 +116,7 @@ def readComments():
 
 				# Remove bot mentions from comment text
 				for v in botName_Variations:
-					if commenttext.startswith(v):
+					if v in commenttext:
 						commenttext.replace(v, '')
 
 # ------------- Based Check
