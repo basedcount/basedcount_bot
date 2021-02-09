@@ -37,7 +37,10 @@ def appendCommand(message, content):
 	# Update based count and reply
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
-	basedCountDatabase['users'][user] = {'count':count}
+	if 'count' not in str(basedCountDatabase['users'][user]):
+		basedCountDatabase['users'][user] = {'count':str(count)}
+	else:
+		basedCountDatabase['users'][user]['count'] = str(count)
 	with open(savePath + 'dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
 	message.reply('User u/' + user + ' updated with count: ' + count)
