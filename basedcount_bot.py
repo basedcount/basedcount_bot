@@ -14,7 +14,7 @@ from datetime import timedelta, datetime
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from admin import commandsList
-from passwords import bot, savePath, backupSavePath
+from passwords import bot, savePath, backupSavePath, bannedWords
 from cheating import checkForCheating, sendCheatReport
 
 
@@ -47,7 +47,6 @@ based_Variations = ['based', 'baste']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
-bannedWords = ['nigger', 'nigga', 'negro', 'child', 'pedo', 'faggot', 'rape']
 
 
 

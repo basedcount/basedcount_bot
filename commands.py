@@ -41,7 +41,7 @@ def based(user, flair, pill):
 		if rankUp:
 			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills 
 	elif int(count) == 1:
-		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards \n\n I am a bot. Reply /info for more info."
+		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
 	return replyMessage
 
 def myBasedCount(user):
@@ -165,7 +165,10 @@ def addPills(user, pill):
 			json.dump(basedCountDatabase, dataBased)
 		pills = oldPills + ', ' + pill
 		return pills
-	return 'None'
+	else:
+		if 'pills' in basedCountDatabase['users'][user]:
+			return basedCountDatabase['users'][user]['pills']
+		return 'None'
 
 def removePill(user, string):
 	delete = string.lower().replace('/removepill ', '')
