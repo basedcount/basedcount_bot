@@ -50,3 +50,5 @@ def sendCheatReport():
 	# Set trigger to go off near midnight
 	if seconds_since_midnight < 84000:
 		reset = True
+
+reset = False
