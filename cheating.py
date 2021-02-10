@@ -23,6 +23,7 @@ def checkForCheating(author, parentAuthor):
 
 	
 def sendCheatReport():
+	global reset
 	now = datetime.now()
 	seconds_since_midnight = (now - now.replace(hour=0, minute=0, second=0, microsecond=0)).total_seconds()
 	
