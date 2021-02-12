@@ -27,17 +27,17 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.5.2'
+version = 'Bot v2.5.5'
 infoMessage = 'I am a bot created to keep track of how based users are. '
 				+ 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '
-				+ 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/)'
+				+ 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).'
 				+ '\n\nIf you have any suggestions or questions, please message them to me with the subject '
 				+ 'of "Suggestion" or "Question" to automatically forward them to a human operator. '
 				+ '\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation '
 				+ 'rather than simply following what your political alignment dictates, '
 				+ 'often used as a sign of respect but not necessarily agreement'
 				+ '\n\n' + version
-				+ '\n\n**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill**'
+				+ '\n\n**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill**'
 
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']
