@@ -177,8 +177,6 @@ def removePill(user, string):
 		basedCountDatabase = json.load(dataBased)
 
 	oldPills = str(basedCountDatabase['users'][user]['pills'])
-	print(delete)
-	print(oldPills)
 	if delete in oldPills:
 		pills = oldPills.replace(delete, '')
 	else:
