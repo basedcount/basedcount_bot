@@ -1,8 +1,12 @@
 # Anti-cheating functions
 
+# Python Libraries
 import json
-from passwords import savePath, bot
 from datetime import timedelta, datetime
+
+# basedcount_bot Libraries
+from passwords import savePath, bot
+
 
 def checkForCheating(author, parentAuthor):
 	with open(savePath + 'cheatingDatabase.json') as database:
@@ -33,16 +37,18 @@ def sendCheatReport():
 			with open(savePath + 'cheatingDatabase.json') as database:
 				cheatingDatabase = json.load(database)
 
+			# Add Suspicious Users
 			content = ''
 			for user in cheatingDatabase['users']:
 				for key in cheatingDatabase['users'][user]:
 					if cheatingDatabase['users'][user][key] > 5:
 						content = content + user + ' based ' + key + ' ' + str(cheatingDatabase['users'][user][key]) + ' times.\n'
 
-			# Send Cheat Report to admin
+			# Send Cheat Report to Admin
 			if content != '':
 				reddit.redditor(bot.admin).message('Cheat Report', content)
 
+			# Clean Database
 			cheatingDatabase['users'] = {}
 			with open(savePath + 'cheatingDatabase.json', 'w') as database:
 				json.dump(cheatingDatabase, database)

@@ -1,11 +1,15 @@
 # User Commands Library
 
+# Python Libraries
 import json
-from random import randint
-import ranks
 from collections import Counter
+from random import randint
+
+# basedcount_bot Libraries
+import ranks
 from passwords import savePath
 
+# No Based Count replies
 myBasedNoUserReply = ["Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect.",
 						"[mybasedcount_clever_response_1](https://www.youtube.com/watch?v=YzKM5g_FwYU&ab_channel=TheMar%C3%ADas)",
 						"[mybasedcount_clever_response_2](https://www.youtube.com/watch?v=PNbBDrceCy8&ab_channel=TheWhoVEVO)",
@@ -26,15 +30,18 @@ basedCountNoUserReply = ["Yeah... I got nothing.",
 						"[basedcount_clever_response_7](https://www.youtube.com/watch?v=tOlh-g2dxrI&ab_channel=e7magic)"]
 
 
+
 # === User Commands ===
 
 def based(user, flair, pill):
+
+	# Retrieve User Data
 	count = addBasedCount(user, flair)
-
 	pills = addPills(user, pill)
-
 	rank = ranks.rankName(int(count), user)
 	rankUp = ranks.rankMessage(int(count))
+
+	# Build Reply Message
 	replyMessage = ''
 	if ((int(count)%5) == 0):
 		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
@@ -44,10 +51,14 @@ def based(user, flair, pill):
 		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
 	return replyMessage
 
+
 def myBasedCount(user):
-	
+
+	# Retrieve User Data
 	count = str(checkBasedCount(user))
 	pills = checkPills(user)
+
+	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
 		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
@@ -55,18 +66,21 @@ def myBasedCount(user):
 		replyMessage = myBasedNoUserReply[randint(0, len(myBasedNoUserReply)-1)]
 	return replyMessage
 
+
 def basedCountUser(string):
+
 	# Take comment text string and remove everything except the username
 	excludedStrings = ['/u/', 'u/', 'basedcount_bot ', '/basedcount ']
-	
 	for s in excludedStrings:
 		if s in string:
 			string = string.replace(s,'')
 	user = string
 
-	# Retrieve count
+	# Retrieve User Data
 	count = str(checkBasedCount(user))
 	pills = checkPills(user)
+
+	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
 		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
@@ -74,13 +88,18 @@ def basedCountUser(string):
 		replyMessage = basedCountNoUserReply[randint(0,len(basedCountNoUserReply)-1)]
 	return replyMessage
 
+
 def mostBased():
+
+	# Retrieve Data
 	mostCountFlair = []
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 	cnt = Counter()
 	for k, v in basedCountDatabase['users'].items():
 		cnt[k] = int(v['count'])
+
+	# Build Most Based List
 	mostBasedList = cnt.most_common(10)
 	for u in range(len(mostBasedList)):
 		if mostBasedList[u][0] in basedCountDatabase['users']:
@@ -93,9 +112,13 @@ def mostBased():
 			if mostFlair in 'Unflaired':
 				mostFlair = 'Unflaired Scum'
 			mostCountFlair.append(str(str(u + 1) + '. ' + mostUserName + '  |  ' + mostCount + '  |  ' + mostFlair + '\n\n'))
+
+	# Build Reply Message
 	replyMessage = '--The Top 10 Most Based Users--\n\n' + mostCountFlair[0] + mostCountFlair[1] + mostCountFlair[2] + mostCountFlair[3] + mostCountFlair[4] + mostCountFlair[5] + mostCountFlair[6] + mostCountFlair[7] + mostCountFlair[8] + mostCountFlair[9]
 	cnt.clear()
 	return replyMessage
+
+
 
 # === Databased Searching and Updating ===
 
@@ -120,6 +143,7 @@ def addBasedCount(user, flair):
 		json.dump(basedCountDatabase, dataBased)
 	return count
 
+
 def checkBasedCount(user):
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
@@ -130,6 +154,7 @@ def checkBasedCount(user):
 	else:
 		count = int(basedCountDatabase['users'][user]['count'])
 	return count
+
 
 def checkPills(user):
 	with open(savePath + 'dataBased.json') as dataBased:
@@ -147,40 +172,52 @@ def addPills(user, pill):
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
+	# Check if user exists
 	if user not in basedCountDatabase['users']:
 		return 'None'
 
+	# Build pill list
 	if pill != 'None':
-		if 'pills' not in basedCountDatabase['users'][user]:
 
+		# User doesn't have any previous pill data
+		if 'pills' not in basedCountDatabase['users'][user]:
 			basedCountDatabase['users'][user]['pills'] = {}
 			basedCountDatabase['users'][user]['pills'] = pill
 			with open(savePath + 'dataBased.json', 'w') as dataBased:
 				json.dump(basedCountDatabase, dataBased)
 			return pill
 
+		# User has previous pill data
 		oldPills = str(basedCountDatabase['users'][user]['pills'])
 		basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
 		with open(savePath + 'dataBased.json', 'w') as dataBased:
 			json.dump(basedCountDatabase, dataBased)
 		pills = oldPills + ', ' + pill
 		return pills
+
+	# Retrieve pill data for reply message without adding new pill data
 	else:
 		if 'pills' in basedCountDatabase['users'][user]:
 			return basedCountDatabase['users'][user]['pills']
 		return 'None'
 
+
 def removePill(user, string):
+
+	# Parse data and get the bare string
 	delete = string.lower().replace('/removepill ', '')
 
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
-
 	oldPills = str(basedCountDatabase['users'][user]['pills'])
+
+	# Check if pill exists and try to delete
 	if delete in oldPills:
 		pills = oldPills.replace(delete, '')
 	else:
 		return "I didn't see that pill in your list."
+
+	# Clean pill list to fix the hole
 	if pills.startswith(', '):
 		pills = pills[2:]
 	if pills.endswith(', '):
@@ -191,4 +228,6 @@ def removePill(user, string):
 
 	with open(savePath + 'dataBased.json', 'w') as dataBased:
 			json.dump(basedCountDatabase, dataBased)
+
+	# Build Reply Message
 	return "Pill removed. Your pills: " + pills

@@ -10,7 +10,11 @@ class Bot:
 		self.admin = admin
 		self.mPassword = mPassword
 
+# include bot login data here
 bot = Bot()
 
+# Save locations
 savePath = '/Desktop/basedcount_bot/'
 backupSavePath = '/Desktop/Backup/'
+
+bannedWords = []

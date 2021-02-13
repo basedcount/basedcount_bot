@@ -6,6 +6,7 @@ class Rank:
 		self.name = name
 		self.message = message
 
+# Retrieve Rank Name
 def rankName(count, user):
 	rank = ' '
 	for r in rankList:
@@ -13,6 +14,7 @@ def rankName(count, user):
 			rank = r.name
 	return rank
 
+# Retrieve Rank-Up Message
 def rankMessage(count):
 	rankMessage = ''
 	for r in rankList:

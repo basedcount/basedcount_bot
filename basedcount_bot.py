@@ -10,7 +10,7 @@ from subprocess import call
 from os import path
 from datetime import timedelta, datetime
 
-# Custom Libraries
+# basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from admin import commandsList
@@ -109,6 +109,7 @@ def readComments():
 			checkMail()
 			backupData()
 
+			# Get data from comment
 			author = str(comment.author)
 			if author not in excludedAccounts:
 				commenttext = str(comment.body)
@@ -122,7 +123,7 @@ def readComments():
 				for v in based_Variations:
 					if (commenttext.lower().startswith(v)) and not (commenttext.lower().startswith('based on') or commenttext.lower().startswith('based off')):
 
-						# Get data from parent
+						# Get data from parent comment
 						parent = str(comment.parent())
 						parentComment = reddit.comment(id=parent)
 
@@ -152,6 +153,8 @@ def readComments():
 							if 'pilled' in commenttext.lower():
 								pill = commenttext.partition('pilled')[0]
 								if (len(pill) < 50) and ('.' not in pill):
+
+									# Clean pill string
 									for v in based_Variations:
 										if pill.lower().startswith(v):
 											pill = pill.lower().replace(v, '')
@@ -165,16 +168,22 @@ def readComments():
 										pill = pill[:-1]
 									if pill[0]==' ':
 										pill = pill[1:]
+
+								# Make sure pill is acceptable
 								for w in bannedWords:
 									if w in pill:
 										pill = 'None'
 
-							# Calculate based count and decide what to reply
+							# Calculate Based Count and build reply message
 							if not cheating:
 								if flair != 'Unflaired':
 									replyMessage = based(parentAuthor, flair, pill)
+
+									# Build list of users and send Cheat Report to admin
 									checkForCheating(author, parentAuthor)
 									sendCheatReport()
+
+								# Reply
 								else:
 									replyMessage = "Don't base the Unflaired scum!"
 								if replyMessage:
@@ -227,7 +236,7 @@ def readComments():
 			print(e.message)
 
 
-
+# Copy dataBased and save it to other locations
 def backupData():
 	with open(savePath + 'dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
@@ -238,11 +247,15 @@ def backupData():
 
 # Execute
 def main():
+
+	# Start
 	try:
 		checkMail()
 		readComments()
 		backupData()
 		print('End Cycle')
+
+	# Record info if an error is encountered
 	except Exception:
 		print('Error occurred:' + str(datetime.today().strftime('%Y-%m-%d')))
 		traceback.print_exc()
