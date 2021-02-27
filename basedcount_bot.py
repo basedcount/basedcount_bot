@@ -28,16 +28,16 @@ reddit = praw.Reddit(client_id=bot.client_id,
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
 version = 'Bot v2.6.0'
-infoMessage = 'I am a bot created to keep track of how based users are. '
-				+ 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '
-				+ 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).'
-				+ '\n\nIf you have any suggestions or questions, please message them to me with the subject '
-				+ 'of "Suggestion" or "Question" to automatically forward them to a human operator. '
-				+ '\n\n> based - adj. - to be in possession of viewpoints acquired through logic or observation '
-				+ 'rather than simply following what your political alignment dictates, '
-				+ 'often used as a sign of respect but not necessarily agreement'
-				+ '\n\n' + version
-				+ '\n\n**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill**'
+infoMessage = 'I am a bot created to keep track of how based users are. '+
+'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '+
+'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'+
+'If you have any suggestions or questions, please message them to me with the subject '+
+'of "Suggestion" or "Question" to automatically forward them to a human operator.\n\n'+
+'> based - adj. - to be in possession of viewpoints acquired through logic or observation '+
+'rather than simply following what your political alignment dictates, '+
+'often used as a sign of respect but not necessarily agreement\n\n'+
+version+'\n\n'+
+'**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill**'
 
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']
@@ -121,7 +121,7 @@ def readComments():
 
 # ------------- Based Check
 				for v in based_Variations:
-					if (commenttext.lower().startswith(v)) and not (commenttext.lower().startswith('based on') or commenttext.lower().startswith('based off')):
+					if (commenttext.lower().startswith(v))and not (commenttext.lower().startswith('based on') or commenttext.lower().startswith('based off')):
 
 						# Get data from parent comment
 						parent = str(comment.parent())
@@ -140,7 +140,7 @@ def readComments():
 						flair = str(checkFlair(parentFlair))
 
 						# Make sure bot isn't the parent
-						if (parentAuthor not in excludedParents) and (parentAuthor not in author):
+						if (parentAuthor not in excludedParents) and (parentAuthor not in author) and (comment.author_flair_text != 'None'):
 
 							# Check for cheating
 							cheating = False
