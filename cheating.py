@@ -2,10 +2,12 @@
 
 # Python Libraries
 import json
+import praw
 from datetime import timedelta, datetime
 
 # basedcount_bot Libraries
 from passwords import savePath, bot
+from basedcount_bot import reddit
 
 
 def checkForCheating(author, parentAuthor):
