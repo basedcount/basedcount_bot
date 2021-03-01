@@ -47,6 +47,8 @@ based_Variations = ['based', 'baste']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
+pillExcludedStrings_start = ['based', 'baste', 'and', 'but', ' ', '-']
+pillExcludedStrings_end = ['and', 'but', ' ', '-']
 
 
 
@@ -154,20 +156,25 @@ def readComments():
 								pill = commenttext.lower().partition('pilled')[0]
 								if (len(pill) < 50) and ('.' not in pill):
 
-									# Clean pill string
-									for v in based_Variations:
-										if pill.startswith(v):
-											pill = pill.replace(v, '')
-									if pill.startswith(' and '):
-										pill = pill.replace(' and ', '')
-									if pill.startswith(' but '):
-										pill = pill.replace(' but ', '')
-									if (pill[-1]=='-') or (pill[-1]==' '):
-										pill = pill[:-1]
-									if (pill[-1]=='-') or (pill[-1]==' '):
-										pill = pill[:-1]
-									if pill[0]==' ':
-										pill = pill[1:]
+									# Clean pill string beginning
+									pillClean = 0
+									while pillClean < len(pillExcludedStrings_start):
+										for pes in pillExcludedStrings_start:
+											if pill.startswith(pes):
+												pill = pill.replace(pes, '')
+												pillClean = 0
+											else:
+												pillClean += 1
+
+									# Clean pill string ending
+									pillClean = 0
+									while pillClean < len(pillExcludedStrings_end):
+										for pes in pillExcludedStrings_end:
+											if pill.endswith(pes):
+												pill = pill.replace(pes, '')
+												pillClean = 0
+											else:
+												pillClean += 1
 
 								# Make sure pill is acceptable
 								for w in bannedWords:
