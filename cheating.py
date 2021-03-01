@@ -7,7 +7,13 @@ from datetime import timedelta, datetime
 
 # basedcount_bot Libraries
 from passwords import savePath, bot
-from basedcount_bot import reddit
+
+# Connect to Reddit
+reddit = praw.Reddit(client_id=bot.client_id,
+			client_secret=bot.client_secret,
+			user_agent=bot.user_agent,
+			username=bot.username,
+			password=bot.password)
 
 
 def checkForCheating(author, parentAuthor):

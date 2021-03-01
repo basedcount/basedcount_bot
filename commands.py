@@ -190,6 +190,7 @@ def addPills(user, pill):
 		# User has previous pill data
 		oldPills = str(basedCountDatabase['users'][user]['pills'])
 
+		# Check for duplicates, then add and save
 		if (((', ' + pill + ',') not in oldPills) and not oldpills.endswith(', ' + pill)):
 			basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
 			with open(savePath + 'dataBased.json', 'w') as dataBased:
