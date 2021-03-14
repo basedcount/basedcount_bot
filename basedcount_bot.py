@@ -47,7 +47,7 @@ based_Variations = ['based', 'baste', 'basado']
 myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
-pillExcludedStrings_start = ['based', 'baste', 'and', 'but', ' ', '-']
+pillExcludedStrings_start = ['based', 'baste', 'basado', 'and', 'but', ' ', '-']
 pillExcludedStrings_end = ['and', 'but', ' ', '-']
 
 
@@ -161,7 +161,7 @@ def readComments():
 									while pillClean < len(pillExcludedStrings_start):
 										for pes in pillExcludedStrings_start:
 											if pill.startswith(pes):
-												pill = pill.replace(pes, '')
+												pill = pill.replace(pes, '', 1)
 												pillClean = 0
 											else:
 												pillClean += 1
@@ -171,7 +171,7 @@ def readComments():
 									while pillClean < len(pillExcludedStrings_end):
 										for pes in pillExcludedStrings_end:
 											if pill.endswith(pes):
-												pill = pill.replace(pes, '')
+												pill = pill[:-1]
 												pillClean = 0
 											else:
 												pillClean += 1
