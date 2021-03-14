@@ -191,13 +191,13 @@ def addPills(user, pill):
 		oldPills = str(basedCountDatabase['users'][user]['pills'])
 
 		# Check for duplicates, then add and save
-		if (((', ' + pill + ',') not in oldPills) and not oldpills.endswith(', ' + pill)):
+		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill)):
 			basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
 			with open(savePath + 'dataBased.json', 'w') as dataBased:
 				json.dump(basedCountDatabase, dataBased)
 			pills = oldPills + ', ' + pill
 		else:
-			pills = oldpills
+			pills = oldPills
 		return pills
 
 	# Retrieve pill data for reply message without adding new pill data
