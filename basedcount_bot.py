@@ -1,4 +1,4 @@
-# basedcount_bot
+# basedcount_bot ⣿
 # FAQ: https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/
 
 # Python Libraries
@@ -175,6 +175,8 @@ def readComments():
 												pillClean = 0
 											else:
 												pillClean += 1
+								else:
+									pill = 'None'
 
 								# Make sure pill is acceptable
 								for w in bannedWords:
