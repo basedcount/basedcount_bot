@@ -51,9 +51,9 @@ based_Variations = ['based', 'baste', 'basado', 'basiert',
 					'основано', '基于', 'baseret', 'بايسد, ',
 					'na základě', 'basert', 'bazirano', 'baserad',
 					'basat', 'ベース', 'bazat', 'berdasar', 'Базирано',
-					'gebasseerd']
+					'gebasseerd', 'Oj +1 byczq +1', 'Oj+1byczq+1']
 
-pillExcludedStrings_start = ['based', 'baste', 'and ', 'but ', 'and-', 'but-', ' ', '-',
+pillExcludedStrings_start = ['based', 'baste', 'and ', 'but ', 'and-', 'but-', ' ', '-', 'r/', '/r/',
 					'basado', 'basiert',
 					'basato', 'fundiert', 'fondatum', 'bazita',
 					'מבוסס', 'oparte', 'bazowane', 'basé', 'baseado',
@@ -61,7 +61,7 @@ pillExcludedStrings_start = ['based', 'baste', 'and ', 'but ', 'and-', 'but-', '
 					'основано', '基于', 'baseret', 'بايسد, ',
 					'na základě', 'basert', 'bazirano', 'baserad',
 					'basat', 'ベース', 'bazat', 'berdasar', 'Базирано',
-					'gebasseerd']
+					'gebasseerd', 'Oj +1 byczq +1', 'Oj+1byczq+1']
 
 pillExcludedStrings_end = [' and', ' but', ' ', '-']
 
