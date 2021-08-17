@@ -27,7 +27,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.7.4'
+version = 'Bot v2.7.5'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -78,6 +78,7 @@ def checkMail():
 		currentTime = datetime.now().timestamp()
 		if ((message.created_utc > (currentTime-180)) and (message.was_comment is False)):
 			content = str(message.body)
+			author = str(message.author)
 
 # --------- Check Questions and Suggestions and then reply
 			if ('suggestion' in str(message.subject).lower()) or ('question' in str(message.subject).lower()):
@@ -85,7 +86,7 @@ def checkMail():
 					message.reply('Thank you for your suggestion. I have forwarded it to a human operator.')
 				if str(message.subject).lower() in 'question':
 					message.reply('Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.')
-				reddit.redditor(bot.admin).message(str(message.subject) + ' from ' + str(message.author), content)
+				reddit.redditor(bot.admin).message(str(message.subject) + ' from ' + author, content)
 
 # --------- Check for admin commands
 			if content.startswith(bot.mPassword):
@@ -102,7 +103,7 @@ def checkMail():
 
 			for v in myBasedCount_Variations:
 				if v in content.lower():
-					replyMessage = myBasedCount(message.author)
+					replyMessage = myBasedCount(author)
 					message.reply(replyMessage)
 					break
 
@@ -119,7 +120,7 @@ def checkMail():
 					break
 
 			if content.lower().startswith('/removepill'):
-				replyMessage = removePill(message.author, content)
+				replyMessage = removePill(author, content)
 				message.reply(replyMessage)
 
 
