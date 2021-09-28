@@ -97,6 +97,18 @@ def checkMail():
 					if cleanContent.startswith(c.name):
 						c.function(message, cleanContent)
 
+# --------- Check for mod commands
+			for mpass in modPasswords:
+				if (content.startswith(mpass.password):
+					if author == mpass.user:
+						cleanContent = content.replace(mpass.password + ' ', '')
+						if cleanContent.startswith('/removepill '):
+							cleanContent = cleanContent.replace('/removepill ', '')
+							user_pill_split = cleanContent.split(" ", 1)
+							replyMessage = removePill(user_pill_split[0], user_pill_split[1])
+					else:
+						reddit.redditor(bot.admin).message('URGENT: Password Breach', author + ' used password ' + str(mpass.password))
+
 # --------- Check for user commands
 			if '/info' in content.lower():
 					message.reply(infoMessage)
