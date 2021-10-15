@@ -9,15 +9,13 @@ from apiclient.http import MediaFileUpload
 import io
 from googleapiclient.http import MediaIoBaseDownload
 import json
-
-import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
 service = build('drive', 'v3', credentials=creds)
 
-def uploadFile():
+def backupDataBased():
 	file_metadata = {
 		'name': 'dataBased_test' + str(datetime.now()),
 		'mimeType': 'text/plain',

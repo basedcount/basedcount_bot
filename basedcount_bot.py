@@ -28,7 +28,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.10.0'
+version = 'Bot v2.10.1'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -100,7 +100,7 @@ def checkMail():
 
 # --------- Check for mod commands
 			for mpass in modPasswords:
-				if (content.startswith(mpass.password):
+				if (content.startswith(mpass.password)):
 					if author == mpass.user:
 						cleanContent = content.replace(mpass.password + ' ', '')
 						if cleanContent.startswith('/removepill '):
