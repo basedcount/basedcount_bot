@@ -14,8 +14,9 @@ from datetime import timedelta, datetime
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from admin import commandsList
-from passwords import bot, savePath, backupSavePath, bannedWords
+from passwords import bot, savePath, backupSavePath, bannedWords, modPasswords
 from cheating import checkForCheating, sendCheatReport
+from backupDrive import backupDataBased
 
 
 # Connect to Reddit
@@ -27,7 +28,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.8.0'
+version = 'Bot v2.10.0'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -36,7 +37,7 @@ infoMessage = 'I am a bot created to keep track of how based users are. '\
 '> based - adj. - to be in possession of viewpoints acquired through logic or observation '\
 'rather than simply following what your political alignment dictates, '\
 'often used as a sign of respect but not necessarily agreement\n\n'\
-version+'\n\n'\
++version+'\n\n'\
 '**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill**'
 
 # Vocabulary
@@ -139,9 +140,13 @@ def checkMail():
 
 def readComments():
 	try:
+		cycle = 0
 		for comment in subreddit.stream.comments(skip_existing=True):
 			checkMail()
-			backupData()
+			cycle += 1
+			if (cycle > 10000):
+				backupDataBased()
+				cycle = 0
 
 			# Get data from comment
 			author = str(comment.author)
@@ -155,7 +160,7 @@ def readComments():
 
 # ------------- Based Check
 				for v in based_Variations:
-					if (commenttext.lower().startswith(v))and not (commenttext.lower().startswith('based on') or commenttext.lower().startswith('based off')):
+					if (commenttext.lower().startswith(v))and not (commenttext.lower().startswith('based on ') or commenttext.lower().startswith('based off ')):
 
 						# Get data from parent comment
 						parent = str(comment.parent())
@@ -278,14 +283,6 @@ def readComments():
 			print(e.message)
 
 
-# Copy dataBased and save it to other locations
-def backupData():
-	with open(savePath + 'dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-	with open(backupSavePath + 'dataBased.json' + str(datetime.now().date()), 'w') as dataBased:
-		json.dump(basedCountDatabase, dataBased)
-
-
 
 # Execute
 def main():
@@ -294,7 +291,7 @@ def main():
 	try:
 		checkMail()
 		readComments()
-		backupData()
+		backupDataBased()
 		print('End Cycle')
 
 	# Record info if an error is encountered

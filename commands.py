@@ -217,8 +217,12 @@ def removePill(user, string):
 	oldPills = str(basedCountDatabase['users'][user]['pills'])
 
 	# Check if pill exists and try to delete
-	if delete in oldPills:
-		pills = oldPills.replace(delete, '')
+	if (', ' + delete + ',') in oldPills:
+		pills = oldPills.replace(', ' + delete + ',', ',')
+	elif oldPills.startswith(delete):
+		pills = oldPills[len(delete):]
+	elif oldPills.endswith(delete):
+		pills = oldPills[:-len(delete)]
 	else:
 		return "I didn't see that pill in your list."
 
