@@ -9,14 +9,15 @@ import traceback
 from subprocess import call
 from os import path
 from datetime import timedelta, datetime
+import signal
 
 # basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from admin import commandsList
-from passwords import bot, savePath, backupSavePath, bannedWords, modPasswords
+from passwords import bot, bannedWords, modPasswords
 from cheating import checkForCheating, sendCheatReport
-from backupDrive import backupDataBased
+from backupDrive import backupDataBased, retrieveDataBased
 
 
 # Connect to Reddit
@@ -71,6 +72,18 @@ basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
 
+reddit.redditor(bot.admin).message('Start', 'start')
+basedCountDatabase = {}
+retrieveDataBased()
+with open('dataBased.json') as dataBased:
+    basedCountDatabase = json.load(dataBased)
+
+
+print(basedCountDatabase['users']['CodapopKSP']['count'])
+
+
+run = True
+
 
 def checkMail():
 	inbox = reddit.inbox.unread(limit=30)
@@ -93,6 +106,9 @@ def checkMail():
 			if content.startswith(bot.mPassword):
 				string = bot.mPassword + ' '
 				cleanContent = content.replace(string,'')
+
+				if cleanContent.startswith('stop'):
+					backupDataBased(basedCountDatabase)
 
 				for c in commandsList:
 					if cleanContent.startswith(c.name):
@@ -140,13 +156,8 @@ def checkMail():
 
 def readComments():
 	try:
-		cycle = 0
 		for comment in subreddit.stream.comments(skip_existing=True):
 			checkMail()
-			cycle += 1
-			if (cycle > 10000):
-				backupDataBased()
-				cycle = 0
 
 			# Get data from comment
 			author = str(comment.author)
@@ -227,7 +238,6 @@ def readComments():
 
 									# Build list of users and send Cheat Report to admin
 									checkForCheating(author, parentAuthor)
-									sendCheatReport()
 
 								# Reply
 								else:
@@ -291,13 +301,27 @@ def main():
 	try:
 		checkMail()
 		readComments()
-		backupDataBased()
 		print('End Cycle')
 
 	# Record info if an error is encountered
 	except Exception:
 		print('Error occurred:' + str(datetime.today().strftime('%Y-%m-%d')))
 		traceback.print_exc()
-	main()
+	#main()
 
-main()
+
+# Save dataBased when server shuts down
+def handler_stop_signals(signum, frame):
+    global run
+    backupDataBased(basedCountDatabase)
+    sendCheatReport()
+    reddit.redditor(bot.admin).message('Restart', 'restart')
+    run = False
+
+signal.signal(signal.SIGINT, handler_stop_signals)
+signal.signal(signal.SIGTERM, handler_stop_signals)
+
+run = True
+
+while run:
+	main()

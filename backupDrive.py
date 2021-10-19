@@ -15,10 +15,37 @@ scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/aut
 creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
 service = build('drive', 'v3', credentials=creds)
 
-def backupDataBased():
+def downloadFile(fileID):
+	file_id = fileID
+	request = service.files().get_media(fileId=file_id)
+	fh = io.FileIO('dataBased.json', 'w')
+	downloader = MediaIoBaseDownload(fh, request)
+	done = False
+	while done is False:
+	    status, done = downloader.next_chunk()
+	    print("Download %d%%." % int(status.progress() * 100))
+
+def backupDataBased(basedCountDatabase):
+	print('Backing up...')
+	with open('dataBased.json', 'w') as dataBased:
+		json.dump(basedCountDatabase, dataBased)
 	file_metadata = {
-		'name': 'dataBased_test' + str(datetime.now()),
+		'name': 'dataBased.json' + str(datetime.now()),
 		'mimeType': 'text/plain',
 	}
 	media = MediaFileUpload('dataBased.json', mimetype='text/plain')
 	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+	print('Finished.')
+
+def retrieveDataBased():
+	results = service.files().list(pageSize=1, fields="nextPageToken, files(id, name)").execute()
+	items = results.get('files', [])
+
+	if not items:
+		print('No files found.')
+	else:
+		print('Files:')
+		for item in items:
+			print(u'{0} ({1})'.format(item['name'], item['id']))
+			downloadFile(item['id'])
+

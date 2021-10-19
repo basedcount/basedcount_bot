@@ -2,7 +2,6 @@
 
 import json
 from subprocess import call
-from passwords import savePath
 
 class Command:
 	def __init__(self, name, function):
@@ -35,13 +34,13 @@ def appendCommand(message, content):
 	count = contentSplit[1]
 
 	# Update based count and reply
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 	if 'count' not in str(basedCountDatabase['users'][user]):
 		basedCountDatabase['users'][user] = {'count':str(count)}
 	else:
 		basedCountDatabase['users'][user]['count'] = str(count)
-	with open(savePath + 'dataBased.json', 'w') as dataBased:
+	with open('dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
 	message.reply('User u/' + user + ' updated with count: ' + count)
 
@@ -53,14 +52,14 @@ def checkCommand(message, content):
 	user = content.replace(string,'')
 
 	try:
-		with open(savePath + 'dataBased.json') as dataBased:
+		with open('dataBased.json') as dataBased:
 			basedCountDatabase = json.load(dataBased)
 		message.reply('User u/' + user + ' count: ' + basedCountDatabase['users'][user]['count'])
 	except:
 		message.reply('I dont see that user in my records.')
 
 def dataCommand(message, content=None):
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 	message.reply('Total Users: ' + str(len(basedCountDatabase['users'])))
 

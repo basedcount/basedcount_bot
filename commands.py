@@ -7,7 +7,6 @@ from random import randint
 
 # basedcount_bot Libraries
 import ranks
-from passwords import savePath
 
 # No Based Count replies
 myBasedNoUserReply = ["Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect.",
@@ -93,7 +92,7 @@ def mostBased():
 
 	# Retrieve Data
 	mostCountFlair = []
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 	cnt = Counter()
 	for k, v in basedCountDatabase['users'].items():
@@ -123,7 +122,7 @@ def mostBased():
 # === Databased Searching and Updating ===
 
 def addBasedCount(user, flair):
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
 	# Check if existing user and calculate based count
@@ -139,25 +138,25 @@ def addBasedCount(user, flair):
 	else:
 		basedCountDatabase['users'][user]['count'] = str(count)
 	basedCountDatabase['users'][user]['flair'] = flair
-	with open(savePath + 'dataBased.json', 'w') as dataBased:
+	with open('dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
 	return count
 
 
 def checkBasedCount(user):
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
 	# Check if existing user and calculate based count
 	if user not in basedCountDatabase['users']:
-		count = 0
+		count = '0'
 	else:
 		count = int(basedCountDatabase['users'][user]['count'])
 	return count
 
 
 def checkPills(user):
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
 	# Check if existing user and calculate pill list
@@ -169,7 +168,7 @@ def checkPills(user):
 
 
 def addPills(user, pill):
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 
 	# Check if user exists
@@ -183,7 +182,7 @@ def addPills(user, pill):
 		if 'pills' not in basedCountDatabase['users'][user]:
 			basedCountDatabase['users'][user]['pills'] = {}
 			basedCountDatabase['users'][user]['pills'] = pill
-			with open(savePath + 'dataBased.json', 'w') as dataBased:
+			with open('dataBased.json', 'w') as dataBased:
 				json.dump(basedCountDatabase, dataBased)
 			return pill
 
@@ -193,7 +192,7 @@ def addPills(user, pill):
 		# Check for duplicates, then add and save
 		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill)):
 			basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
-			with open(savePath + 'dataBased.json', 'w') as dataBased:
+			with open('dataBased.json', 'w') as dataBased:
 				json.dump(basedCountDatabase, dataBased)
 			pills = oldPills + ', ' + pill
 		else:
@@ -212,7 +211,7 @@ def removePill(user, string):
 	# Parse data and get the bare string
 	delete = string.lower().replace('/removepill ', '')
 
-	with open(savePath + 'dataBased.json') as dataBased:
+	with open('dataBased.json') as dataBased:
 		basedCountDatabase = json.load(dataBased)
 	oldPills = str(basedCountDatabase['users'][user]['pills'])
 
@@ -235,7 +234,7 @@ def removePill(user, string):
 		pills = pills.replace(", , ", ", ")
 	basedCountDatabase['users'][user]['pills'] = pills
 
-	with open(savePath + 'dataBased.json', 'w') as dataBased:
+	with open('dataBased.json', 'w') as dataBased:
 			json.dump(basedCountDatabase, dataBased)
 
 	# Build Reply Message
