@@ -29,11 +29,14 @@ def backupDataBased(basedCountDatabase):
 	print('Backing up...')
 	with open('dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
+		print('Still...')
 	file_metadata = {
 		'name': 'dataBased.json' + str(datetime.now()),
 		'mimeType': 'text/plain',
 	}
+	print('And...')
 	media = MediaFileUpload('dataBased.json', mimetype='text/plain')
+	print('Uh...')
 	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
 	print('Finished.')
 
