@@ -317,17 +317,17 @@ def main():
 
 # Save dataBased when server shuts down
 def handler_stop_signals(signum, frame):
-    global run
-    run = False
+	global run
+	run = False
 
 signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
 
 def closeBot():
 	backupDataBased(basedCountDatabase)
-    sendCheatReport()
-    reddit.redditor(bot.admin).message('Restart', 'restart')
-    exit()
+	sendCheatReport()
+	print('Shutdown complete.')
+	exit()
 
 run = True
 
