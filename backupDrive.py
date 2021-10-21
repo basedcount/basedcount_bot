@@ -10,10 +10,13 @@ import io
 from googleapiclient.http import MediaIoBaseDownload
 import json
 from oauth2client.service_account import ServiceAccountCredentials
+import asyncio
+import time
 
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
 service = build('drive', 'v3', credentials=creds)
+saved = False
 
 def downloadFile(fileID):
 	file_id = fileID
@@ -37,7 +40,8 @@ def backupDataBased(basedCountDatabase):
 	print('And...')
 	media = MediaFileUpload('dataBased.json', mimetype='text/plain')
 	print('Uh...')
-	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+	saveFile = asyncio.create_task(saveFileToDrive(file_metadata, media))
+	wasteTime()
 	print('Finished.')
 
 def retrieveDataBased():
@@ -52,3 +56,12 @@ def retrieveDataBased():
 			print(u'{0} ({1})'.format(item['name'], item['id']))
 			downloadFile(item['id'])
 
+async def saveFileToDrive(file_metadata, media):
+	global saved
+	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+	saved = True
+
+def wasteTime():
+	while saved == False:
+		print('Wasting time...')
+		time.sleep(1)
