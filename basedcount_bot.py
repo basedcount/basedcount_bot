@@ -10,6 +10,7 @@ from subprocess import call
 from os import path
 from datetime import timedelta, datetime
 import signal
+import time
 
 # basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
@@ -29,7 +30,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.10.2'
+version = 'Bot v2.10.3'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -71,7 +72,7 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
-
+time.sleep(10)
 reddit.redditor(bot.admin).message('Start', 'start')
 basedCountDatabase = {}
 retrieveDataBased()
@@ -207,7 +208,7 @@ def readComments():
 							pill = 'None'
 							if 'pilled' in commenttext.lower():
 								pill = commenttext.lower().partition('pilled')[0]
-								if (len(pill) < 50) and ('.' not in pill):
+								if (len(pill) < 70) and ('.' not in pill):
 
 									# Clean pill string beginning
 									pillClean = 0
@@ -324,8 +325,8 @@ signal.signal(signal.SIGINT, handler_stop_signals)
 signal.signal(signal.SIGTERM, handler_stop_signals)
 
 def closeBot():
-	backupDataBased(basedCountDatabase)
 	sendCheatReport()
+	backupDataBased(basedCountDatabase)
 	print('Shutdown complete.')
 	exit()
 
