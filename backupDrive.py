@@ -18,6 +18,13 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
 service = build('drive', 'v3', credentials=creds)
 saved = False
 
+file_metadata = {
+	'name': 'dataBased.json' + str(datetime.now()),
+	'mimeType': 'text/plain',
+}
+media = MediaFileUpload('dataBased.json', mimetype='text/plain')
+
+
 def downloadFile(fileID):
 	file_id = fileID
 	request = service.files().get_media(fileId=file_id)
@@ -29,6 +36,8 @@ def downloadFile(fileID):
 	    print("Download %d%%." % int(status.progress() * 100))
 
 def backupDataBased(basedCountDatabase):
+	global file_metadata
+	global media
 	print('Backing up...')
 	with open('dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
@@ -40,7 +49,10 @@ def backupDataBased(basedCountDatabase):
 	print('And...')
 	media = MediaFileUpload('dataBased.json', mimetype='text/plain')
 	print('Uh...')
-	saveFile = asyncio.create_task(saveFileToDrive(file_metadata, media))
+	p = ""
+	loop = asyncio.get_event_loop()
+	loop.run_in_executor(None, saveFileToDrive, p)
+	#saveFile = asyncio.create_task(saveFileToDrive(file_metadata, media))
 	wasteTime()
 	print('Finished.')
 
@@ -56,8 +68,10 @@ def retrieveDataBased():
 			print(u'{0} ({1})'.format(item['name'], item['id']))
 			downloadFile(item['id'])
 
-async def saveFileToDrive(file_metadata, media):
+def saveFileToDrive():
 	global saved
+	global file_metadata
+	global media
 	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
 	saved = True
 
