@@ -72,16 +72,12 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
-time.sleep(10)
+time.sleep(20)
 reddit.redditor(bot.admin).message('Start', 'start')
 basedCountDatabase = {}
 retrieveDataBased()
 with open('dataBased.json') as dataBased:
     basedCountDatabase = json.load(dataBased)
-
-
-print(basedCountDatabase['users']['CodapopKSP']['count'])
-
 
 run = True
 
