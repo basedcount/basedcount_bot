@@ -12,11 +12,14 @@ import json
 from oauth2client.service_account import ServiceAccountCredentials
 
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
-service = build('drive', 'v3', credentials=creds)
 
+def getDriveService():        
+    creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+    service = build('drive', 'v3', credentials=creds)
+    return service
 
 def downloadFile(fileID):
+	service = getDriveService()
 	file_id = fileID
 	request = service.files().get_media(fileId=file_id)
 	fh = io.FileIO('dataBased.json', 'w')
@@ -42,6 +45,7 @@ def backupDataBased(basedCountDatabase):
 	print('Finished.')
 
 def retrieveDataBased():
+	service = getDriveService()
 	results = service.files().list(pageSize=1, fields="nextPageToken, files(id, name)").execute()
 	items = results.get('files', [])
 
@@ -54,5 +58,7 @@ def retrieveDataBased():
 			downloadFile(item['id'])
 
 def saveFileToDrive(file_metadata, media):
+	print('Connecting to Drive...')
+	service = getDriveService()
 	print('Saving...')
 	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
