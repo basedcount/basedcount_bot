@@ -22,18 +22,15 @@ def downloadFile(fileID):
 	service = getDriveService()
 	file_id = fileID
 	request = service.files().get_media(fileId=file_id)
-	fh = io.FileIO('dataBased.json', 'w')
+	fh = io.FileIO('dataBased*.json', 'w')
 	downloader = MediaIoBaseDownload(fh, request)
 	done = False
 	while done is False:
 	    status, done = downloader.next_chunk()
 	    print("Download %d%%." % int(status.progress() * 100))
 
-def backupDataBased(basedCountDatabase):
+def backupDataBased():
 	print('Backing up...')
-	with open('dataBased.json', 'w') as dataBased:
-		json.dump(basedCountDatabase, dataBased)
-		print('Still...')
 	file_metadata = {
 		'name': 'dataBased' + str(datetime.now() + '.json'),
 		'mimeType': 'text/plain',

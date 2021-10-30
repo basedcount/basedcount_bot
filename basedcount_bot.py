@@ -72,12 +72,15 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
-time.sleep(30)
-reddit.redditor(bot.admin).message('Start', 'start')
-basedCountDatabase = {}
-retrieveDataBased()
-with open('dataBased.json') as dataBased:
-    basedCountDatabase = json.load(dataBased)
+def startUp():
+	time.sleep(30)
+	reddit.redditor(bot.admin).message('Start', 'start')
+	basedCountDatabase = {}
+	retrieveDataBased()
+	with open('dataBased*.json') as dataBased:
+		basedCountDatabase = json.load(dataBased)
+	with open('dataBased.json', 'w') as dataBased:
+		json.dump(basedCountDatabase, dataBased)
 
 run = True
 
