@@ -82,6 +82,8 @@ def startUp():
 	with open('dataBased.json', 'w') as dataBased:
 		json.dump(basedCountDatabase, dataBased)
 
+startUp()
+
 run = True
 
 
@@ -325,7 +327,7 @@ signal.signal(signal.SIGTERM, handler_stop_signals)
 
 def closeBot():
 	sendCheatReport()
-	backupDataBased(basedCountDatabase)
+	backupDataBased()
 	print('Shutdown complete.')
 	exit()
 
