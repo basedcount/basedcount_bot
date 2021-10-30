@@ -35,7 +35,7 @@ def backupDataBased(basedCountDatabase):
 		json.dump(basedCountDatabase, dataBased)
 		print('Still...')
 	file_metadata = {
-		'name': 'dataBased.json' + str(datetime.now()),
+		'name': 'dataBased' + str(datetime.now() + '.json'),
 		'mimeType': 'text/plain',
 	}
 	print('And...')
