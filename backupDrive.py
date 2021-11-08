@@ -10,24 +10,20 @@ import io
 from googleapiclient.http import MediaIoBaseDownload
 import json
 from oauth2client.service_account import ServiceAccountCredentials
+from passwords import mongoPass
 
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 
 def getDriveService():        
-    creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
-    service = build('drive', 'v3', credentials=creds)
-    return service
+	creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
+	service = build('drive', 'v3', credentials=creds)
+	return service
 
-def downloadFile(fileID):
-	service = getDriveService()
-	file_id = fileID
-	request = service.files().get_media(fileId=file_id)
-	fh = io.FileIO('dataBased*.json', 'w')
-	downloader = MediaIoBaseDownload(fh, request)
-	done = False
-	while done is False:
-	    status, done = downloader.next_chunk()
-	    print("Download %d%%." % int(status.progress() * 100))
+def connectMongo():
+	cluster = MongoClient(mongoPass)
+	dataBased = cluster['dataBased']
+	return dataBased['users']
+
 
 def backupDataBased():
 	print('Backing up...')
@@ -41,21 +37,18 @@ def backupDataBased():
 	saveFileToDrive(file_metadata, media)
 	print('Finished.')
 
-def retrieveDataBased():
-	service = getDriveService()
-	results = service.files().list(pageSize=1, fields="nextPageToken, files(id, name)").execute()
-	items = results.get('files', [])
-
-	if not items:
-		print('No files found.')
-	else:
-		print('Files:')
-		for item in items:
-			print(u'{0} ({1})'.format(item['name'], item['id']))
-			downloadFile(item['id'])
 
 def saveFileToDrive(file_metadata, media):
 	print('Connecting to Drive...')
 	service = getDriveService()
 	print('Saving...')
 	service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+
+
+def buildDataBased():
+	dataBasedBackup = {}
+	dataBased = connectMongo()
+	userProfile = dataBased.find_many({})
+	for user in userProfile:
+		dataBasedBackup.append(user)
+	print(dataBasedBackup)

@@ -15,7 +15,6 @@ import time
 # basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
-from admin import commandsList
 from passwords import bot, bannedWords, modPasswords
 from cheating import checkForCheating, sendCheatReport
 from backupDrive import backupDataBased, retrieveDataBased
@@ -72,20 +71,8 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
-def startUp():
-	time.sleep(30)
-	reddit.redditor(bot.admin).message('Start', 'start')
-	basedCountDatabase = {}
-	retrieveDataBased()
-	with open('dataBased*.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-	with open('dataBased.json', 'w') as dataBased:
-		json.dump(basedCountDatabase, dataBased)
-
-startUp()
 
 run = True
-
 
 def checkMail():
 	inbox = reddit.inbox.unread(limit=30)
@@ -106,18 +93,6 @@ def checkMail():
 					message.reply('Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.')
 				reddit.redditor(bot.admin).message(str(message.subject) + ' from ' + author, content)
 
-# --------- Check for admin commands
-			if content.startswith(bot.mPassword):
-				string = bot.mPassword + ' '
-				cleanContent = content.replace(string,'')
-
-				if cleanContent.startswith('stop'):
-					backupDataBased(basedCountDatabase)
-
-				for c in commandsList:
-					if cleanContent.startswith(c.name):
-						c.function(message, cleanContent)
-
 # --------- Check for mod commands
 			for mpass in modPasswords:
 				if (content.startswith(mpass.password)):
@@ -127,8 +102,6 @@ def checkMail():
 							cleanContent = cleanContent.replace('/removepill ', '')
 							user_pill_split = cleanContent.split(" ", 1)
 							replyMessage = removePill(user_pill_split[0], user_pill_split[1])
-					else:
-						reddit.redditor(bot.admin).message('URGENT: Password Breach', author + ' used password ' + str(mpass.password))
 
 # --------- Check for user commands
 			if '/info' in content.lower():
@@ -327,11 +300,9 @@ signal.signal(signal.SIGTERM, handler_stop_signals)
 
 def closeBot():
 	sendCheatReport()
-	backupDataBased()
 	print('Shutdown complete.')
 	exit()
 
-run = True
 
 while run:
 	main()

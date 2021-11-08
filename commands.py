@@ -4,9 +4,12 @@
 import json
 from collections import Counter
 from random import randint
+import pymongo
+from pymongo import MongoClient
 
 # basedcount_bot Libraries
 import ranks
+from passwords import mongoPass
 
 # No Based Count replies
 myBasedNoUserReply = ["Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect.",
@@ -28,7 +31,10 @@ basedCountNoUserReply = ["Yeah... I got nothing.",
 						"[basedcount_clever_response_6](https://www.youtube.com/watch?v=Cs57e-viIKw&ab_channel=ButtonsTheDragon)",
 						"[basedcount_clever_response_7](https://www.youtube.com/watch?v=tOlh-g2dxrI&ab_channel=e7magic)"]
 
-
+def connectMongo():
+	cluster = MongoClient(mongoPass)
+	dataBased = cluster['dataBased']
+	return dataBased['users']
 
 # === User Commands ===
 
@@ -89,32 +95,23 @@ def basedCountUser(string):
 
 
 def mostBased():
+	dataBased = connectMongo()
 
 	# Retrieve Data
-	mostCountFlair = []
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-	cnt = Counter()
-	for k, v in basedCountDatabase['users'].items():
-		cnt[k] = int(v['count'])
+	results = dataBased.find().sort('count', -1).limit(10)
 
 	# Build Most Based List
-	mostBasedList = cnt.most_common(10)
-	for u in range(len(mostBasedList)):
-		if mostBasedList[u][0] in basedCountDatabase['users']:
-			mostUserName = mostBasedList[u][0]
-			mostCount = str(basedCountDatabase['users'][mostUserName]['count'])
-			try:
-				mostFlair = str(basedCountDatabase['users'][mostUserName]['flair'])
-			except:
-				mostFlair = 'Flair Not Recorded'
-			if mostFlair in 'Unflaired':
-				mostFlair = 'Unflaired Scum'
-			mostCountFlair.append(str(str(u + 1) + '. ' + mostUserName + '  |  ' + mostCount + '  |  ' + mostFlair + '\n\n'))
+	mostCountFlair = []
+	u = 1
+	for r in results:
+		mostUserName = r['name']
+		mostCount = str(r['count'])
+		mostFlair = r['flair']
+		mostCountFlair.append(str(str(u) + '. ' + mostUserName + '  |  ' + mostCount + '  |  ' + mostFlair + '\n\n'))
+		u += 1
 
 	# Build Reply Message
 	replyMessage = '--The Top 10 Most Based Users--\n\n' + mostCountFlair[0] + mostCountFlair[1] + mostCountFlair[2] + mostCountFlair[3] + mostCountFlair[4] + mostCountFlair[5] + mostCountFlair[6] + mostCountFlair[7] + mostCountFlair[8] + mostCountFlair[9]
-	cnt.clear()
 	return replyMessage
 
 
@@ -122,98 +119,72 @@ def mostBased():
 # === Databased Searching and Updating ===
 
 def addBasedCount(user, flair):
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-
+	dataBased = connectMongo()
 	# Check if existing user and calculate based count
-	if user not in basedCountDatabase['users']:
-		count = 1
-		basedCountDatabase['users'][user] = {}
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
+		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': 1, 'pills': 'None'}}, upsert=True)
+		return 1
 	else:
-		count = int(basedCountDatabase['users'][user]['count']) + 1
-
-	# Update databased
-	if 'count' not in str(basedCountDatabase['users'][user]):
-		basedCountDatabase['users'][user] = {'count':str(count)}
-	else:
-		basedCountDatabase['users'][user]['count'] = str(count)
-	basedCountDatabase['users'][user]['flair'] = flair
-	with open('dataBased.json', 'w') as dataBased:
-		json.dump(basedCountDatabase, dataBased)
-	return count
+		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': userProfile['count'] + 1}})
+		return userProfile['count'] + 1
 
 
 def checkBasedCount(user):
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-
+	dataBased = connectMongo()
 	# Check if existing user and calculate based count
-	if user not in basedCountDatabase['users']:
-		count = '0'
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
+		return '0'
 	else:
-		count = int(basedCountDatabase['users'][user]['count'])
-	return count
+		return int(userProfile['count'])
 
 
 def checkPills(user):
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-
+	dataBased = connectMongo()
 	# Check if existing user and calculate pill list
-	if user not in basedCountDatabase['users']:
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
 		return 'None'
-	if 'pills' not in basedCountDatabase['users'][user]:
-		return 'None'
-	return str(basedCountDatabase['users'][user]['pills'])
+	return str(userProfile['pills'])
 
 
 def addPills(user, pill):
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
+	dataBased = connectMongo()
 
 	# Check if user exists
-	if user not in basedCountDatabase['users']:
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
 		return 'None'
 
-	# Build pill list
 	if pill != 'None':
-
 		# User doesn't have any previous pill data
-		if 'pills' not in basedCountDatabase['users'][user]:
-			basedCountDatabase['users'][user]['pills'] = {}
-			basedCountDatabase['users'][user]['pills'] = pill
-			with open('dataBased.json', 'w') as dataBased:
-				json.dump(basedCountDatabase, dataBased)
+		if userProfile['pills'] == 'None':
+			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
 			return pill
 
 		# User has previous pill data
-		oldPills = str(basedCountDatabase['users'][user]['pills'])
+		oldPills = userProfile['pills']
 
 		# Check for duplicates, then add and save
-		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill)):
-			basedCountDatabase['users'][user]['pills'] = oldPills + ', ' + pill
-			with open('dataBased.json', 'w') as dataBased:
-				json.dump(basedCountDatabase, dataBased)
-			pills = oldPills + ', ' + pill
-		else:
-			pills = oldPills
-		return pills
+		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill) and not oldPills.startswith(pill)):
+			pill = ', ' + pill
+			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
+			return userProfile['pills'] + pill
 
-	# Retrieve pill data for reply message without adding new pill data
-	else:
-		if 'pills' in basedCountDatabase['users'][user]:
-			return basedCountDatabase['users'][user]['pills']
-		return 'None'
+	return userProfile['pills']
 
 
 def removePill(user, string):
+	dataBased = connectMongo()
 
 	# Parse data and get the bare string
 	delete = string.lower().replace('/removepill ', '')
 
-	with open('dataBased.json') as dataBased:
-		basedCountDatabase = json.load(dataBased)
-	oldPills = str(basedCountDatabase['users'][user]['pills'])
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
+		return 'You do not have any pills!'
+	oldPills = userProfile['pills']
 
 	# Check if pill exists and try to delete
 	if (', ' + delete + ',') in oldPills:
@@ -232,10 +203,13 @@ def removePill(user, string):
 		pills = pills[:-2]
 	if ", , " in pills:
 		pills = pills.replace(", , ", ", ")
-	basedCountDatabase['users'][user]['pills'] = pills
-
-	with open('dataBased.json', 'w') as dataBased:
-			json.dump(basedCountDatabase, dataBased)
+	if ", ," in pills:
+		pills = pills.replace(", ,", ", ")
+	if "  " in pills:
+		pills = pills.replace("  ", " ")
+	if pills == '':
+		pills = 'None'
+	dataBased.update_one({'name': user}, {'$set': {'pills': pills}})
 
 	# Build Reply Message
 	return "Pill removed. Your pills: " + pills

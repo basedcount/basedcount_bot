@@ -6,7 +6,7 @@ import praw
 from datetime import timedelta, datetime
 
 # basedcount_bot Libraries
-from passwords import bot
+from passwords import bot, mongoPass
 
 # Connect to Reddit
 reddit = praw.Reddit(client_id=bot.client_id,
@@ -15,36 +15,40 @@ reddit = praw.Reddit(client_id=bot.client_id,
 			username=bot.username,
 			password=bot.password)
 
+def connectMongo_History():
+	cluster = MongoClient(mongoPass)
+	dataBased = cluster['dataBased']
+	return dataBased['basedHistory']
 
-def checkForCheating(author, parentAuthor):
-	with open('cheatingDatabase.json') as database:
-		cheatingDatabase = json.load(database)
+
+def checkForCheating(user, parentAuthor):
+	basedHistory = connectMongo_History()
 
 	# Add users to database
-	if author not in cheatingDatabase['users']:
-		cheatingDatabase['users'][author] = {parentAuthor:1}
+	userProfile = basedHistory.find_one({'name':user})
+	if userProfile == None:
+		basedHistory.update_one({'name': user}, {'$set': {parentAuthor: 1}}, upsert=True)
 	else:
-		if parentAuthor not in cheatingDatabase['users'][author]:
-			cheatingDatabase['users'][author][parentAuthor] = 1
+		if parentAuthor not in userProfile:
+			basedHistory.update_one({'name': user}, {'$set': {parentAuthor: 1}})
 		else:
-			count = cheatingDatabase['users'][author][parentAuthor]
-			cheatingDatabase['users'][author][parentAuthor] = count+1
-
-	with open('cheatingDatabase.json', 'w') as database:
-		json.dump(cheatingDatabase, database)
+			basedHistory.update_one({'name': user}, {'$set': {parentAuthor: userProfile[parentAuthor] + 1}})
 
 	
 def sendCheatReport():
-	with open('cheatingDatabase.json') as database:
-		cheatingDatabase = json.load(database)
+	basedHistory = connectMongo_History()
+	userProfile = basedHistory.find({})
 
 	# Add Suspicious Users
 	content = ''
-	for user in cheatingDatabase['users']:
-		for key in cheatingDatabase['users'][user]:
-			if cheatingDatabase['users'][user][key] > 5:
-				content = content + user + ' based ' + key + ' ' + str(cheatingDatabase['users'][user][key]) + ' times.\n'
+	for user in userProfile:
+		for key in user:
+			if (key != '_id' and key != 'name'):
+				if user[key] > 5:
+					content = content + user['name'] + ' based ' + str(key) + ' ' + str(user[key]) + ' times.\n'
 
 	# Send Cheat Report to Admin
 	if content != '':
 		reddit.redditor(bot.admin).message('Cheat Report', content)
+
+	basedHistory.delete_many({})
