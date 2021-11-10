@@ -11,6 +11,7 @@ from googleapiclient.http import MediaIoBaseDownload
 import json
 from oauth2client.service_account import ServiceAccountCredentials
 from passwords import mongoPass
+from pymongo import MongoClient
 
 scope = ["https://spreadsheets.google.com/feeds","https://www.googleapis.com/auth/drive.file","https://www.googleapis.com/auth/drive"]
 
@@ -27,6 +28,7 @@ def connectMongo():
 
 def backupDataBased():
 	print('Backing up...')
+	buildDataBased()
 	file_metadata = {
 		'name': 'dataBased' + str(datetime.now()) + '.json',
 		'mimeType': 'text/plain',
@@ -47,8 +49,11 @@ def saveFileToDrive(file_metadata, media):
 
 def buildDataBased():
 	dataBasedBackup = {}
+	dataBasedBackup['users'] = {}
 	dataBased = connectMongo()
-	userProfile = dataBased.find_many({})
+	userProfile = dataBased.find({})
 	for user in userProfile:
-		dataBasedBackup.append(user)
-	print(dataBasedBackup)
+		dataBasedBackup[user['name']] = {'flair': user['flair'], 'count': user['count'], 'pills': user['pills']}
+
+	with open('dataBased.json', 'w') as dataBased:
+		json.dump(dataBasedBackup, dataBased)

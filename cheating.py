@@ -7,6 +7,7 @@ from datetime import timedelta, datetime
 
 # basedcount_bot Libraries
 from passwords import bot, mongoPass
+from pymongo import MongoClient
 
 # Connect to Reddit
 reddit = praw.Reddit(client_id=bot.client_id,

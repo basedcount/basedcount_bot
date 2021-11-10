@@ -17,7 +17,7 @@ from commands import based, myBasedCount, basedCountUser, mostBased, removePill
 from flairs import checkFlair
 from passwords import bot, bannedWords, modPasswords
 from cheating import checkForCheating, sendCheatReport
-from backupDrive import backupDataBased, retrieveDataBased
+from backupDrive import backupDataBased
 
 
 # Connect to Reddit
@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.10.4'
+version = 'Bot v2.11.0'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -71,7 +71,8 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
-
+time.sleep(10)
+backupDataBased()
 run = True
 
 def checkMail():
