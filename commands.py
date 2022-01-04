@@ -146,7 +146,7 @@ def checkPills(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-	return str(userProfile['pills'])
+	return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #str(userProfile['pills'])
 
 
 def addPills(user, pill):
@@ -172,7 +172,7 @@ def addPills(user, pill):
 			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
 			return userProfile['pills'] + pill
 
-	return userProfile['pills']
+	return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #userProfile['pills']
 
 
 def removePill(user, string):
