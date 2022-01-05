@@ -161,7 +161,7 @@ def addPills(user, pill):
 		# User doesn't have any previous pill data
 		if userProfile['pills'] == 'None':
 			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
-			return pill
+			return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #pill
 
 		# User has previous pill data
 		oldPills = userProfile['pills']
@@ -170,7 +170,7 @@ def addPills(user, pill):
 		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill) and not oldPills.startswith(pill)):
 			pill = ', ' + pill
 			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
-			return userProfile['pills'] + pill
+			return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #userProfile['pills'] + pill
 
 	return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #userProfile['pills']
 
