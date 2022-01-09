@@ -146,7 +146,7 @@ def checkPills(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-	return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #str(userProfile['pills'])
+	return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #str(userProfile['pills'])
 
 
 def addPills(user, pill):
@@ -170,9 +170,9 @@ def addPills(user, pill):
 		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill) and not oldPills.startswith(pill)):
 			pill = ', ' + pill
 			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
-			return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #userProfile['pills'] + pill
+			return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #userProfile['pills'] + pill
 
-	return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #userProfile['pills']
+	return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #userProfile['pills']
 
 
 def removePill(user, string):
