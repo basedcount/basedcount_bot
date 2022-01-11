@@ -146,7 +146,7 @@ def checkPills(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-	return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #str(userProfile['pills'])
+	return "[You may find a list of your pills here!](basedcount.com/u/" + user + ")" #str(userProfile['pills'])
 
 
 def addPills(user, pill):
@@ -161,7 +161,7 @@ def addPills(user, pill):
 		# User doesn't have any previous pill data
 		if userProfile['pills'] == 'None':
 			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
-			return "Pills have been temporarily disabled. Don't worry; pills are still being counted!" #pill
+			return "[You may find a list of your pills here!](basedcount.com/u/" + user + ")" #pill
 
 		# User has previous pill data
 		oldPills = userProfile['pills']
@@ -172,7 +172,7 @@ def addPills(user, pill):
 			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
 			return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #userProfile['pills'] + pill
 
-	return "[Pills have been temporarily disabled. Don't worry; pills are still being counted!](https://www.reddit.com/r/basedcount_bot/comments/rzt258/updates_and_issues_aka_why_pills_have_been/)" #userProfile['pills']
+	return "[You may find a list of your pills here!](basedcount.com/u/" + user + ")" #userProfile['pills']
 
 
 def removePill(user, string):
@@ -212,4 +212,4 @@ def removePill(user, string):
 	dataBased.update_one({'name': user}, {'$set': {'pills': pills}})
 
 	# Build Reply Message
-	return "Pill removed. Your pills: " + pills
+	return "Pill removed. Your pills: " + "[You may find a list of your pills here!](basedcount.com/u/" + user + ")"
