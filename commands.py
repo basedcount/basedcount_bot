@@ -146,7 +146,7 @@ def checkPills(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-	return "basedcount.com/u/" + user #str(userProfile['pills'])
+	return "https://basedcount.com/u/" + user #str(userProfile['pills'])
 
 
 def addPills(user, pill):
@@ -161,7 +161,7 @@ def addPills(user, pill):
 		# User doesn't have any previous pill data
 		if userProfile['pills'] == 'None':
 			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
-			return "basedcount.com/u/" + user #pill
+			return "https://basedcount.com/u/" + user #pill
 
 		# User has previous pill data
 		oldPills = userProfile['pills']
@@ -170,9 +170,9 @@ def addPills(user, pill):
 		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill) and not oldPills.startswith(pill)):
 			pill = ', ' + pill
 			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
-			return "basedcount.com/u/" + user #userProfile['pills'] + pill
+			return "https://basedcount.com/u/" + user #userProfile['pills'] + pill
 
-	return "basedcount.com/u/" + user #userProfile['pills']
+	return "https://basedcount.com/u/" + user #userProfile['pills']
 
 
 def removePill(user, string):
@@ -212,4 +212,4 @@ def removePill(user, string):
 	dataBased.update_one({'name': user}, {'$set': {'pills': pills}})
 
 	# Build Reply Message
-	return "Pill removed. Your pills: " + "basedcount.com/u/" + user
+	return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
