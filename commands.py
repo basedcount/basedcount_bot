@@ -159,17 +159,18 @@ def addPills(user, pill):
 
 	if pill != 'None':
 		# User doesn't have any previous pill data
-		if userProfile['pills'] == 'None':
+		if userProfile['pills'] == []:
 			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
 			return "https://basedcount.com/u/" + user #pill
 
 		# User has previous pill data
-		oldPills = userProfile['pills']
+		oldPills = []
+		for p in userProfile['pills']:
+			oldPills.append(p['name'])
 
 		# Check for duplicates, then add and save
-		if (((', ' + pill + ',') not in oldPills) and not oldPills.endswith(', ' + pill) and not oldPills.startswith(pill)):
-			pill = ', ' + pill
-			dataBased.update_one({'name': user}, {'$set': {'pills': userProfile['pills'] + pill}})
+		if (pill['name'] not in oldPills):
+			dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
 			return "https://basedcount.com/u/" + user #userProfile['pills'] + pill
 
 	return "https://basedcount.com/u/" + user #userProfile['pills']
@@ -184,32 +185,17 @@ def removePill(user, string):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'You do not have any pills!'
-	oldPills = userProfile['pills']
+	oldPills = []
+	for p in userProfile['pills']:
+		oldPills.append(p['name'])
 
 	# Check if pill exists and try to delete
-	if (', ' + delete + ',') in oldPills:
-		pills = oldPills.replace(', ' + delete + ',', ',')
-	elif oldPills.startswith(delete):
-		pills = oldPills[len(delete):]
-	elif oldPills.endswith(delete):
-		pills = oldPills[:-len(delete)]
-	else:
+	if (delete not in oldPills):
 		return "I didn't see that pill in your list."
 
-	# Clean pill list to fix the hole
-	if pills.startswith(', '):
-		pills = pills[2:]
-	if pills.endswith(', '):
-		pills = pills[:-2]
-	if ", , " in pills:
-		pills = pills.replace(", , ", ", ")
-	if ", ," in pills:
-		pills = pills.replace(", ,", ", ")
-	if "  " in pills:
-		pills = pills.replace("  ", " ")
-	if pills == '':
-		pills = 'None'
-	dataBased.update_one({'name': user}, {'$set': {'pills': pills}})
+	for p in userProfile['pills']:
+		if p['name'] == delete:
+			dataBased.update_one({'name': user}, {'$pull': {'pills': {'name': delete}}})
 
 	# Build Reply Message
 	return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user

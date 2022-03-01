@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.12.1'
+version = 'Bot v2.13.0'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -178,6 +178,8 @@ def readComments():
 							for v in based_Variations:
 								if parentText.lower().startswith(v) and (len(parentText) < 50):
 									cheating = True
+							if cheating:
+								break
 
 							# Check for pills
 							pill = 'None'
@@ -204,29 +206,40 @@ def readComments():
 												pillClean = 0
 											else:
 												pillClean += 1
+
+									# Make sure pill is acceptable
+									pillBan = False
+									for w in bannedWords:
+										if w in pill:
+											pillBan = True
+
+									# Build pill dict entry using comment info
+									if (pillBan==False):
+										pillInfo = {}
+										pillInfo['name'] = pill
+										pillInfo['commentID'] = comment.id
+										pillInfo['fromUser'] = author
+										pillInfo['date'] = comment.created_utc
+										pillInfo['amount'] = 1
+
+										pill = pillInfo
 								else:
 									pill = 'None'
 
-								# Make sure pill is acceptable
-								for w in bannedWords:
-									if w in pill:
-										pill = 'None'
-
 							# Calculate Based Count and build reply message
-							if not cheating:
-								if flair != 'Unflaired':
-									replyMessage = based(parentAuthor, flair, pill)
+							if flair != 'Unflaired':
+								replyMessage = based(parentAuthor, flair, pill)
 
-									# Build list of users and send Cheat Report to admin
-									checkForCheating(author, parentAuthor)
+								# Build list of users and send Cheat Report to admin
+								checkForCheating(author, parentAuthor)
 
-								# Reply
-								else:
-									break
-									# replyMessage = "Don't base the Unflaired scum!"
-								if replyMessage:
-										comment.reply(replyMessage)
+							# Reply
+							else:
 								break
+								# replyMessage = "Don't base the Unflaired scum!"
+							if replyMessage:
+									comment.reply(replyMessage)
+							break
 
 # ------------- Commands
 				if commenttext.lower().startswith('/info'):
