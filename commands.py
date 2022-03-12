@@ -229,6 +229,9 @@ def checkCompass(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'I did not find that user.'
-	if userProfile['compass'] == None:
+	try:
+		eco = userProfile['compass'][0]
+		soc = userProfile['compass'][1]
+		return eco + ' | ' + soc
+	except:
 		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
-	return userProfile['compass'][0] + ' | ' + userProfile['compass'][1]

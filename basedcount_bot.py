@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.14.1'
+version = 'Bot v2.14.3'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -168,10 +168,12 @@ def readComments():
 							parentTextHandler = parentComment.body
 							parentText = str(parentTextHandler).lower()
 							parentFlair = parentComment.author_flair_text
+							link = parentComment.permalink
 						except:
 							parentAuthor = str(comment.submission.author)
 							parentText = 'submission is a post'
 							parentFlair = comment.submission.author_flair_text
+							link = comment.submission.permalink
 						flair = str(checkFlair(parentFlair))
 
 						# Make sure bot isn't the parent
