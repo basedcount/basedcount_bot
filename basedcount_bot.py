@@ -13,7 +13,7 @@ import signal
 import time
 
 # basedcount_bot Libraries
-from commands import based, myBasedCount, basedCountUser, mostBased, removePill
+from commands import based, myBasedCount, basedCountUser, mostBased, removePill, myCompass
 from flairs import checkFlair
 from passwords import bot, bannedWords, modPasswords
 from cheating import checkForCheating, sendCheatReport
@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.13.1'
+version = 'Bot v2.14.1'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -39,7 +39,7 @@ infoMessage = 'I am a bot created to keep track of how based users are. '\
 'rather than simply following what your political alignment dictates, '\
 'often used as a sign of respect but not necessarily agreement\n\n'\
 +version+'\n\n'\
-'**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill**'
+'**Commands: /info | /mybasedcount | /basedcount [username] | /mostbased | /removepill [pill] | /myCompass [politicalcompass.com url]**'
 
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']
@@ -128,6 +128,10 @@ def checkMail():
 
 			if content.lower().startswith('/removepill'):
 				replyMessage = removePill(author, content)
+				message.reply(replyMessage)
+
+			if content.lower().startswith('/mycompass'):
+				replyMessage = myCompass(author, content)
 				message.reply(replyMessage)
 
 
@@ -266,7 +270,10 @@ def readComments():
 				if commenttext.lower().startswith('/removepill'):
 					replyMessage = removePill(author, commenttext)
 					comment.reply(replyMessage)
-					break
+
+				if commenttext.lower().startswith('/mycompass'):
+					replyMessage = myCompass(author, commenttext)
+					message.reply(replyMessage)
 
 
 

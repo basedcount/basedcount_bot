@@ -36,6 +36,8 @@ def connectMongo():
 	dataBased = cluster['dataBased']
 	return dataBased['users']
 
+
+
 # === User Commands ===
 
 def based(user, flair, pill):
@@ -45,15 +47,16 @@ def based(user, flair, pill):
 	pills = addPills(user, pill)
 	rank = ranks.rankName(int(count), user)
 	rankUp = ranks.rankMessage(int(count))
+	compass = checkCompass(user)
 
 	# Build Reply Message
 	replyMessage = ''
 	if ((int(count)%5) == 0):
-		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
 		if rankUp:
-			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills 
+			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
 	elif int(count) == 1:
-		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
 	return replyMessage
 
 
@@ -62,11 +65,12 @@ def myBasedCount(user):
 	# Retrieve User Data
 	count = str(checkBasedCount(user))
 	pills = checkPills(user)
+	compass = checkCompass(user)
 
 	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
+		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + 'Compass: ' + compass
 	else:
 		replyMessage = myBasedNoUserReply[randint(0, len(myBasedNoUserReply)-1)]
 	return replyMessage
@@ -84,11 +88,12 @@ def basedCountUser(string):
 	# Retrieve User Data
 	count = str(checkBasedCount(user))
 	pills = checkPills(user)
+	compass = checkCompass(user)
 
 	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills
+		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + 'Compass: ' + compass
 	else:
 		replyMessage = basedCountNoUserReply[randint(0,len(basedCountNoUserReply)-1)]
 	return replyMessage
@@ -113,6 +118,23 @@ def mostBased():
 	# Build Reply Message
 	replyMessage = '--The Top 10 Most Based Users--\n\n' + mostCountFlair[0] + mostCountFlair[1] + mostCountFlair[2] + mostCountFlair[3] + mostCountFlair[4] + mostCountFlair[5] + mostCountFlair[6] + mostCountFlair[7] + mostCountFlair[8] + mostCountFlair[9]
 	return replyMessage
+
+
+def myCompass(user, compass):
+	if compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?')
+		dataBased = connectMongo()
+		# Check if existing user
+		userProfile = dataBased.find_one({'name':user})
+		if userProfile == None:
+			return 'Sorry, I do not see you in the dataBased.'
+
+		# Parse data from URL
+		compass = compass.replace('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?','')
+		url_split = compass.split('ec=')
+		axes_values = url_split[1].split('&soc=')
+		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}}, upsert=True)
+		return 'Your compass has been updated.\nEconomic: ' + axes_values[0] + '\nSocial: ' + axes_values[1]
+	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.com, starting with 'https'."
 
 
 
@@ -199,3 +221,14 @@ def removePill(user, string):
 
 	# Build Reply Message
 	return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
+
+
+def checkCompass(user):
+	dataBased = connectMongo()
+	# Check if existing user and retrieve compass
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
+		return 'I did not find that user.'
+	if userProfile['compass'] == None:
+		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
+	return userProfile['compass'][0] + ' | ' + userProfile['compass'][1]
