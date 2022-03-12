@@ -223,7 +223,7 @@ def readComments():
 									if (pillBan==False):
 										pillInfo = {}
 										pillInfo['name'] = pill
-										pillInfo['commentID'] = parentComment.permalink
+										pillInfo['commentID'] = link
 										pillInfo['fromUser'] = author
 										pillInfo['date'] = comment.created_utc
 										pillInfo['amount'] = 1
