@@ -169,7 +169,7 @@ def addPills(user, pill):
 			oldPills.append(p['name'])
 
 		# Check for duplicates, then add and save
-		if (pill['name'] not in oldPills):
+		if (pill not in oldPills):
 			dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
 			return "https://basedcount.com/u/" + user #userProfile['pills'] + pill
 

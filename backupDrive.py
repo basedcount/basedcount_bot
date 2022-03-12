@@ -53,7 +53,11 @@ def buildDataBased():
 	dataBased = connectMongo()
 	userProfile = dataBased.find({})
 	for user in userProfile:
-		dataBasedBackup[user['name']] = {'flair': user['flair'], 'count': user['count'], 'pills': user['pills']}
+		pills = []
+		for p in user['pills']:
+			pills.append(p)
+		pillString = str(pills)
+		dataBasedBackup[user['name']] = {'flair': user['flair'], 'count': user['count'], 'pills': pillString}
 
 	with open('dataBased.json', 'w') as dataBased:
 		json.dump(dataBasedBackup, dataBased)
