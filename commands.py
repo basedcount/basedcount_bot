@@ -182,7 +182,7 @@ def addPills(user, pill):
 	if pill != 'None':
 		# User doesn't have any previous pill data
 		if userProfile['pills'] == []:
-			dataBased.update_one({'name': user}, {'$set': {'pills': pill}})
+			dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
 			return "https://basedcount.com/u/" + user #pill
 
 		# User has previous pill data
