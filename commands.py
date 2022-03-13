@@ -146,7 +146,7 @@ def addBasedCount(user, flair):
 	# Check if existing user and calculate based count
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
-		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': 1, 'pills': 'None'}}, upsert=True)
+		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': 1, 'pills': []}}, upsert=True)
 		return 1
 	else:
 		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': userProfile['count'] + 1}})
@@ -179,9 +179,6 @@ def addPills(user, pill):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-
-	if pill == 'None':
-		return "https://basedcount.com/u/" + user
 
 	if pill != 'None':
 		# User doesn't have any previous pill data
