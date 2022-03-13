@@ -121,7 +121,7 @@ def mostBased():
 
 
 def myCompass(user, compass):
-	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or (compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?'):
+	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or (compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?')):
 		dataBased = connectMongo()
 		# Check if existing user
 		userProfile = dataBased.find_one({'name':user})
