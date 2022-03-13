@@ -121,7 +121,7 @@ def mostBased():
 
 
 def myCompass(user, compass):
-	if compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?'):
+	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or (compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?'):
 		dataBased = connectMongo()
 		# Check if existing user
 		userProfile = dataBased.find_one({'name':user})
@@ -130,11 +130,12 @@ def myCompass(user, compass):
 
 		# Parse data from URL
 		compass = compass.replace('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?','')
+		compass = compass.replace('/myCompass https://www.politicalcompass.org/analysis2?','')
 		url_split = compass.split('ec=')
 		axes_values = url_split[1].split('&soc=')
 		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}}, upsert=True)
 		return 'Your compass has been updated.\nEconomic: ' + axes_values[0] + '\nSocial: ' + axes_values[1]
-	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.com, starting with 'https'."
+	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org, starting with 'https'."
 
 
 
@@ -257,4 +258,4 @@ def checkCompass(user):
 
 		return socType + ' | ' + ecoType
 	except:
-		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
+		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.org url].'
