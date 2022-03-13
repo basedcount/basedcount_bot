@@ -238,6 +238,23 @@ def checkCompass(user):
 	try:
 		eco = userProfile['compass'][0]
 		soc = userProfile['compass'][1]
-		return eco + ' | ' + soc
+
+		if ('-' in eco):
+			eco = eco.replace('-', '')
+			ecoType = 'Left: ' + eco
+		else:
+			ecoType = 'Right: ' + eco
+
+		if ('-' in soc):
+			soc = soc.replace('-', '')
+			socType = 'Lib: ' + soc
+		else:
+			socType = 'Auth: ' + soc
+
+
+
+
+
+		return socType + ' | ' + ecoType
 	except:
 		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
