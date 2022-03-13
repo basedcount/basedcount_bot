@@ -238,8 +238,6 @@ def checkCompass(user):
 	try:
 		eco = userProfile['compass'][0]
 		soc = userProfile['compass'][1]
-		if eco == 'x':
-			return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
 		return eco + ' | ' + soc
 	except:
 		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.com url].'
