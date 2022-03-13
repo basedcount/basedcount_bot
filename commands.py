@@ -121,7 +121,7 @@ def mostBased():
 
 
 def myCompass(user, compass):
-	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or (compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?')):
+	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?')):
 		dataBased = connectMongo()
 		# Check if existing user
 		userProfile = dataBased.find_one({'name':user})
@@ -179,6 +179,9 @@ def addPills(user, pill):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
+
+	if pill == 'None':
+		return "https://basedcount.com/u/" + user
 
 	if pill != 'None':
 		# User doesn't have any previous pill data
