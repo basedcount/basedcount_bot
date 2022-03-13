@@ -188,7 +188,13 @@ def addPills(user, pill):
 		# User has previous pill data
 		oldPills = []
 		for p in userProfile['pills']:
-			oldPills.append(p['name'])
+			try:
+				oldPills.append(p['name'])
+			except:
+				print(user)
+				print(pill)
+				print(p)
+				oldPills.append(p)
 
 		# Check for duplicates, then add and save
 		if (pill not in oldPills):
