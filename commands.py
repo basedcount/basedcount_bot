@@ -134,7 +134,23 @@ def myCompass(user, compass):
 		url_split = compass.split('ec=')
 		axes_values = url_split[1].split('&soc=')
 		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}}, upsert=True)
-		return 'Your compass has been updated.\nEconomic: ' + axes_values[0] + '\nSocial: ' + axes_values[1]
+
+		# Determine if lib/auth and left/right
+		eco = axes_values[0]
+		soc = axes_values[1]
+		if ('-' in eco):
+			eco = eco.replace('-', '')
+			ecoType = 'Left: ' + eco
+		else:
+			ecoType = 'Right: ' + eco
+
+		if ('-' in soc):
+			soc = soc.replace('-', '')
+			socType = 'Lib: ' + soc
+		else:
+			socType = 'Auth: ' + soc
+
+		return 'Your compass has been updated.\n\n' + socType + ' | ' + ecoType
 	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org, starting with 'https'."
 
 
@@ -237,6 +253,7 @@ def checkCompass(user):
 	if userProfile == None:
 		return 'I did not find that user.'
 	try:
+		# Determine if lib/auth and left/right
 		eco = userProfile['compass'][0]
 		soc = userProfile['compass'][1]
 
@@ -251,11 +268,7 @@ def checkCompass(user):
 			socType = 'Lib: ' + soc
 		else:
 			socType = 'Auth: ' + soc
-
-
-
-
-
 		return socType + ' | ' + ecoType
+		
 	except:
 		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.org url].'
