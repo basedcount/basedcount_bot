@@ -121,37 +121,46 @@ def mostBased():
 
 
 def myCompass(user, compass):
-	if (compass.startswith('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?') or compass.startswith('/myCompass https://www.politicalcompass.org/analysis2?')):
-		dataBased = connectMongo()
-		# Check if existing user
-		userProfile = dataBased.find_one({'name':user})
-		if userProfile == None:
-			return 'Sorry, I do not see you in the dataBased.'
+	dataBased = connectMongo()
+	# Check if existing user
+	userProfile = dataBased.find_one({'name':user})
+	if userProfile == None:
+		dataBased.update_one({'name': user}, {'$set': {'flair': 'Unflaired', 'count': 0, 'pills': [], 'compass': [], 'sapply': []}}, upsert=True)
 
-		# Parse data from URL
-		compass = compass.replace('/myCompass https://www.politicalcompass.org/yourpoliticalcompass?','')
-		compass = compass.replace('/myCompass https://www.politicalcompass.org/analysis2?','')
+	# Parse data from PoliticalCompass.org
+	if (compass.startswith('/mycompass https://www.politicalcompass.org/yourpoliticalcompass?') or compass.startswith('/mycompass https://www.politicalcompass.org/analysis2?')):
+		compass = compass.replace('/mycompass https://www.politicalcompass.org/yourpoliticalcompass?','')
+		compass = compass.replace('/mycompass https://www.politicalcompass.org/analysis2?','')
 		url_split = compass.split('ec=')
 		axes_values = url_split[1].split('&soc=')
-		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}}, upsert=True)
-
-		# Determine if lib/auth and left/right
+		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}})
 		eco = axes_values[0]
 		soc = axes_values[1]
-		if ('-' in eco):
-			eco = eco.replace('-', '')
-			ecoType = 'Left: ' + eco
-		else:
-			ecoType = 'Right: ' + eco
 
-		if ('-' in soc):
-			soc = soc.replace('-', '')
-			socType = 'Lib: ' + soc
-		else:
-			socType = 'Auth: ' + soc
+		# Determine if lib/auth and left/right
+		ecoType = quadrantName(eco, 'Left', 'Right')
+		socType = quadrantName(soc, 'Lib', 'Auth')
+		return 'Your political compass has been updated.\n\nCompass: ' + socType + ' | ' + ecoType
 
-		return 'Your compass has been updated.\n\n' + socType + ' | ' + ecoType
-	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org, starting with 'https'."
+	# Parse data from SapplyValues.github.io
+	if compass.startswith("https://sapplyvalues.github.io/results.html?right="):
+		compass = compass.replace('/mycompass https://sapplyvalues.github.io/results.html?right=','')
+		url_split = compass.split('&auth=')
+		eco = url_split[0]
+		url_split2 = url_split[1].split('&prog=')
+		soc = url_split2[0]
+		prog = url_split2[1]
+		eco = axes_values[0]
+		soc = axes_values[1]
+		sapply_values = [prog, soc, eco]
+		dataBased.update_one({'name': user}, {'$set': {'sapply': sapply_values}})
+
+		# Determine if lib/auth and left/right and prog/cons
+		ecoType = quadrantName(eco, 'Left', 'Right')
+		socType = quadrantName(soc, 'Lib', 'Auth')
+		progType = quadrantName(soc, 'Conservative', 'Progressive')
+		return 'Your Sapply compass has been updated.\n\nSapply: ' + socType + ' | ' + ecoType + ' | ' + progType
+	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
 
 
 
@@ -162,7 +171,7 @@ def addBasedCount(user, flair):
 	# Check if existing user and calculate based count
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
-		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': 1, 'pills': []}}, upsert=True)
+		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': 1, 'pills': [], 'compass': [], 'sapply': []}}, upsert=True)
 		return 1
 	else:
 		dataBased.update_one({'name': user}, {'$set': {'flair': flair, 'count': userProfile['count'] + 1}})
@@ -252,23 +261,41 @@ def checkCompass(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'I did not find that user.'
+	compassReply = ''
+
+	# Try to get compass data
 	try:
-		# Determine if lib/auth and left/right
-		eco = userProfile['compass'][0]
-		soc = userProfile['compass'][1]
-
-		if ('-' in eco):
-			eco = eco.replace('-', '')
-			ecoType = 'Left: ' + eco
-		else:
-			ecoType = 'Right: ' + eco
-
-		if ('-' in soc):
-			soc = soc.replace('-', '')
-			socType = 'Lib: ' + soc
-		else:
-			socType = 'Auth: ' + soc
-		return socType + ' | ' + ecoType
-		
+		PCeco = userProfile['compass'][0]
+		PCsoc = userProfile['compass'][1]
+		PCecoType = quadrantName(PCeco, 'Left', 'Right')
+		PCsocType = quadrantName(PCsoc, 'Lib', 'Auth')
+		compassReply = 'Compass: ' + PCsocType + ' | ' + PCecoType + '\n\n'
 	except:
-		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /myCompass [politicalcompass.org url].'
+		pass
+
+	# Try to get sapply data
+	try:
+		SVeco = userProfile['sapply'][0]
+		SVsoc = userProfile['sapply'][1]
+		SVprog = userProfile['sapply'][2]
+
+		SVecoType = quadrantName(SVeco, 'Left', 'Right')
+		SVsocType = quadrantName(SVsoc, 'Lib', 'Auth')
+		SVprogType = quadrantName(SVprog, 'Conservative', 'Progressive')
+		compassReply = compassReply + 'Sapply: ' + SVsocType + ' | ' + SVecoType + ' | ' + SVprogType
+	except:
+		pass
+	if compassReply == '':
+		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /mycompass politicalcompass.org url or sapplyvalues.github.io url.'
+	return compassReply
+
+
+
+# === Utils ===
+
+def quadrantName(value, side1, side2):
+	if ('-' in value):
+		value = value.replace('-', '')
+		return side1 + ': ' + value
+	else:
+		return side2 + ': ' + value

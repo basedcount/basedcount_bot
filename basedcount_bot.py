@@ -29,7 +29,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.14.10'
+version = 'Bot v2.15.0'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
