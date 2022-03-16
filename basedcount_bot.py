@@ -39,7 +39,7 @@ infoMessage = 'I am a bot created to keep track of how based users are. '\
 'rather than simply following what your political alignment dictates, '\
 'often used as a sign of respect but not necessarily agreement\n\n'\
 +version+'\n\n'\
-'**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.com-url**'
+'**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.com or applyvalues.github.io url**'
 
 # Vocabulary
 excludedAccounts = ['basedcount_bot', 'VredditDownloader']

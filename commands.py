@@ -31,6 +31,19 @@ basedCountNoUserReply = ["Yeah... I got nothing.",
 						"[basedcount_clever_response_6](https://www.youtube.com/watch?v=Cs57e-viIKw&ab_channel=ButtonsTheDragon)",
 						"[basedcount_clever_response_7](https://www.youtube.com/watch?v=tOlh-g2dxrI&ab_channel=e7magic)"]
 
+politicalCompass_variations = ['https://www.politicalcompass.org/yourpoliticalcompass?ec=',
+								'https://politicalcompass.org/yourpoliticalcompass?ec=',
+								'https://www.politicalcompass.org/analysis2?ec=',
+								'https://politicalcompass.org/analysis2?ec=',
+								'politicalcompass.org/analysis2?ec=',
+								'politicalcompass.org/yourpoliticalcompass?ec=',
+								'www.politicalcompass.org/analysis2?ec=',
+								'www.politicalcompass.org/yourpoliticalcompass?ec=',
+								]
+
+sapplyCompass_variations = ['https://sapplyvalues.github.io/results.html?right=',
+							'sapplyvalues.github.io/results.html?right=']
+
 def connectMongo():
 	cluster = MongoClient(mongoPass)
 	dataBased = cluster['dataBased']
@@ -127,39 +140,41 @@ def myCompass(user, compass):
 	if userProfile == None:
 		dataBased.update_one({'name': user}, {'$set': {'flair': 'Unflaired', 'count': 0, 'pills': [], 'compass': [], 'sapply': []}}, upsert=True)
 
-	# Parse data from PoliticalCompass.org
-	if (compass.startswith('/mycompass https://www.politicalcompass.org/yourpoliticalcompass?') or compass.startswith('/mycompass https://www.politicalcompass.org/analysis2?')):
-		compass = compass.replace('/mycompass https://www.politicalcompass.org/yourpoliticalcompass?','')
-		compass = compass.replace('/mycompass https://www.politicalcompass.org/analysis2?','')
-		url_split = compass.split('ec=')
-		axes_values = url_split[1].split('&soc=')
-		dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}})
-		eco = axes_values[0]
-		soc = axes_values[1]
+	compass = compass.lower().replace('/mycompass ', '')
 
-		# Determine if lib/auth and left/right
-		ecoType = quadrantName(eco, 'Left', 'Right')
-		socType = quadrantName(soc, 'Lib', 'Auth')
-		return 'Your political compass has been updated.\n\nCompass: ' + socType + ' | ' + ecoType
+	# Parse data from PoliticalCompass.org
+	for pcv in politicalCompass_variations:
+		if compass.startswith(pcv):
+			compass = compass.replace(pcv,'')
+			axes_values = compass.split('&soc=')
+			dataBased.update_one({'name': user}, {'$set': {'compass': axes_values}})
+			eco = axes_values[0]
+			soc = axes_values[1]
+
+			# Determine if lib/auth and left/right
+			ecoType = quadrantName(eco, 'Left', 'Right')
+			socType = quadrantName(soc, 'Lib', 'Auth')
+			return 'Your political compass has been updated.\n\nCompass: ' + socType + ' | ' + ecoType
 
 	# Parse data from SapplyValues.github.io
-	if compass.startswith("https://sapplyvalues.github.io/results.html?right="):
-		compass = compass.replace('/mycompass https://sapplyvalues.github.io/results.html?right=','')
-		url_split = compass.split('&auth=')
-		eco = url_split[0]
-		url_split2 = url_split[1].split('&prog=')
-		soc = url_split2[0]
-		prog = url_split2[1]
-		eco = axes_values[0]
-		soc = axes_values[1]
-		sapply_values = [prog, soc, eco]
-		dataBased.update_one({'name': user}, {'$set': {'sapply': sapply_values}})
+	for scv in sapplyCompass_variations:
+		if compass.startswith(scv):
+			compass = compass.replace(scv,'')
+			url_split = compass.split('&auth=')
+			eco = url_split[0]
+			url_split2 = url_split[1].split('&prog=')
+			soc = url_split2[0]
+			prog = url_split2[1]
+			eco = axes_values[0]
+			soc = axes_values[1]
+			sapply_values = [prog, soc, eco]
+			dataBased.update_one({'name': user}, {'$set': {'sapply': sapply_values}})
 
-		# Determine if lib/auth and left/right and prog/cons
-		ecoType = quadrantName(eco, 'Left', 'Right')
-		socType = quadrantName(soc, 'Lib', 'Auth')
-		progType = quadrantName(soc, 'Conservative', 'Progressive')
-		return 'Your Sapply compass has been updated.\n\nSapply: ' + socType + ' | ' + ecoType + ' | ' + progType
+			# Determine if lib/auth and left/right and prog/cons
+			ecoType = quadrantName(eco, 'Left', 'Right')
+			socType = quadrantName(soc, 'Lib', 'Auth')
+			progType = quadrantName(soc, 'Conservative', 'Progressive')
+			return 'Your Sapply compass has been updated.\n\nSapply: ' + socType + ' | ' + ecoType + ' | ' + progType
 	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
 
 
