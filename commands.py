@@ -165,8 +165,6 @@ def myCompass(user, compass):
 			url_split2 = url_split[1].split('&prog=')
 			soc = url_split2[0]
 			prog = url_split2[1]
-			eco = axes_values[0]
-			soc = axes_values[1]
 			sapply_values = [prog, soc, eco]
 			dataBased.update_one({'name': user}, {'$set': {'sapply': sapply_values}})
 
