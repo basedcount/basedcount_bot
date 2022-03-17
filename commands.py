@@ -69,7 +69,7 @@ def based(user, flair, pill):
 		if rankUp:
 			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
 	elif int(count) == 1:
-		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n" + compass + "\n\n I am a bot. Reply /info for more info."
 	return replyMessage
 
 
@@ -83,7 +83,7 @@ def myBasedCount(user):
 	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + 'Compass: ' + compass
+		replyMessage = "Your Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + compass
 	else:
 		replyMessage = myBasedNoUserReply[randint(0, len(myBasedNoUserReply)-1)]
 	return replyMessage
@@ -106,7 +106,7 @@ def basedCountUser(string):
 	# Build Reply Message
 	if int(count) > 0:
 		rank = ranks.rankName(int(count), user)
-		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + 'Compass: ' + compass
+		replyMessage = user + "'s Based Count is " + count + ". \n\n" + 'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + compass
 	else:
 		replyMessage = basedCountNoUserReply[randint(0,len(basedCountNoUserReply)-1)]
 	return replyMessage
