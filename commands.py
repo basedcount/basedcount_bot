@@ -65,9 +65,9 @@ def based(user, flair, pill):
 	# Build Reply Message
 	replyMessage = ''
 	if ((int(count)%5) == 0):
-		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
+		replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Rank: '+ rank + '\n\n Pills: ' + pills + "\n\n" + compass + "\n\n I am a bot. Reply /info for more info."
 		if rankUp:
-			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills + "\n\n" + 'Compass: ' + compass + "\n\n I am a bot. Reply /info for more info."
+			replyMessage = "u/" + user + "'s Based Count has increased by 1. Their Based Count is now " + str(count) + '. \n\n Congratulations, u/' + user + "! You have ranked up to " + rank + '! ' + rankUp + '\n\n Pills: ' + pills + "\n\n" + compass + "\n\n I am a bot. Reply /info for more info."
 	elif int(count) == 1:
 		replyMessage = 'u/' + user + " is officially based! Their Based Count is now 1. \n\n Rank: House of Cards"  + '\n\n Pills: ' + pills + "\n\n" + compass + "\n\n I am a bot. Reply /info for more info."
 	return replyMessage
