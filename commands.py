@@ -171,7 +171,7 @@ def myCompass(user, compass):
 			# Determine if lib/auth and left/right and prog/cons
 			ecoType = quadrantName(eco, 'Left', 'Right')
 			socType = quadrantName(soc, 'Lib', 'Auth')
-			progType = quadrantName(soc, 'Conservative', 'Progressive')
+			progType = quadrantName(prog, 'Conservative', 'Progressive')
 			return 'Your Sapply compass has been updated.\n\nSapply: ' + socType + ' | ' + ecoType + ' | ' + progType
 	return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
 
@@ -288,9 +288,9 @@ def checkCompass(user):
 
 	# Try to get sapply data
 	try:
-		SVeco = userProfile['sapply'][0]
+		SVeco = userProfile['sapply'][2]
 		SVsoc = userProfile['sapply'][1]
-		SVprog = userProfile['sapply'][2]
+		SVprog = userProfile['sapply'][0]
 
 		SVecoType = quadrantName(SVeco, 'Left', 'Right')
 		SVsocType = quadrantName(SVsoc, 'Lib', 'Auth')
