@@ -243,7 +243,8 @@ def addPills(user, pill):
 			pillCount = str(len(userProfile['pills']) + 1)
 			return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
-	return "https://basedcount.com/u/" + user #userProfile['pills']
+	pillCount = str(len(userProfile['pills']))
+	return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 
 def removePill(user, string):
