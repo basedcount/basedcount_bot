@@ -207,7 +207,8 @@ def checkPills(user):
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
 		return 'None'
-	return "https://basedcount.com/u/" + user #str(userProfile['pills'])
+	pillCount = str(len(userProfile['pills']))
+	return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 
 def addPills(user, pill):
@@ -222,7 +223,8 @@ def addPills(user, pill):
 		# User doesn't have any previous pill data
 		if userProfile['pills'] == []:
 			dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
-			return "https://basedcount.com/u/" + user #pill
+			pillCount = '1'
+			return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 		# User has previous pill data
 		oldPills = []
@@ -238,7 +240,8 @@ def addPills(user, pill):
 		# Check for duplicates, then add and save
 		if (pill not in oldPills):
 			dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
-			return "https://basedcount.com/u/" + user #userProfile['pills'] + pill
+			pillCount = str(len(userProfile['pills']) + 1)
+			return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 	return "https://basedcount.com/u/" + user #userProfile['pills']
 
