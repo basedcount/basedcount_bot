@@ -141,20 +141,12 @@ def mostBased():
 
     # Build Most Based List
     mostCountFlair = []
-    u = 1
-    for r in results:
-        mostUserName = r['name']
-        mostCount = str(r['count'])
-        mostFlair = r['flair']
-        mostCountFlair.append(str(str(
-            u) + '. ' + mostUserName + '  |  ' + mostCount + '  |  ' + mostFlair + '\n\n'))
-        u += 1
+    for pos, result in enumerate(results, start=1):
+        mostCountFlair.append(
+            f"{pos}. {{name}} || {{count}} | {{flair}}".format(**result)
+        )
 
-    # Build Reply Message
-    replyMessage = '--The Top 10 Most Based Users--\n\n' + mostCountFlair[0] + mostCountFlair[1] + mostCountFlair[2] + mostCountFlair[3] + \
-        mostCountFlair[4] + mostCountFlair[5] + mostCountFlair[6] + \
-        mostCountFlair[7] + mostCountFlair[8] + mostCountFlair[9]
-    return replyMessage
+    return '--The Top 10 Most Based Users--\n\n' + "\n\n".join(mostCountFlair)
 
 
 def myCompass(user, compass):
