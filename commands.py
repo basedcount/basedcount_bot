@@ -55,12 +55,14 @@ def connectMongo():
 
 def based(user, flair, pill):
 
+	# Connect to databased
+	dataBased = connectMongo()
 	# Retrieve User Data
-	count = addBasedCount(user, flair)
-	pills = addPills(user, pill)
-	rank = ranks.rankName(int(count), user)
+	count = addBasedCount(user, flair, dataBased)
+	pills = addPills(user, pill, dataBased)
+	rank = ranks.rankName(int(count), user, dataBased)
 	rankUp = ranks.rankMessage(int(count))
-	compass = checkCompass(user)
+	compass = checkCompass(user, dataBased)
 
 	# Build Reply Message
 	replyMessage = ''
@@ -74,11 +76,11 @@ def based(user, flair, pill):
 
 
 def myBasedCount(user):
-
+	dataBased = connectMongo()
 	# Retrieve User Data
-	count = str(checkBasedCount(user))
-	pills = checkPills(user)
-	compass = checkCompass(user)
+	count = str(checkBasedCount(user, dataBased))
+	pills = checkPills(user, dataBased)
+	compass = checkCompass(user, dataBased)
 
 	# Build Reply Message
 	if int(count) > 0:
@@ -99,9 +101,11 @@ def basedCountUser(string):
 	user = string
 
 	# Retrieve User Data
-	count = str(checkBasedCount(user))
-	pills = checkPills(user)
-	compass = checkCompass(user)
+
+	dataBased = connectMongo()
+	count = str(checkBasedCount(user, dataBased))
+	pills = checkPills(user, dataBased)
+	compass = checkCompass(user, dataBased)
 
 	# Build Reply Message
 	if int(count) > 0:
@@ -179,8 +183,7 @@ def myCompass(user, compass):
 
 # === Databased Searching and Updating ===
 
-def addBasedCount(user, flair):
-	dataBased = connectMongo()
+def addBasedCount(user, flair, dataBased):
 	# Check if existing user and calculate based count
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
@@ -191,8 +194,7 @@ def addBasedCount(user, flair):
 		return userProfile['count'] + 1
 
 
-def checkBasedCount(user):
-	dataBased = connectMongo()
+def checkBasedCount(user, dataBased):
 	# Check if existing user and calculate based count
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
@@ -201,8 +203,7 @@ def checkBasedCount(user):
 		return int(userProfile['count'])
 
 
-def checkPills(user):
-	dataBased = connectMongo()
+def checkPills(user, dataBased):
 	# Check if existing user and calculate pill list
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
@@ -211,9 +212,7 @@ def checkPills(user):
 	return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 
-def addPills(user, pill):
-	dataBased = connectMongo()
-
+def addPills(user, pill, dataBased):
 	# Check if user exists
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
@@ -247,8 +246,7 @@ def addPills(user, pill):
 	return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
 
 
-def removePill(user, string):
-	dataBased = connectMongo()
+def removePill(user, string, dataBased):
 
 	# Parse data and get the bare string
 	delete = string.lower().replace('/removepill ', '')
@@ -272,8 +270,7 @@ def removePill(user, string):
 	return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
 
 
-def checkCompass(user):
-	dataBased = connectMongo()
+def checkCompass(user, dataBased):
 	# Check if existing user and retrieve compass
 	userProfile = dataBased.find_one({'name':user})
 	if userProfile == None:
