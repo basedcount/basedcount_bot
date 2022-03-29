@@ -4,6 +4,7 @@
 import json
 from collections import Counter
 from random import randint
+from typing import Dict
 import pymongo
 from pymongo import MongoClient
 
@@ -62,7 +63,11 @@ def based(user, flair, pill):
 	pills = addPills(user, pill, dataBased)
 	rank = ranks.rankName(int(count), user, dataBased)
 	rankUp = ranks.rankMessage(int(count))
-	compass = checkCompass(user, dataBased)
+
+	# this is here until I can refractor the profile out of the above commands
+	profile = dataBased.find_one({"name": user})
+
+	compass = checkCompass(profile)
 
 	# Build Reply Message
 	replyMessage = ''
@@ -75,12 +80,14 @@ def based(user, flair, pill):
 	return replyMessage
 
 
-def myBasedCount(user):
+def myBasedCount(user: str):
 	dataBased = connectMongo()
 	# Retrieve User Data
-	count = str(checkBasedCount(user, dataBased))
-	pills = checkPills(user, dataBased)
-	compass = checkCompass(user, dataBased)
+
+	profile  = dataBased.find_one({"name": user})
+	count = str(checkBasedCount(profile))
+	pills = checkPills(profile)
+	compass = checkCompass(profile)
 
 	# Build Reply Message
 	if int(count) > 0:
@@ -194,23 +201,16 @@ def addBasedCount(user, flair, dataBased):
 		return userProfile['count'] + 1
 
 
-def checkBasedCount(user, dataBased):
+def checkBasedCount(profile: dict) -> int:
 	# Check if existing user and calculate based count
-	userProfile = dataBased.find_one({'name':user})
-	if userProfile == None:
-		return '0'
-	else:
-		return int(userProfile['count'])
+	return int(profile.get("count", 0))
 
-
-def checkPills(user, dataBased):
+def checkPills(profile):
 	# Check if existing user and calculate pill list
-	userProfile = dataBased.find_one({'name':user})
-	if userProfile == None:
-		return 'None'
-	pillCount = str(len(userProfile['pills']))
-	return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
-
+	if pills := profile.get("pills", None):
+		return f"[{len(pills):,}](https://basedcount.com/u/{profile['name']}/)"
+	else:
+		return "None"
 
 def addPills(user, pill, dataBased):
 	# Check if user exists
@@ -270,35 +270,27 @@ def removePill(user, string, dataBased):
 	return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
 
 
-def checkCompass(user, dataBased):
+def checkCompass(profile: dict) -> str:
 	# Check if existing user and retrieve compass
-	userProfile = dataBased.find_one({'name':user})
-	if userProfile == None:
-		return 'I did not find that user.'
-	compassReply = ''
+	compassReply = ""
+	if len(compass := profile.get("compass", [])) >= 2:
+		PCeco = compass[0]
+		PCsoc = compass[1]
 
-	# Try to get compass data
-	try:
-		PCeco = userProfile['compass'][0]
-		PCsoc = userProfile['compass'][1]
 		PCecoType = quadrantName(PCeco, 'Left', 'Right')
 		PCsocType = quadrantName(PCsoc, 'Lib', 'Auth')
 		compassReply = 'Compass: ' + PCsocType + ' | ' + PCecoType + '\n\n'
-	except:
-		pass
-
-	# Try to get sapply data
-	try:
-		SVeco = userProfile['sapply'][2]
-		SVsoc = userProfile['sapply'][1]
-		SVprog = userProfile['sapply'][0]
+	
+	if len(sapply := profile.get("sapply", [])) >= 3:
+		SVeco = sapply[2]
+		SVsoc = sapply[1]
+		SVprog = sapply[0]
 
 		SVecoType = quadrantName(SVeco, 'Left', 'Right')
 		SVsocType = quadrantName(SVsoc, 'Lib', 'Auth')
 		SVprogType = quadrantName(SVprog, 'Conservative', 'Progressive')
-		compassReply = compassReply + 'Sapply: ' + SVsocType + ' | ' + SVecoType + ' | ' + SVprogType
-	except:
-		pass
+		compassReply += 'Sapply: ' + SVsocType + ' | ' + SVecoType + ' | ' + SVprogType
+	
 	if compassReply == '':
 		return 'This user does not have a compass on record. You can add your compass to your profile by replying with /mycompass politicalcompass.org url or sapplyvalues.github.io url.'
 	return compassReply
