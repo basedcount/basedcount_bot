@@ -4,7 +4,7 @@
 import json
 from collections import Counter
 import random
-from typing import Dict
+from typing import Dict, Union
 import pymongo
 from pymongo import MongoClient
 
@@ -60,13 +60,13 @@ def based(user, flair, pill):
     dataBased = connectMongo()
     # Retrieve User Data
     count = addBasedCount(user, flair, dataBased)
-    pills = addPills(user, pill, dataBased)
+    addPills(user, pill, dataBased)
     rank = ranks.rankName(int(count), user, dataBased)
     rankUp = ranks.rankMessage(int(count))
 
     # this is here until I can refractor the profile out of the above commands
     profile = dataBased.find_one({"name": user})
-
+    pills = checkPills(profile)
     compass = checkCompass(profile)
 
     # Build Reply Message
@@ -223,38 +223,14 @@ def checkPills(profile):
         return "None"
 
 
-def addPills(user, pill, dataBased):
-    # Check if user exists
-    userProfile = dataBased.find_one({'name': user})
-    if userProfile == None:
-        return 'None'
+def addPills(user: str, pill: Union[dict, str], dataBased):
+    if type(pill) == str:  # this should be handled outside of this function ;(
+        return
 
-    if pill != 'None':
-        # User doesn't have any previous pill data
-        if userProfile['pills'] == []:
-            dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
-            pillCount = '1'
-            return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
-
-        # User has previous pill data
-        oldPills = []
-        for p in userProfile['pills']:
-            try:
-                oldPills.append(p['name'])
-            except:
-                print(user)
-                print(pill)
-                print(p)
-                oldPills.append(p)
-
-        # Check for duplicates, then add and save
-        if (pill not in oldPills):
-            dataBased.update_one({'name': user}, {'$push': {'pills': pill}})
-            pillCount = str(len(userProfile['pills']) + 1)
-            return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
-
-    pillCount = str(len(userProfile['pills']))
-    return '[' + pillCount + '](https://basedcount.com/u/' + user + ')'
+    dataBased.find_one_and_update(
+        {"name": user, "pills.name": {"$ne": pill['name']}},
+        {"$push": {"pills": pill}}
+    )
 
 
 def removePill(user, string, dataBased):
@@ -262,24 +238,16 @@ def removePill(user, string, dataBased):
     # Parse data and get the bare string
     delete = string.lower().replace('/removepill ', '')
 
-    userProfile = dataBased.find_one({'name': user})
-    if userProfile == None:
+    doc = dataBased.find_one_and_update(
+        {'name': user}, {'$pull': {'pills': {'name': delete}}}, return_document=ReturnDocument.AFTER)
+
+    if not doc:
         return 'You do not have any pills!'
-    oldPills = []
-    for p in userProfile['pills']:
-        oldPills.append(p['name'])
-
-    # Check if pill exists and try to delete
-    if (delete not in oldPills):
-        return "I didn't see that pill in your list."
-
-    for p in userProfile['pills']:
-        if p['name'] == delete:
-            dataBased.update_one(
-                {'name': user}, {'$pull': {'pills': {'name': delete}}})
-
-    # Build Reply Message
-    return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
+    elif delete not in [i.get('name', "") for i in doc['pills']]:
+        return 'You do not have that pill!'
+    else:
+        # Build Reply Message
+        return "Pill removed. Your pills: " + "https://basedcount.com/u/" + user
 
 
 def checkCompass(profile: dict) -> str:
