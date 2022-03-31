@@ -59,16 +59,19 @@ def based(user, flair, pill):
     # Connect to databased
     dataBased = connectMongo()
     # Retrieve User Data
-    count = addBasedCount(user, flair, dataBased)
+    addBasedCount(user, flair, dataBased)
     addPills(user, pill, dataBased)
+
+    
+    profile = dataBased.find_one({"name": user})
+    count = str(checkBasedCount(profile))
     rank = ranks.rankName(int(count), user, dataBased)
     rankUp = ranks.rankMessage(int(count))
 
-    # this is here until I can refractor the profile out of the above commands
-    profile = dataBased.find_one({"name": user})
+    # If rank/rankUp modifies profile this code **wil** break
     pills = checkPills(profile)
     compass = checkCompass(profile)
-
+    
     # Build Reply Message
     replyMessage = ''
     if ((int(count) % 5) == 0):
@@ -87,7 +90,7 @@ def based(user, flair, pill):
     return replyMessage
 
 
-def myBasedCount(user: str):
+def myBasedCount(user: str, my: bool = True):
     dataBased = connectMongo()
     # Retrieve User Data
 
@@ -102,7 +105,10 @@ def myBasedCount(user: str):
         replyMessage = "Your Based Count is " + count + ". \n\n" + \
             'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + compass
     else:
-        replyMessage = random.choice(myBasedNoUserReply)
+        if my:
+            replyMessage = random.choice(myBasedNoUserReply)
+        else:
+            replyMessage = random.choice(basedCountNoUserReply)
     return replyMessage
 
 
@@ -116,21 +122,7 @@ def basedCountUser(string: str):
     user = string.strip()
 
     # Retrieve User Data
-
-    dataBased = connectMongo()
-    profile = dataBased.find_one({"name": user})
-    count = str(checkBasedCount(profile))
-    pills = checkPills(profile)
-    compass = checkCompass(profile)
-
-    # Build Reply Message
-    if int(count) > 0:
-        rank = ranks.rankName(int(count), user)
-        replyMessage = user + "'s Based Count is " + count + ". \n\n" + \
-            'Rank: ' + rank + "\n\n" + 'Pills: ' + pills + "\n\n" + compass
-    else:
-        replyMessage = random.choice(basedCountNoUserReply)
-    return replyMessage
+    return myBasedCount(user, False)
 
 
 def mostBased():
@@ -198,16 +190,13 @@ def myCompass(user, compass):
 # === Databased Searching and Updating ===
 
 def addBasedCount(user, flair, dataBased):
-    # Check if existing user and calculate based count
-    userProfile = dataBased.find_one({'name': user})
-    if userProfile == None:
-        dataBased.update_one({'name': user}, {'$set': {
-                             'flair': flair, 'count': 1, 'pills': [], 'compass': [], 'sapply': []}}, upsert=True)
-        return 1
-    else:
-        dataBased.update_one(
-            {'name': user}, {'$set': {'flair': flair, 'count': userProfile['count'] + 1}})
-        return userProfile['count'] + 1
+    dataBased.find_one_and_update(
+        {"name": user},
+        {"$set": {"flair": flair}, "$inc": {"count": 1}, "$setOnInsert": {"pills": [], "compass": [], "sapply": []}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER
+    )
+    
 
 
 def checkBasedCount(profile: dict) -> int:
@@ -215,7 +204,7 @@ def checkBasedCount(profile: dict) -> int:
     return int(profile.get("count", 0))
 
 
-def checkPills(profile):
+def checkPills(profile: dict):
     # Check if existing user and calculate pill list
     if pills := profile.get("pills", None):
         return f"[{len(pills):,}](https://basedcount.com/u/{profile['name']}/)"
@@ -223,8 +212,8 @@ def checkPills(profile):
         return "None"
 
 
-def addPills(user: str, pill: Union[dict, str], dataBased):
-    if type(pill) == str:  # this should be handled outside of this function ;(
+def addPills(user: str, pill: Union[dict, str], dataBased: MongoClient):
+    if not pill:  # this should be handled outside of this function ;(
         return
 
     dataBased.find_one_and_update(
@@ -233,7 +222,7 @@ def addPills(user: str, pill: Union[dict, str], dataBased):
     )
 
 
-def removePill(user, string, dataBased):
+def removePill(user: str, string: str, dataBased: MongoClient):
 
     # Parse data and get the bare string
     delete = string.lower().replace('/removepill ', '')
@@ -278,7 +267,7 @@ def checkCompass(profile: dict) -> str:
 
 # === Utils ===
 
-def quadrantName(value, side1, side2):
+def quadrantName(value: str, side1: str, side2: str) -> str:
     if ('-' in value):
         value = value.replace('-', '')
         return side1 + ': ' + value
