@@ -6,7 +6,7 @@ from collections import Counter
 import random
 from typing import Dict, Union
 import pymongo
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 
 # basedcount_bot Libraries
 import ranks
