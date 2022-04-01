@@ -1,9 +1,7 @@
 # Anti-cheating functions
 
 # Python Libraries
-import json
 import praw
-from datetime import timedelta, datetime
 
 # basedcount_bot Libraries
 from passwords import bot, mongoPass

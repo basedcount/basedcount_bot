@@ -1,11 +1,8 @@
 # User Commands Library
 
 # Python Libraries
-import json
-from collections import Counter
 import random
-from typing import Dict, Union
-import pymongo
+from typing import Union
 from pymongo import MongoClient, ReturnDocument
 
 # basedcount_bot Libraries

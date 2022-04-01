@@ -2,13 +2,9 @@
 # FAQ: https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/
 
 # Python Libraries
-import json
 import praw
-from datetime import timedelta, datetime
 import traceback
-from subprocess import call
-from os import path
-from datetime import timedelta, datetime
+from datetime import datetime
 import signal
 import time
 

@@ -1,13 +1,6 @@
-from __future__ import print_function
-import os.path
-from datetime import timedelta, datetime
+from datetime import datetime
 from googleapiclient.discovery import build
-from google_auth_oauthlib.flow import InstalledAppFlow
-from google.auth.transport.requests import Request
-from google.oauth2.credentials import Credentials
 from apiclient.http import MediaFileUpload
-import io
-from googleapiclient.http import MediaIoBaseDownload
 import json
 from oauth2client.service_account import ServiceAccountCredentials
 from passwords import mongoPass
