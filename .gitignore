@@ -4,3 +4,4 @@ creds.json
 __pycache__/*
 venv
 *.json
+*.ipynb
