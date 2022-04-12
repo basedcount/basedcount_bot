@@ -1,7 +1,5 @@
 aenum==2.2.6
-aiohttp==3.8.1
 altgraph==0.17
-async-timeout==3.0.1
 attrs==21.2.0
 auto-py-to-exe==2.9.0
 beautifulsoup4==4.9.3

@@ -62,7 +62,7 @@ def based(user, flair, pill):
     
     profile = dataBased.find_one({"name": user})
     count = str(checkBasedCount(profile))
-    rank = ranks.rankName(int(count), user, dataBased)
+    rank = ranks.rankName(int(count), user)
     rankUp = ranks.rankMessage(int(count))
 
     # If rank/rankUp modifies profile this code **wil** break
