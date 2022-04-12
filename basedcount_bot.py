@@ -15,7 +15,7 @@ import time
 # basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill, myCompass
 from flairs import checkFlair
-from passwords import bot, bannedWords, modPasswords
+from passwords import bot, bannedWords
 from cheating import checkForCheating, sendCheatReport
 from backupDrive import backupDataBased
 
