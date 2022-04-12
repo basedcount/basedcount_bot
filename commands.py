@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# User Commands Library
-
 # Python Libraries
 import random
 from typing import Union
@@ -271,8 +268,6 @@ def quadrantName(value: str, side1: str, side2: str) -> str:
         return side1 + ': ' + value
     else:
         return side2 + ': ' + value
-=======
-# User Commands Library
 
 # Python Libraries
 import random
@@ -544,4 +539,3 @@ def quadrantName(value: str, side1: str, side2: str) -> str:
         return side1 + ': ' + value
     else:
         return side2 + ': ' + value
->>>>>>> a97434e6d75af2eac17cc79aab19ae35d01e494e
