@@ -11,7 +11,7 @@ import time
 # basedcount_bot Libraries
 from commands import based, myBasedCount, basedCountUser, mostBased, removePill, myCompass
 from flairs import checkFlair
-from passwords import bot, bannedWords, modPasswords
+from passwords import bot, bannedWords
 from cheating import checkForCheating, sendCheatReport
 from backupDrive import backupDataBased
 
@@ -25,7 +25,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.17.0'
+version = 'Bot v2.17.1'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -89,16 +89,6 @@ def checkMail():
 				if str(message.subject).lower() in 'question':
 					message.reply('Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.')
 				reddit.redditor(bot.admin).message(str(message.subject) + ' from ' + author, content)
-
-# --------- Check for mod commands
-			for mpass in modPasswords:
-				if (content.startswith(mpass.password)):
-					if author == mpass.user:
-						cleanContent = content.replace(mpass.password + ' ', '')
-						if cleanContent.startswith('/removepill '):
-							cleanContent = cleanContent.replace('/removepill ', '')
-							user_pill_split = cleanContent.split(" ", 1)
-							replyMessage = removePill(user_pill_split[0], user_pill_split[1])
 
 # --------- Check for user commands
 			if '/info' in content.lower():
