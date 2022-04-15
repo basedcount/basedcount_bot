@@ -473,7 +473,7 @@ def checkBasedCount(profile: dict) -> int:
 def checkPills(profile: dict):
     # Check if existing user and calculate pill list
     if pills := profile.get("pills", None):
-        return f"[{len(pills):,}](https://basedcount.com/u/{profile['name']}/)"
+        return f"{len(pills):,} | https://basedcount.com/u/{profile['name']}/"
     else:
         return "None"
 
