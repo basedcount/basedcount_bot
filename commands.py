@@ -208,7 +208,7 @@ def checkPills(profile: dict):
 
 
 def addPills(user: str, pill: Union[dict, str], dataBased: MongoClient):
-    if not pill:  # this should be handled outside of this function ;(
+    if not pill or pill == "None":  # this should be handled outside of this function ;(
         return
 
     dataBased.find_one_and_update(
