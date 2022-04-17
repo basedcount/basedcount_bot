@@ -488,7 +488,8 @@ def addPills(user: str, pill: Union[dict, str], dataBased: MongoClient):
     )
 
 
-def removePill(user: str, string: str, dataBased: MongoClient):
+def removePill(user: str, string: str):
+    dataBased = connectMongo()
 
     # Parse data and get the bare string
     delete = string.lower().replace('/removepill ', '')
