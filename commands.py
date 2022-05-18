@@ -204,7 +204,7 @@ def checkPills(profile: dict):
     if pills := profile.get("pills", None):
         return f"[{len(pills):,}](https://basedcount.com/u/{profile['name']}/)"
     else:
-        return "None"
+        return f"[None](https://basedcount.com/u/{profile['name']}/)"
 
 
 def addPills(user: str, pill: Union[dict, str], dataBased: MongoClient):
