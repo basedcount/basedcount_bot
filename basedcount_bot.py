@@ -25,7 +25,7 @@ reddit = praw.Reddit(client_id=bot.client_id,
 
 # Parameters
 subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.17.1'
+version = 'Bot v2.17.5'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -38,7 +38,7 @@ infoMessage = 'I am a bot created to keep track of how based users are. '\
 '**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.org or sapplyvalues.github.io url**'
 
 # Vocabulary
-excludedAccounts = ['basedcount_bot', 'VredditDownloader']
+excludedAccounts = ['basedcount_bot', 'VredditDownloader', 'flairchange_bot']
 excludedParents = ['basedcount_bot']
 botName_Variations = ['/u/basedcount_bot ', 'u/basedcount_bot ', 'basedcount_bot ', '/u/basedcount_bot', 'u/basedcount_bot', 'basedcount_bot']
 
