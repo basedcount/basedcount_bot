@@ -202,9 +202,9 @@ def checkBasedCount(profile: dict) -> int:
 def checkPills(profile: dict):
     # Check if existing user and calculate pill list
     if pills := profile.get("pills", None):
-        return f"[{len(pills):,}](https://basedcount.com/u/{profile['name']}/)"
+        return f"[{len(pills):,} | View pills.](https://basedcount.com/u/{profile['name']}/)"
     else:
-        return f"[None](https://basedcount.com/u/{profile['name']}/)"
+        return f"[None. | View profile.](https://basedcount.com/u/{profile['name']}/)"
 
 
 def addPills(user: str, pill: Union[dict, str], dataBased: MongoClient):
