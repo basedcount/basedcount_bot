@@ -1,3 +1,7 @@
+# |==============|
+# |   Commands   |
+# |==============|
+
 # Python Libraries
 import random
 from typing import Union
@@ -40,14 +44,16 @@ politicalCompass_variations = ['https://www.politicalcompass.org/yourpoliticalco
 sapplyCompass_variations = ['https://sapplyvalues.github.io/results.html?right=',
                             'sapplyvalues.github.io/results.html?right=']
 
-
 def connectMongo():
     cluster = MongoClient(mongoPass)
     dataBased = cluster['dataBased']
     return dataBased['users']
 
 
-# === User Commands ===
+
+# |-------------------|
+# |   User Commands   |
+# |-------------------|
 
 def based(user, flair, pill):
 
@@ -182,7 +188,10 @@ def myCompass(user, compass):
     return "Sorry, but that isn't a valid URL. Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
 
 
-# === Databased Searching and Updating ===
+
+# |--------------------------------------|
+# |   Databased Searching and Updating   |
+# |--------------------------------------|
 
 def addBasedCount(user, flair, dataBased):
     dataBased.find_one_and_update(
@@ -191,7 +200,6 @@ def addBasedCount(user, flair, dataBased):
         upsert=True,
         return_document=ReturnDocument.AFTER
     )
-    
 
 
 def checkBasedCount(profile: dict) -> int:
@@ -261,7 +269,9 @@ def checkCompass(profile: dict) -> str:
     return compassReply
 
 
-# === Utils ===
+# |-----------|
+# |   Utils   |
+# |-----------|
 
 def quadrantName(value: str, side1: str, side2: str) -> str:
     if ('-' in value):

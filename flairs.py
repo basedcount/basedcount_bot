@@ -1,4 +1,6 @@
-# Flair Objects and Functions
+# |============|
+# |   flairs   |
+# |============|
 
 class Flair:
 	def __init__(self, name, tag):
@@ -6,11 +8,12 @@ class Flair:
 		self.tag = tag
 
 def checkFlair(flair_text):
-	flair = 'None'
+	if flair_text==None:
+		return 'Unflaired'
 	for f in range(len(flairList)):
 		if flairList[f].tag in str(flair_text):
-			flair = flairList[f].name
-	return flair
+			return flairList[f].name
+	return str(flair_text)
 
 # Add flairs to list
 flairList = []

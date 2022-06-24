@@ -1,4 +1,7 @@
-# basedcount_bot ⣿
+# |====================|
+# |   basedcount_bot   |
+# |====================|
+
 # FAQ: https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/
 
 # Python Libraries
@@ -24,8 +27,8 @@ reddit = praw.Reddit(client_id=bot.client_id,
 			password=bot.password)
 
 # Parameters
-subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.17.6'
+subreddit = reddit.subreddit('PoliticalCompassMemes+PoliticalCompassMemesBR')
+version = 'Bot v2.18.0'
 infoMessage = 'I am a bot created to keep track of how based users are. '\
 'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
 'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
@@ -67,9 +70,16 @@ myBasedCount_Variations = ['/mybasedcount']
 basedCountUser_Variations = ['/basedcount']
 mostBased_Variations = ['/mostbased']
 
+# Prepare bot and backup databased on restart
 time.sleep(10)
 backupDataBased()
 run = True
+
+
+
+# |-----------|
+# |   Inbox   |
+# |-----------|
 
 def checkMail():
 	inbox = reddit.inbox.unread(limit=30)
@@ -121,6 +131,10 @@ def checkMail():
 				message.reply(replyMessage)
 
 
+
+# |---------------------|
+# |   Comment Crawler   |
+# |---------------------|
 
 def readComments():
 	try:
@@ -267,6 +281,10 @@ def readComments():
 
 
 
+# |-------------------|
+# |   Bot Utilities   |
+# |-------------------|
+
 # - Exception Handler
 	except praw.exceptions.APIException as e:
 		if (e.error_type == "RATELIMIT"):
@@ -284,16 +302,13 @@ def readComments():
 			print(e.message)
 
 
-
 # Execute
 def main():
-
 	# Start
 	try:
 		checkMail()
 		readComments()
 		print('End Cycle')
-
 	# Record info if an error is encountered
 	except Exception:
 		print('Error occurred:' + str(datetime.today().strftime('%Y-%m-%d')))
@@ -301,7 +316,7 @@ def main():
 	#main()
 
 
-# Save dataBased when server shuts down
+# Send cheat report when server shuts down
 def handler_stop_signals(signum, frame):
 	global run
 	run = False
