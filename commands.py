@@ -197,7 +197,7 @@ def myCompass(user, compass):
 def addBasedCount(user, flair, dataBased):
     dataBased.find_one_and_update(
         {"name": user},
-        {"$set": {"flair": flair}, "$inc": {"count": 1}, "$push": {"basedTime": round(time.time())}, "$setOnInsert": {"pills": [], "compass": [], "sapply": [], "basedTime": []}}, # Don't forget to change myCompass upsert!!!
+        {"$set": {"flair": flair}, "$inc": {"count": 1}, "$push": {"basedTime": int(round(time.time()))}, "$setOnInsert": {"pills": [], "compass": [], "sapply": [], "basedTime": []}}, # Don't forget to change myCompass upsert!!!
         upsert=True,
         return_document=ReturnDocument.AFTER
     )
