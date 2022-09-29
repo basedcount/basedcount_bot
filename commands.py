@@ -148,7 +148,7 @@ def myCompass(user, compass):
     userProfile = dataBased.find_one({'name': user})
     if userProfile == None:
         dataBased.update_one({'name': user}, {'$set': {
-                             'flair': 'Unflaired', 'count': 0, 'pills': [], 'compass': [], 'sapply': []}}, upsert=True)
+                             'flair': 'Unflaired', 'count': 0, 'pills': [], 'compass': [], 'sapply': [], 'basedTime': []}}, upsert=True) # Don't forget to change addBasedCount upsert!!!
 
     compass = compass.lower().replace('/mycompass ', '')
 
@@ -196,7 +196,7 @@ def myCompass(user, compass):
 def addBasedCount(user, flair, dataBased):
     dataBased.find_one_and_update(
         {"name": user},
-        {"$set": {"flair": flair}, "$inc": {"count": 1}, "$setOnInsert": {"pills": [], "compass": [], "sapply": []}},
+        {"$set": {"flair": flair}, "$inc": {"count": 1}, "$setOnInsert": {"pills": [], "compass": [], "sapply": [], "basedTime": []}}, # Don't forget to change myCompass upsert!!!
         upsert=True,
         return_document=ReturnDocument.AFTER
     )
