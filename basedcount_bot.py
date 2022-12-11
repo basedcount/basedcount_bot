@@ -1,6 +1,7 @@
 import asyncio
 import re
 from typing import Awaitable, Callable
+
 import aiofiles
 from asyncpraw import Reddit
 from asyncpraw.models import Message
@@ -24,19 +25,6 @@ def exception_wrapper(func: Callable[[Reddit], Awaitable[None]]) -> Callable[[Re
             main_logger.critical("Serious Exception", exc_info=True)
 
     return wrapper
-
-
-@exception_wrapper
-async def cheating_report(reddit_instance: Reddit) -> None:
-    """Sends cheating report to bot admins once every day.
-
-    :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
-
-    :returns: Nothing is returned
-
-    """
-    main_logger.info("Sending Cheating Report to admins.")
-    await asyncio.sleep(86400)
 
 
 @exception_wrapper
@@ -107,7 +95,7 @@ async def read_comments(reddit_instance: Reddit) -> None:
     :returns: Nothing is returned
 
     """
-    print(await reddit_instance.user.me())
+    main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
     await asyncio.sleep(2)
     print("done comments")
 
@@ -116,7 +104,6 @@ async def main() -> None:
     await asyncio.gather(
         check_mail(await create_reddit_instance()),
         read_comments(await create_reddit_instance()),
-        cheating_report(await create_reddit_instance()),
     )
 
 

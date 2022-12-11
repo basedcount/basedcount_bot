@@ -82,7 +82,7 @@ class User:
         """
         if not rank_list:
             await load_ranks()
-        return await rank_name(self.based_count, self.username)
+        return rank_name(self.based_count, self.username)
 
     def format_pills(self) -> str:
         """Formats the pills into a nice string which is replied back to the user

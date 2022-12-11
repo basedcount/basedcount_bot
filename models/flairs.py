@@ -20,7 +20,7 @@ async def load_flairs(file_path: Optional[str] = None) -> None:
             flair_dict[key] = value
 
 
-async def get_flair_name(flair_text: str) -> str:
+def get_flair_name(flair_text: str) -> str:
     """Gets the flair full name from flair id.
 
     :param flair_text: flair id used in reddit to show emojis

@@ -328,3 +328,6 @@ ValueError: No ranks for the given based count.
 [2022-12-11 02:19:24,514] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
 [2022-12-11 02:21:51,527] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /basedcount: /basedcount presidentjoe
 [2022-12-11 02:29:46,767] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /basedcount voidblade459: /basedcount voidblade459
+[2022-12-11 02:34:36,095] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:35:02,565] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /basedcount voidblade459: /basedcount voidblade459
+[2022-12-11 17:22:04,360] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.

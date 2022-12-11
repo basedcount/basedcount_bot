@@ -28,7 +28,7 @@ async def load_ranks() -> None:
             rank_list.append(Rank(name=key, value=value["value"], message=value["message"]))
 
 
-async def rank_name(based_count: int, user: str) -> str:
+def rank_name(based_count: int, user: str) -> str:
     """Gets the user rank name from their based count.
 
     :param based_count: user based count
@@ -49,7 +49,7 @@ async def rank_name(based_count: int, user: str) -> str:
     raise ValueError("No ranks for the given based count.")
 
 
-async def rank_message(based_count: int) -> str:
+def rank_message(based_count: int) -> str:
     """Gets the user rank message from their based count.
 
     :param based_count: user based count
