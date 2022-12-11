@@ -5,7 +5,7 @@ from typing import Any, Optional
 from attrs import define, field
 
 from models.pill import Pill
-from models.ranks import rank_list, load_ranks, rank_name
+from models.ranks import rank_name
 
 
 def quadrant_name(compass_value: str, side1: str, side2: str) -> str:
@@ -80,9 +80,7 @@ class User:
         :returns: rank which user is at
 
         """
-        if not rank_list:
-            await load_ranks()
-        return rank_name(self.based_count, self.username)
+        return await rank_name(self.based_count, self.username)
 
     def format_pills(self) -> str:
         """Formats the pills into a nice string which is replied back to the user

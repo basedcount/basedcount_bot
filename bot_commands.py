@@ -7,6 +7,21 @@ from models.user import User
 from utility_functions import get_mongo_collection
 
 
+async def most_based() -> str:
+    """Returns the top 10 most based users of all time.
+
+    :returns: Str object containing the top 10 most based users
+
+    """
+    data_based = await get_mongo_collection(collection_name="users")
+    top_ten = await data_based.find().sort("count", -1).limit(10).to_list(length=None)
+
+    most_count_flair = []
+    for pos, result in enumerate(top_ten, start=1):
+        most_count_flair.append(f"{pos}. {{name}} || {{count}} | {{flair}}".format(**result))
+    return "--The Top 10 Most Based Users--\n\n" + "\n\n".join(most_count_flair)
+
+
 async def get_based_count(user_name: str, is_me: bool = False) -> str:
     """Retrieves the Based Count for the given username.
 

@@ -28,7 +28,7 @@ async def load_ranks() -> None:
             rank_list.append(Rank(name=key, value=value["value"], message=value["message"]))
 
 
-def rank_name(based_count: int, user: str) -> str:
+async def rank_name(based_count: int, user: str) -> str:
     """Gets the user rank name from their based count.
 
     :param based_count: user based count
@@ -37,6 +37,9 @@ def rank_name(based_count: int, user: str) -> str:
     :returns: rank which user is at
 
     """
+    if not rank_list:
+        await load_ranks()
+
     if based_count >= 10_000:
         return f"u/{user}'s Mom"
 
@@ -49,7 +52,7 @@ def rank_name(based_count: int, user: str) -> str:
     raise ValueError("No ranks for the given based count.")
 
 
-def rank_message(based_count: int) -> str:
+async def rank_message(based_count: int) -> str:
     """Gets the user rank message from their based count.
 
     :param based_count: user based count
@@ -57,6 +60,8 @@ def rank_message(based_count: int) -> str:
     :returns: rank message of rank which user is at
 
     """
+    if not rank_list:
+        await load_ranks()
 
     if based_count >= 10_000:
         return "You have spent too much time collecting Based counts. Go touch grass or something."

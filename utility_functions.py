@@ -6,16 +6,16 @@ from os import getenv
 
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
-from motor.motor_tornado import MotorClient, MotorCollection
+from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 
-async def get_mongo_collection(collection_name: str) -> MotorCollection:
+async def get_mongo_collection(collection_name: str) -> AsyncIOMotorCollection:
     """Returns the user databased from dataBased Cluster from MongoDB
 
     :returns: Returns a Collection from Mongo DB
 
     """
-    cluster = MotorClient(getenv("MONGO_PASS"))
+    cluster = AsyncIOMotorClient(getenv("MONGO_PASS"))
     data_based = cluster["dataBased"]
     return data_based[collection_name]
 
