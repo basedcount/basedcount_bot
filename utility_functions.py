@@ -10,21 +10,20 @@ from motor.motor_tornado import MotorClient, MotorCollection
 
 
 async def get_mongo_collection(collection_name: str) -> MotorCollection:
-    """
-    Returns the user databased from dataBased Cluster from MongoDB
+    """Returns the user databased from dataBased Cluster from MongoDB
 
-    :return:
+    :returns: Returns a Collection from Mongo DB
+
     """
     cluster = MotorClient(getenv("MONGO_PASS"))
-    data_based = cluster['dataBased']
+    data_based = cluster["dataBased"]
     return data_based[collection_name]
 
 
 async def create_reddit_instance() -> Reddit:
-    """
-    Creates Reddit instance and returns the object
+    """Creates Reddit instance and returns the object
 
-    :return: Reddit instance object.
+    :returns: Reddit instance object.
 
     """
     return Reddit(
@@ -37,26 +36,25 @@ async def create_reddit_instance() -> Reddit:
 
 
 async def send_message_to_admin(message_subject: str, message_body: str, author_name: str) -> None:
-    """
-    Forwards the message to the bot admin specified in the environment variable
+    """Forwards the message to the bot admin specified in the environment variable
 
     :param message_subject: Subject of message
     :param message_body: Body of message
     :param author_name: Sender name, useful when forwarding messages
-    :return: None
+
+    :returns: None
 
     """
-    bot_admin: Redditor = await(await create_reddit_instance()).redditor(getenv("BOT_ADMIN"))
+    bot_admin: Redditor = await (await create_reddit_instance()).redditor(getenv("BOT_ADMIN"))
     await bot_admin.message(subject=f"{message_subject} from {author_name}", message=message_body)
 
 
 def create_logger() -> logging.Logger:
-    """
-    Creates logger and returns an instance of logging object.
-    :return: Logging Object.
+    """Creates logger and returns an instance of logging object.
+
+    :returns: Logging Object.
 
     """
-    # Setting up the logger
     fileConfig("logging.conf")
     logger = logging.getLogger("basedcount_bot")
     return logger

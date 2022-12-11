@@ -146,7 +146,7 @@ Traceback (most recent call last):
     response = await request_function(*args, **kwargs)
   File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 68, in request
     raise RequestException(exc, args, kwargs)
-asyncprawcore.exceptions.RequestException: error with request 
+asyncprawcore.exceptions.RequestException: error with request
 [2022-12-10 04:41:00,287] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
 Traceback (most recent call last):
   File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
@@ -224,7 +224,7 @@ Traceback (most recent call last):
     response = await request_function(*args, **kwargs)
   File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 68, in request
     raise RequestException(exc, args, kwargs)
-asyncprawcore.exceptions.RequestException: error with request 
+asyncprawcore.exceptions.RequestException: error with request
 [2022-12-10 15:37:13,922] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
 [2022-12-10 15:38:24,158] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
 [2022-12-10 15:39:05,740] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
@@ -235,3 +235,34 @@ asyncprawcore.exceptions.RequestException: error with request
 [2022-12-10 15:57:57,015] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
 [2022-12-10 22:55:38,697] INFO [basedcount_bot.py.check_mail:46] Received message from is_fake_Account, sdfsd: /basedcount basedcount_bot
 [2022-12-10 23:22:31,080] INFO [basedcount_bot.py.check_mail:46] Received message from is_fake_Account, dsf: /basedcount dhskfjdfh
+[2022-12-11 01:16:21,203] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:16:22,179] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, dsf: /basedcount dhskfjdfh
+[2022-12-11 01:44:21,960] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:44:41,037] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:44:47,171] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:45:08,581] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:46:00,234] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:46:01,274] CRITICAL [basedcount_bot.py.wrapper:24] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 52, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 20, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 97, in check_mail
+    await message.mark_read()
+AttributeError: type object 'StopAsyncIteration' has no attribute 'mark_read'
+[2022-12-11 01:47:06,655] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:47:10,778] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /info: /info
+[2022-12-11 01:48:01,512] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:48:32,970] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 01:49:05,127] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /info: /info
+[2022-12-11 01:50:02,236] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.

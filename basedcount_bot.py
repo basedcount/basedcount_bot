@@ -1,7 +1,7 @@
 import asyncio
 import re
 from typing import Awaitable, Callable
-
+import aiofiles
 from asyncpraw import Reddit
 from asyncpraw.models import Message
 from asyncprawcore.exceptions import AsyncPrawcoreException
@@ -24,6 +24,19 @@ def exception_wrapper(func: Callable[[Reddit], Awaitable[None]]) -> Callable[[Re
             main_logger.critical("Serious Exception", exc_info=True)
 
     return wrapper
+
+
+@exception_wrapper
+async def cheating_report(reddit_instance: Reddit) -> None:
+    """Sends cheating report to bot admins once every day.
+
+    :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
+
+    :returns: Nothing is returned
+
+    """
+    main_logger.info("Sending Cheating Report to admins.")
+    await asyncio.sleep(86400)
 
 
 @exception_wrapper
@@ -62,8 +75,8 @@ async def check_mail(reddit_instance: Reddit) -> None:
                 await reply_task
 
             if "/info" in message_body:
-                with open("data_dictionaries/bot_replies.yaml", "r") as fp:
-                    replies = safe_load(fp)
+                async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
+                    replies = safe_load(await fp.read())
                     await message.reply(replies.get("info_message"))
 
             elif "/mybasedcount" in message_body:
@@ -100,7 +113,11 @@ async def read_comments(reddit_instance: Reddit) -> None:
 
 
 async def main() -> None:
-    await asyncio.gather(check_mail(await create_reddit_instance()), read_comments(await create_reddit_instance()))
+    await asyncio.gather(
+        check_mail(await create_reddit_instance()),
+        read_comments(await create_reddit_instance()),
+        cheating_report(await create_reddit_instance()),
+    )
 
 
 if __name__ == "__main__":

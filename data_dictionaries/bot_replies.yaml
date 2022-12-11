@@ -1,15 +1,15 @@
 info_message: |
   I am a bot created to keep track of how based users are Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).
   I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/)
-  
-  If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a 
+
+  If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a
   human operator.
-  
+
   > based - adj. - to be in possession of viewpoints acquired through logic or observation ather than simply following what your political alignment dictates,
   often used as a sign of respect but not necessarily agreement
-  
+
   Bot v2.17.6
-  
+
   **Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.org or sapplyvalues.github.io url**
 
 political_compass_variations:
