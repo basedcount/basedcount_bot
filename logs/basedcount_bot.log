@@ -1,0 +1,237 @@
+[2022-12-10 03:45:29,487] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, suggestion: rewrite the whole bot
+[2022-12-10 04:17:48,828] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 36, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 82, in check_mail
+    await message.mark_read()
+TypeError: 'StopAsyncIteration' object is not callable
+[2022-12-10 04:18:16,861] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 36, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 82, in check_mail
+    await message.mark_read()
+TypeError: 'StopAsyncIteration' object is not callable
+[2022-12-10 04:19:04,172] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 36, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 82, in check_mail
+    await message.mark_read()
+TypeError: 'StopAsyncIteration' object is not callable
+[2022-12-10 04:19:14,833] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 36, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 82, in check_mail
+    await message.mark_read()
+TypeError: 'StopAsyncIteration' object is not callable
+[2022-12-10 04:20:56,241] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:27:28,086] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:28:11,405] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 36, in check_mail
+    async for message in reddit_instance.inbox.unread(limit=None):  # Message
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 63, in __anext__
+    await self._next_batch()
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/listing/generator.py", line 94, in _next_batch
+    raise StopAsyncIteration()
+StopAsyncIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 82, in check_mail
+    await message.mark_read()
+TypeError: 'StopAsyncIteration' object is not callable
+[2022-12-10 04:29:14,251] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:31:03,405] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 69, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/commands.py", line 91, in get_based_count
+    profile = await data_based.find_one({"name": user_name})
+TypeError: '_asyncio.FutureIter' object is not callable
+[2022-12-10 04:33:42,583] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:40:36,610] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:40:59,213] ERROR [basedcount_bot.py.wrapper:21] AsyncPrawcoreException
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 64, in request
+    return await self._http.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 894, in start
+    with self._timer:
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/helpers.py", line 720, in __exit__
+    raise asyncio.TimeoutError from None
+asyncio.exceptions.TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 88, in read_comments
+    print(await reddit_instance.user.me())
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/user.py", line 169, in me
+    user_data = await self._reddit.get(API_PATH["me"])
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 707, in get
+    return await self._objectify_request(method="GET", params=params, path=path)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 815, in _objectify_request
+    await self.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 1032, in request
+    return await self._core.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 370, in request
+    return await self._request_with_retries(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 270, in _request_with_retries
+    response, saved_exception = await self._make_request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 187, in _make_request
+    response = await self._rate_limiter.call(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/rate_limit.py", line 35, in call
+    response = await request_function(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 68, in request
+    raise RequestException(exc, args, kwargs)
+asyncprawcore.exceptions.RequestException: error with request 
+[2022-12-10 04:41:00,287] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 69, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/commands.py", line 91, in get_based_count
+    profile = await data_based.find_one({"name": user_name})
+TypeError: '_asyncio.FutureIter' object is not callable
+[2022-12-10 04:42:32,762] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:42:36,998] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 69, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/commands.py", line 91, in get_based_count
+    d = await data_based
+TypeError: object MotorCollection can't be used in 'await' expression
+[2022-12-10 04:44:48,019] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:48:59,607] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 04:52:12,645] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 14:56:04,073] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 14:56:38,123] CRITICAL [basedcount_bot.py.wrapper:23] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 75, in check_mail
+    user_based_count = await get_based_count(user_name=user_name, is_me=False)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/commands.py", line 90, in get_based_count
+    count = profile.get("count", 0)
+AttributeError: 'NoneType' object has no attribute 'get'
+[2022-12-10 14:58:36,522] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:02:42,221] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:03:39,223] ERROR [basedcount_bot.py.wrapper:21] AsyncPrawcoreException
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 64, in request
+    return await self._http.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/client.py", line 560, in _request
+    await resp.start(conn)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/client_reqrep.py", line 894, in start
+    with self._timer:
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/aiohttp/helpers.py", line 720, in __exit__
+    raise asyncio.TimeoutError from None
+asyncio.exceptions.TimeoutError
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 19, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 89, in read_comments
+    print(await reddit_instance.user.me())
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/user.py", line 169, in me
+    user_data = await self._reddit.get(API_PATH["me"])
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 707, in get
+    return await self._objectify_request(method="GET", params=params, path=path)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 815, in _objectify_request
+    await self.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 1032, in request
+    return await self._core.request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 370, in request
+    return await self._request_with_retries(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 270, in _request_with_retries
+    response, saved_exception = await self._make_request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/sessions.py", line 187, in _make_request
+    response = await self._rate_limiter.call(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/rate_limit.py", line 35, in call
+    response = await request_function(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncprawcore/requestor.py", line 68, in request
+    raise RequestException(exc, args, kwargs)
+asyncprawcore.exceptions.RequestException: error with request 
+[2022-12-10 15:37:13,922] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:38:24,158] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:39:05,740] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:39:47,435] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:42:54,412] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, the_names_savage: /basedcount the_names_savage
+[2022-12-10 15:52:07,135] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 15:53:42,891] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 15:57:57,015] INFO [basedcount_bot.py.check_mail:43] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-10 22:55:38,697] INFO [basedcount_bot.py.check_mail:46] Received message from is_fake_Account, sdfsd: /basedcount basedcount_bot
+[2022-12-10 23:22:31,080] INFO [basedcount_bot.py.check_mail:46] Received message from is_fake_Account, dsf: /basedcount dhskfjdfh

@@ -1,0 +1,48 @@
+info_message: |
+  I am a bot created to keep track of how based users are Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/).
+  I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/)
+  
+  If you have any suggestions or questions, please message them to me with the subject of "Suggestion" or "Question" to automatically forward them to a 
+  human operator.
+  
+  > based - adj. - to be in possession of viewpoints acquired through logic or observation ather than simply following what your political alignment dictates,
+  often used as a sign of respect but not necessarily agreement
+  
+  Bot v2.17.6
+  
+  **Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.org or sapplyvalues.github.io url**
+
+political_compass_variations:
+  - "https://www.politicalcompass.org/yourpoliticalcompass?ec="
+  - "https://politicalcompass.org/yourpoliticalcompass?ec="
+  - "https://www.politicalcompass.org/analysis2?ec="
+  - "https://politicalcompass.org/analysis2?ec="
+  - "politicalcompass.org/analysis2?ec="
+  - "politicalcompass.org/yourpoliticalcompass?ec="
+  - "www.politicalcompass.org/analysis2?ec="
+  - "www.politicalcompass.org/yourpoliticalcompass?ec="
+
+sapply_compass_variations:
+  - "https://sapplyvalues.github.io/results.html?right="
+  - "sapplyvalues.github.io/results.html?right="
+
+my_based_no_user_reply:
+  - "Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect."
+  - "[mybasedcount_clever_response_1](https://www.youtube.com/watch?v=YzKM5g_FwYU&ab_channel=TheMar%C3%ADas)"
+  - "[mybasedcount_clever_response_2](https://www.youtube.com/watch?v=PNbBDrceCy8&ab_channel=TheWhoVEVO)"
+  - "[mybasedcount_clever_response_3](https://i.kym-cdn.com/photos/images/original/001/535/068/29d.jpg)"
+  - "[mybasedcount_clever_response_4](https://qph.fs.quoracdn.net/main-qimg-3999c004b514b9bfc6ba09527bfcd724)"
+  - "[mybasedcount_clever_response_5](https://media1.giphy.com/media/Q7LP0tm86sBWIqjFCL/giphy.gif)"
+  - "[mybasedcount_clever_response_6](https://www.youtube.com/watch?v=KeLtNnHEipA&ab_channel=AlltheAnime)"
+  - "[mybasedcount_clever_response_7](https://www.youtube.com/watch?v=pmGNo8RL5kM&ab_channel=YeahYeahYeahsVEVO)"
+  - "[mybasedcount_clever_response_8](https://www.youtube.com/watch?v=M5QGkOGZubQ&ab_channel=Fayroe)"
+
+based_count_no_user_reply:
+  - "Yeah... I got nothing."
+  - "[basedcount_clever_response_1](https://www.youtube.com/watch?v=XXJ99MJ67gw&ab_channel=pepperjackcheese1)"
+  - "[basedcount_clever_response_2](https://pics.me.me/never-met-him-trump-be-like-18509974.png)"
+  - "[basedcount_clever_response_3](https://www.youtube.com/watch?v=ZTFfdEeB6j8&ab_channel=EnglishSingsing)"
+  - "[basedcount_clever_response_4](https://media1.giphy.com/media/Q7LP0tm86sBWIqjFCL/giphy.gif)"
+  - "[basedcount_clever_response_5](https://i.pinimg.com/originals/cd/c5/ff/cdc5ffaf883b13e7bcd834e464ab971a.png)"
+  - "[basedcount_clever_response_6](https://www.youtube.com/watch?v=Cs57e-viIKw&ab_channel=ButtonsTheDragon)"
+  - "[basedcount_clever_response_7](https://www.youtube.com/watch?v=tOlh-g2dxrI&ab_channel=e7magic)"

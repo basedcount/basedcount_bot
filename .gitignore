@@ -1,7 +1,11 @@
 passwords.py
-ranks.py
 creds.json
 __pycache__/*
 venv
 *.json
 *.ipynb
+.idea
+.env
+.mypy_cache
+.ruff_cache
+dataBased.json

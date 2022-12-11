@@ -1,319 +1,108 @@
-# basedcount_bot ⣿
-# FAQ: https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/
+import asyncio
+import re
+from typing import Awaitable, Callable
 
-# Python Libraries
-import praw
-import traceback
-from datetime import datetime
-import signal
-import time
+from asyncpraw import Reddit
+from asyncpraw.models import Message
+from asyncprawcore.exceptions import AsyncPrawcoreException
+from dotenv import load_dotenv
+from yaml import safe_load
 
-# basedcount_bot Libraries
-from commands import based, myBasedCount, basedCountUser, mostBased, removePill, myCompass
-from flairs import checkFlair
-from passwords import bot, bannedWords
-from cheating import checkForCheating, sendCheatReport
-from backupDrive import backupDataBased
+from bot_commands import get_based_count
+from utility_functions import create_logger, create_reddit_instance, send_message_to_admin
+
+load_dotenv()
 
 
-# Connect to Reddit
-reddit = praw.Reddit(client_id=bot.client_id,
-			client_secret=bot.client_secret,
-			user_agent=bot.user_agent,
-			username=bot.username,
-			password=bot.password)
+def exception_wrapper(func: Callable[[Reddit], Awaitable[None]]) -> Callable[[Reddit], Awaitable[None]]:
+    async def wrapper(reddit_instance: Reddit) -> None:
+        try:
+            await func(reddit_instance)
+        except AsyncPrawcoreException:
+            main_logger.exception("AsyncPrawcoreException", exc_info=True)
+        except Exception:
+            main_logger.critical("Serious Exception", exc_info=True)
 
-# Parameters
-subreddit = reddit.subreddit('PoliticalCompassMemes')
-version = 'Bot v2.17.6'
-infoMessage = 'I am a bot created to keep track of how based users are. '\
-'Check out the [FAQ](https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/). '\
-'I also track user [pills](https://reddit.com/r/basedcount_bot/comments/l23lwe/basedcount_bot_now_tracks_user_pills/).\n\n'\
-'If you have any suggestions or questions, please message them to me with the subject '\
-'of "Suggestion" or "Question" to automatically forward them to a human operator.\n\n'\
-'> based - adj. - to be in possession of viewpoints acquired through logic or observation '\
-'rather than simply following what your political alignment dictates, '\
-'often used as a sign of respect but not necessarily agreement\n\n'\
-+version+'\n\n'\
-'**Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.org or sapplyvalues.github.io url**'
-
-# Vocabulary
-excludedAccounts = ['basedcount_bot', 'VredditDownloader', 'flairchange_bot']
-excludedParents = ['basedcount_bot']
-botName_Variations = ['/u/basedcount_bot ', 'u/basedcount_bot ', 'basedcount_bot ', '/u/basedcount_bot', 'u/basedcount_bot', 'basedcount_bot']
-
-based_Variations = ['based', 'baste', 'basado', 'basiert',
-					'basato', 'fundiert', 'fondatum', 'bazita',
-					'מבוסס', 'oparte', 'bazowane', 'basé', 'baseado',
-					'gebaseerd', 'bazirano', 'perustuvaa', 'perustunut',
-					'основано', '基于', 'baseret', 'بايسد, ',
-					'na základě', 'basert', 'bazirano', 'baserad',
-					'basat', 'ベース', 'bazat', 'berdasar', 'Базирано',
-					'gebasseerd', 'Oj +1 byczq +1', 'Oj+1byczq+1']
-
-pillExcludedStrings_start = ['based', 'baste', 'and ', 'but ', 'and-', 'but-', ' ', '-', 'r/', '/r/',
-					'basado', 'basiert',
-					'basato', 'fundiert', 'fondatum', 'bazita',
-					'מבוסס', 'oparte', 'bazowane', 'basé', 'baseado',
-					'gebaseerd', 'bazirano', 'perustuvaa', 'perustunut',
-					'основано', '基于', 'baseret', 'بايسد, ',
-					'na základě', 'basert', 'bazirano', 'baserad',
-					'basat', 'ベース', 'bazat', 'berdasar', 'Базирано',
-					'gebasseerd', 'Oj +1 byczq +1', 'Oj+1byczq+1']
-
-pillExcludedStrings_end = [' and', ' but', ' ', '-']
-
-myBasedCount_Variations = ['/mybasedcount']
-basedCountUser_Variations = ['/basedcount']
-mostBased_Variations = ['/mostbased']
-
-time.sleep(10)
-backupDataBased()
-run = True
-
-def checkMail():
-	inbox = reddit.inbox.unread(limit=30)
-	for message in inbox:
-		if run == False:
-				closeBot()
-		message.mark_read()
-		currentTime = datetime.now().timestamp()
-		if ((message.created_utc > (currentTime-180)) and (message.was_comment is False)):
-			content = str(message.body)
-			author = str(message.author)
-
-# --------- Check Questions and Suggestions and then reply
-			if ('suggestion' in str(message.subject).lower()) or ('question' in str(message.subject).lower()):
-				if str(message.subject).lower() in 'suggestion':
-					message.reply('Thank you for your suggestion. I have forwarded it to a human operator.')
-				if str(message.subject).lower() in 'question':
-					message.reply('Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.')
-				reddit.redditor(bot.admin).message(str(message.subject) + ' from ' + author, content)
-
-# --------- Check for user commands
-			if '/info' in content.lower():
-					message.reply(infoMessage)
-
-			for v in myBasedCount_Variations:
-				if v in content.lower():
-					replyMessage = myBasedCount(author)
-					message.reply(replyMessage)
-					break
-
-			for v in basedCountUser_Variations:
-				if v in content.lower():
-					replyMessage = basedCountUser(content)
-					message.reply(replyMessage)
-					break
-
-			for v in mostBased_Variations:
-				if v in content.lower():
-					replyMessage = mostBased()
-					message.reply(replyMessage)
-					break
-
-			if content.lower().startswith('/removepill'):
-				replyMessage = removePill(author, content)
-				message.reply(replyMessage)
-
-			if content.lower().startswith('/mycompass'):
-				replyMessage = myCompass(author, content)
-				message.reply(replyMessage)
+    return wrapper
 
 
+@exception_wrapper
+async def check_mail(reddit_instance: Reddit) -> None:
+    """Checks the Reddit mail every after and replies to the users.
 
-def readComments():
-	try:
-		for comment in subreddit.stream.comments(skip_existing=True):
-			if run == False:
-				closeBot()
+    :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
 
-			checkMail()
+    :returns: Nothing is returned
 
-			# Get data from comment
-			author = str(comment.author)
-			if author not in excludedAccounts:
-				commenttext = str(comment.body)
+    """
+    while True:
+        async for message in reddit_instance.inbox.unread(limit=None):  # Message
+            if not isinstance(message, Message):
+                await reddit_instance.inbox.mark_read(message)
+                continue
 
-				# Remove bot mentions from comment text
-				for v in botName_Variations:
-					if v in commenttext:
-						commenttext.replace(v, '')
+            message_subject = message.subject.lower()
+            message_body = message.body.lower()
+            main_logger.info(f"Received message from {message.author}, {message_subject}: {message_body}")
 
-# ------------- Based Check
-				for v in based_Variations:
-					if (commenttext.lower().startswith(v))and not (commenttext.lower().startswith('based on ') or commenttext.lower().startswith('based off ')):
+            if "suggestion" in message_subject:
+                forward_msg_task = asyncio.create_task(
+                    send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name)
+                )
+                reply_task = asyncio.create_task(message.reply("Thank you for your suggestion. I have forwarded it to a human operator."))
+                await forward_msg_task
+                await reply_task
+            elif "question" in message_subject:
+                forward_msg_task = asyncio.create_task(
+                    send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name)
+                )
+                reply_coro = message.reply("Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.")
+                reply_task = asyncio.create_task(reply_coro)
+                await forward_msg_task
+                await reply_task
 
-						# Get data from parent comment
-						parent = str(comment.parent())
-						parentComment = reddit.comment(id=parent)
+            if "/info" in message_body:
+                with open("data_dictionaries/bot_replies.yaml", "r") as fp:
+                    replies = safe_load(fp)
+                    await message.reply(replies.get("info_message"))
 
-						#See if parent is comment (pass) or post (fail)
-						try:
-							parentAuthor = str(parentComment.author)
-							parentTextHandler = parentComment.body
-							parentText = str(parentTextHandler).lower()
-							parentFlair = parentComment.author_flair_text
-							link = parentComment.permalink
-						except:
-							parentAuthor = str(comment.submission.author)
-							parentText = 'submission is a post'
-							parentFlair = comment.submission.author_flair_text
-							link = comment.submission.permalink
-						flair = str(checkFlair(parentFlair))
+            elif "/mybasedcount" in message_body:
+                my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+                await message.reply(my_based_count)
 
-						# Make sure bot isn't the parent
-						if (parentAuthor not in excludedParents) and (parentAuthor not in author) and (comment.author_flair_text != 'None'):
+            elif "/basedcount" in message_body:
+                if result := re.search(r"/basedcount\s*?(u/)?([A-Za-z0-9_-]+)", message.body, re.IGNORECASE):
+                    user_name = result.group(2)
+                    user_based_count = await get_based_count(user_name=user_name, is_me=False)
+                    await message.reply(user_based_count)
+                else:
+                    await message.reply("Incorrect use of command. The command needs to be like /basedcount u/basedcount_bot.")
 
-							# Check for cheating
-							cheating = False
-							for v in based_Variations:
-								if parentText.lower().startswith(v) and (len(parentText) < 50):
-									cheating = True
-							if cheating:
-								break
+            elif "/mostbased" in message_body:
+                await message.reply("Most Based")
 
-							# Check for pills
-							pill = 'None'
-							if 'pilled' in commenttext.lower():
-								pill = commenttext.lower().partition('pilled')[0]
-								if (len(pill) < 70) and ('.' not in pill):
-
-									# Clean pill string beginning
-									pillClean = 0
-									while pillClean < len(pillExcludedStrings_start):
-										for pes in pillExcludedStrings_start:
-											if pill.startswith(pes):
-												pill = pill.replace(pes, '', 1)
-												pillClean = 0
-											else:
-												pillClean += 1
-
-									# Clean pill string ending
-									pillClean = 0
-									while pillClean < len(pillExcludedStrings_end):
-										for pes in pillExcludedStrings_end:
-											if pill.endswith(pes):
-												pill = pill[:-1]
-												pillClean = 0
-											else:
-												pillClean += 1
-
-									# Make sure pill is acceptable
-									pillBan = False
-									for w in bannedWords:
-										if w in pill:
-											pillBan = True
-
-									# Build pill dict entry using comment info
-									if (pillBan==False):
-										pillInfo = {}
-										pillInfo['name'] = pill
-										pillInfo['commentID'] = link
-										pillInfo['fromUser'] = author
-										pillInfo['date'] = comment.created_utc
-										pillInfo['amount'] = 1
-
-										pill = pillInfo
-									else:
-										pill = 'None'
-								else:
-									pill = 'None'
-
-							# Calculate Based Count and build reply message
-							if flair != 'Unflaired':
-								replyMessage = based(parentAuthor, flair, pill)
-
-								# Build list of users and send Cheat Report to admin
-								checkForCheating(author, parentAuthor)
-
-							# Reply
-							else:
-								break
-								# replyMessage = "Don't base the Unflaired scum!"
-							if replyMessage:
-									comment.reply(replyMessage)
-							break
-
-# ------------- Commands
-				if commenttext.lower().startswith('/info'):
-					comment.reply(infoMessage)
-
-				for v in myBasedCount_Variations:
-					if v in commenttext.lower():
-						replyMessage = myBasedCount(author)
-						comment.reply(replyMessage)
-						break
-
-				for v in basedCountUser_Variations:
-					if commenttext.lower().startswith(v):
-						replyMessage = basedCountUser(commenttext)
-						comment.reply(replyMessage)
-						break
-
-				for v in mostBased_Variations:
-					if v in commenttext.lower():
-						replyMessage = mostBased()
-						comment.reply(replyMessage)
-						break
-
-				if commenttext.lower().startswith('/removepill'):
-					replyMessage = removePill(author, commenttext)
-					comment.reply(replyMessage)
-
-				if commenttext.lower().startswith('/mycompass'):
-					replyMessage = myCompass(author, commenttext)
-					comment.reply(replyMessage)
+            await message.mark_read()
+        await asyncio.sleep(5)
 
 
+@exception_wrapper
+async def read_comments(reddit_instance: Reddit) -> None:
+    """Checks comments as they come on r/PoliticalCompassMemes and performs actions accordingly.
 
-# - Exception Handler
-	except praw.exceptions.APIException as e:
-		if (e.error_type == "RATELIMIT"):
-			delay = re.search("(\d+) minutes?", e.message)
-			if delay:
-				delay_seconds = float(int(delay.group(1)) * 60)
-				time.sleep(delay_seconds)
-				readComments()
-			else:
-				delay = re.search("(\d+) seconds", e.message)
-				delay_seconds = float(delay.group(1))
-				time.sleep(delay_seconds)
-				readComments()
-		else:
-			print(e.message)
+    :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
+
+    :returns: Nothing is returned
+
+    """
+    print(await reddit_instance.user.me())
+    await asyncio.sleep(2)
+    print("done comments")
 
 
-
-# Execute
-def main():
-
-	# Start
-	try:
-		checkMail()
-		readComments()
-		print('End Cycle')
-
-	# Record info if an error is encountered
-	except Exception:
-		print('Error occurred:' + str(datetime.today().strftime('%Y-%m-%d')))
-		traceback.print_exc()
-	#main()
+async def main() -> None:
+    await asyncio.gather(check_mail(await create_reddit_instance()), read_comments(await create_reddit_instance()))
 
 
-# Save dataBased when server shuts down
-def handler_stop_signals(signum, frame):
-	global run
-	run = False
-
-signal.signal(signal.SIGINT, handler_stop_signals)
-signal.signal(signal.SIGTERM, handler_stop_signals)
-
-def closeBot():
-	sendCheatReport()
-	print('Shutdown complete.')
-	exit()
-
-
-while run:
-	main()
+if __name__ == "__main__":
+    main_logger = create_logger()
+    asyncio.run(main())
