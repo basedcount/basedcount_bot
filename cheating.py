@@ -9,7 +9,11 @@ async def check_for_cheating(user_name: str, parent_author_name: str) -> None:
 
 
 async def send_cheat_report() -> None:
-    """Sends cheat report to the bot admins :return:"""
+    """Sends cheat report to the bot admins
+
+    :returns: None
+
+    """
     based_history = await get_mongo_collection(collection_name="basedHistory")
     user_profile = based_history.find({})
 

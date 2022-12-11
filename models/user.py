@@ -63,26 +63,26 @@ class User:
     def from_data(cls, user_dict: dict[Any, Any]) -> User:
         pills = [Pill.from_data(pill=pill, owner_name=user_dict["name"]) for pill in user_dict["pills"]]
         user_instance = cls(
-            user_id=user_dict["id"],
+            user_id=user_dict["_id"],
             username=user_dict["name"],
             based_count=user_dict["count"],
             user_flair=user_dict["flair"],
             political_compass_values=user_dict["compass"],
-            sappy_values=user_dict["sappy"],
+            sappy_values=user_dict["sapply"],
             based_time=user_dict["basedTime"],
             pills=pills,
         )
         return user_instance
 
-    def get_rank_name(self) -> str:
+    async def get_rank_name(self) -> str:
         """Gets the user rank name from their based count.
 
         :returns: rank which user is at
 
         """
-        if rank_list:
-            load_ranks()
-        return rank_name(self.based_count, self.username)
+        if not rank_list:
+            await load_ranks()
+        return await rank_name(self.based_count, self.username)
 
     def format_pills(self) -> str:
         """Formats the pills into a nice string which is replied back to the user
@@ -91,7 +91,7 @@ class User:
 
         """
         pills = f"{len(self.pills):,}" if self.pills else "None"
-        return f"[{pills} | View pills.](https://basedcount.com/u/{self.username}/)"
+        return f"[{pills} | View pills](https://basedcount.com/u/{self.username}/)"
 
     def format_compass(self) -> str:
         """Gets the political compass from the raw value from political compass and sapply values.

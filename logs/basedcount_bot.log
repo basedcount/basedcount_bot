@@ -266,3 +266,65 @@ AttributeError: type object 'StopAsyncIteration' has no attribute 'mark_read'
 [2022-12-11 01:48:32,970] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
 [2022-12-11 01:49:05,127] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /info: /info
 [2022-12-11 01:50:02,236] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:14:43,701] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:15:30,965] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:15:32,197] CRITICAL [basedcount_bot.py.wrapper:24] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 20, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 83, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/bot_commands.py", line 22, in get_based_count
+    user = User.from_data(profile)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/models/user.py", line 66, in from_data
+    user_id=user_dict["id"],
+KeyError: 'id'
+[2022-12-11 02:15:59,858] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:16:00,839] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:16:22,566] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:16:23,460] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:16:50,808] CRITICAL [basedcount_bot.py.wrapper:24] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 20, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 83, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/bot_commands.py", line 22, in get_based_count
+    user = User.from_data(profile)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/models/user.py", line 71, in from_data
+    sappy_values=user_dict["sappy"],
+KeyError: 'sappy'
+[2022-12-11 02:17:04,213] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:17:05,159] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:17:33,718] CRITICAL [basedcount_bot.py.wrapper:24] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 20, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 83, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/bot_commands.py", line 22, in get_based_count
+    user = User.from_data(profile)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/models/user.py", line 71, in from_data
+    sappy_values=user_dict["sappy"],
+KeyError: 'sappy'
+[2022-12-11 02:17:42,382] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:17:43,288] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:18:33,306] CRITICAL [basedcount_bot.py.wrapper:24] Serious Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 20, in wrapper
+    await func(reddit_instance)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/basedcount_bot.py", line 83, in check_mail
+    my_based_count = await get_based_count(user_name=message.author.name, is_me=True)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/bot_commands.py", line 25, in get_based_count
+    f"Rank: {await user.get_rank_name()}.\n\n"
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/models/user.py", line 85, in get_rank_name
+    return await rank_name(self.based_count, self.username)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/models/ranks.py", line 49, in rank_name
+    raise ValueError("No ranks for the given based count.")
+ValueError: No ranks for the given based count.
+[2022-12-11 02:19:02,050] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:19:03,063] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:19:23,633] INFO [basedcount_bot.py.cheating_report:38] Sending Cheating Report to admins.
+[2022-12-11 02:19:24,514] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /mybasedcount: /mybasedcount
+[2022-12-11 02:21:51,527] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /basedcount: /basedcount presidentjoe
+[2022-12-11 02:29:46,767] INFO [basedcount_bot.py.check_mail:59] Received message from is_fake_Account, /basedcount voidblade459: /basedcount voidblade459

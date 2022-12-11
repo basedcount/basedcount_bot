@@ -1,5 +1,6 @@
 import random
 
+import aiofiles
 import yaml
 
 from models.user import User
@@ -21,13 +22,13 @@ async def get_based_count(user_name: str, is_me: bool = False) -> str:
         user = User.from_data(profile)
         reply_message = (
             f"{'Your' if is_me else user_name} Based Count is {user.based_count}.\n\n"
-            f"Rank: {user.get_rank_name()}.\n\n"
+            f"Rank: {await user.get_rank_name()}.\n\n"
             f"Pills: {user.format_pills()}.\n\n"
             f"{user.format_compass()}"
         )
     else:
-        with open("data_dictionaries/bot_replies.yaml") as fp:
-            replies = yaml.safe_load(fp)
+        async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
+            replies = yaml.safe_load(await fp.read())
         if is_me:
             reply_message = random.choice(replies.get("my_based_no_user_reply"))
         else:
