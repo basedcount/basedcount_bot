@@ -2,6 +2,7 @@ import random
 
 import aiofiles
 import yaml
+import re
 
 from models.user import User
 from utility_functions import get_mongo_collection
@@ -32,7 +33,7 @@ async def get_based_count(user_name: str, is_me: bool = False) -> str:
 
     """
     data_based = await get_mongo_collection(collection_name="users")
-    profile = await data_based.find_one({"name": user_name})
+    profile = await data_based.find_one({"name": re.compile(rf"^{user_name}", re.I)})
     if profile is not None:
         user = User.from_data(profile)
         reply_message = (
