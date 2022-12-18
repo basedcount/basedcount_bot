@@ -39,7 +39,7 @@ async def check_mail(reddit_instance: Reddit) -> None:
     """
     async for message in reddit_instance.inbox.unread(limit=None):  # Message
         if not isinstance(message, Message):
-            await reddit_instance.inbox.mark_read(message)
+            await message.mark_read()
             continue
 
         message_subject = message.subject.lower()
@@ -57,8 +57,9 @@ async def check_mail(reddit_instance: Reddit) -> None:
             forward_msg_task = asyncio.create_task(
                 send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name)
             )
-            reply_coro = message.reply("Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.")
-            reply_task = asyncio.create_task(reply_coro)
+            reply_task = asyncio.create_task(
+                message.reply("Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.")
+            )
             await forward_msg_task
             await reply_task
 
@@ -95,8 +96,9 @@ async def read_comments(reddit_instance: Reddit) -> None:
 
     """
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
-    await asyncio.sleep(1000)
-    print("done comments")
+    pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
+    async for comment in pcm_subreddit.stream.comments(skip_existing=True):
+        print(comment)
 
 
 async def main() -> None:
