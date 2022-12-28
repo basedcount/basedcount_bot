@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import json
 from typing import Optional
 
@@ -20,10 +22,10 @@ async def load_flairs() -> None:
             flair_dict[key] = value
 
 
-async def get_flair_name(flair_text: Optional[str]) -> str:
+async def get_flair_name(flair_css_class: Optional[str]) -> str:
     """Gets the flair full name from flair id.
 
-    :param flair_text: flair id used in reddit to show emojis
+    :param flair_css_class: flair class name used in reddit to show emojis
 
     :returns: flair full name
 
@@ -33,8 +35,8 @@ async def get_flair_name(flair_text: Optional[str]) -> str:
         await load_flairs()
 
     # If flair_text is None or Empty String
-    if not flair_text:
+    if not flair_css_class:
         return "Unflaired"
 
     # If we can't find the full name for the flair_text, then the flair_text is itself returned
-    return flair_dict.get(flair_text) or flair_text
+    return flair_dict.get(flair_css_class) or flair_css_class
