@@ -14,12 +14,15 @@ from pymongo import ReturnDocument
 from models.user import User
 from models.flairs import get_flair_name
 from models.ranks import rank_name, rank_message
-from utility_functions import get_mongo_collection
+from utility_functions import get_mongo_collection, create_logger
+
+bot_commands_logger = create_logger()
 
 
 async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]]) -> Optional[str]:
+    bot_commands_logger.info(f"based_and_pilled args: {user_name}, {flair_css_class}, {pill}")
     add_based_count_task = asyncio.create_task(add_based_count(user_name, flair_css_class))
-    add_pils_task = asyncio.create_task(add_pils(user_name, pill))
+    add_pils_task = asyncio.create_task(add_pills(user_name, pill))
     await add_based_count_task
     await add_pils_task
 
@@ -69,6 +72,7 @@ async def add_based_count(user_name: str, flair_css_class: str) -> None:
     """
     data_based = await get_mongo_collection(collection_name="users")
     flair_name = await get_flair_name(flair_css_class)
+    bot_commands_logger.info(f"{flair_css_class} -> {flair_name}")
     await data_based.find_one_and_update(
         {"name": user_name},
         {"$set": {"flair": flair_name}, "$inc": {"count": 1}, "$setOnInsert": {"pills": [], "compass": [], "sapply": []}},
@@ -90,7 +94,7 @@ async def add_to_based_history(user_name: str, parent_author: str) -> None:
     await based_history.find_one_and_update({"name": user_name}, {"$inc": {parent_author: 1}}, upsert=True)
 
 
-async def add_pils(user_name: str, pill: Optional[dict[str, str | int]]) -> None:
+async def add_pills(user_name: str, pill: Optional[dict[str, str | int]]) -> None:
     """Add the pill to the user database
 
     :param user_name: The user's whose pill will be added
@@ -107,19 +111,12 @@ async def add_pils(user_name: str, pill: Optional[dict[str, str | int]]) -> None
 
 
 async def most_based() -> str:
-    """Returns the top 10 most based users of all time.
+    """Returns the link to the basedcount.com leaderboard.
 
     :returns: Str object containing the top 10 most based users
 
     """
-    # TODO: Update to reflect the account merging
-    data_based = await get_mongo_collection(collection_name="users")
-    top_ten = await data_based.find().sort("count", -1).limit(10).to_list(length=None)
-
-    most_count_flair = []
-    for pos, result in enumerate(top_ten, start=1):
-        most_count_flair.append(f"{pos}. {{name}} || {{count}} | {{flair}}".format(**result))
-    return "--The Top 10 Most Based Users--\n\n" + "\n\n".join(most_count_flair)
+    return "See the Based Count Leaderboard at https://basedcount.com/leaderboard"
 
 
 async def get_based_count(user_name: str, is_me: bool = False) -> str:
@@ -135,12 +132,23 @@ async def get_based_count(user_name: str, is_me: bool = False) -> str:
     profile = await data_based.find_one({"name": re.compile(rf"^{user_name}", re.I)})
     if profile is not None:
         user = User.from_data(profile)
+
+        all_based_counts = await user.get_all_accounts_based_count(data_based)
+        combined_based_count = sum(map(lambda x: x[1], all_based_counts))
+        combined_rank = await rank_name(combined_based_count, user_name)
+
         reply_message = (
-            f"{'Your' if is_me else user_name} Based Count is {user.based_count}.\n\n"
-            f"Rank: {await user.get_rank_name()}.\n\n"
-            f"Pills: {user.format_pills()}.\n\n"
+            f"{'Your' if is_me else user_name} Based Count is {combined_based_count}\n\n"
+            f"Rank: {combined_rank}\n\n"
+            f"Pills: {user.format_pills()}\n\n"
             f"{user.format_compass()}"
         )
+
+        if user.merged_accounts:
+            merged_acc_summary = "\n\n".join([f"- [{x[0]}](https://basedcount.com/u/{x[0]}) {x[1]} based count" for x in all_based_counts])
+            merged_account_reply = f"Based Count breakdown\n\n{merged_acc_summary}"
+            reply_message = f"{reply_message}\n\n{merged_account_reply}"
+
     else:
         async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
             replies = yaml.safe_load(await fp.read())
@@ -175,6 +183,7 @@ async def my_compass(user_name: str, compass: str) -> str:
             sv_soc_type = url_query["auth"][0]
             sv_prog_type = url_query["prog"][0]
             profile["sapply"] = [sv_prog_type, sv_soc_type, sv_eco_type]
+            bot_commands_logger.info(f"Sapply Values: {profile['sapply']}")
             await data_based.update_one({"name": user_name}, {"$set": {"sapply": profile["sapply"]}})
             user = User.from_data(profile)
             return f"Your Sapply compass has been updated.\n\n{user.sappy_values_type}"
@@ -183,6 +192,7 @@ async def my_compass(user_name: str, compass: str) -> str:
             compass_economic_axis = url_query["ec"][0]
             compass_social_axis = url_query["soc"][0]
             profile["compass"] = [compass_economic_axis, compass_social_axis]
+            bot_commands_logger.info(f"PCM Values: {profile['compass']}")
             await data_based.update_one({"name": user_name}, {"$set": {"compass": profile["compass"]}})
             user = User.from_data(profile)
             return f"Your political compass has been updated.\n\n{user.political_compass_type}"

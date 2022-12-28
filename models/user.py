@@ -1,11 +1,12 @@
 from __future__ import annotations
 
+import asyncio
 from typing import Any, Optional
 
 from attrs import define, field
+from motor.motor_asyncio import AsyncIOMotorCollection
 
 from models.pill import Pill
-from models.ranks import rank_name
 
 
 def quadrant_name(compass_value: str, side1: str, side2: str) -> str:
@@ -35,6 +36,7 @@ class User:
     sappy_values: tuple[str, str, str]
     based_time: list[int] = field(factory=list)
     pills: list[Pill] = field(factory=list)
+    merged_accounts: list[str] = field(factory=list)
 
     # Post Init stuff
     political_compass_type: Optional[str] = field(default=None)
@@ -71,16 +73,9 @@ class User:
             sappy_values=user_dict["sapply"],
             based_time=user_dict["basedTime"],
             pills=pills,
+            merged_accounts=user_dict["mergedAccounts"],
         )
         return user_instance
-
-    async def get_rank_name(self) -> str:
-        """Gets the user rank name from their based count.
-
-        :returns: rank which user is at
-
-        """
-        return await rank_name(self.based_count, self.username)
 
     def format_pills(self) -> str:
         """Formats the pills into a nice string which is replied back to the user
@@ -103,3 +98,22 @@ class User:
         if self.sappy_values_type is not None:
             compass_reply += f"{self.sappy_values_type}\n\n"
         return compass_reply
+
+    async def get_all_accounts_based_count(self, user_collection: AsyncIOMotorCollection) -> list[tuple[str, int]]:
+        """Gets the based count from all the all accounts (main + merged accounts)
+
+        :param user_collection: Mongo db collection object which will be used to fetch data
+
+        :returns: List of tuple containing username and the based count of that account
+
+        """
+
+        task_list = []
+        for user_name in self.merged_accounts:
+            task_list.append(user_collection.find_one({"name": user_name}))
+
+        based_count_list = [(self.username, self.based_count)]
+        profile_list = await asyncio.gather(*task_list)
+        for profile in profile_list:
+            based_count_list.append((profile["name"], profile["count"]))
+        return based_count_list

@@ -49,6 +49,9 @@ async def bot_commands(command: Message | Comment, command_body_lower: str) -> N
 
     """
 
+    if command_body_lower.startswith("/"):
+        main_logger.info(f"Received {type(command).__name__} from {command.author}, {command_body_lower}")
+
     if "/info" in command_body_lower:
         async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
             replies = safe_load(await fp.read())
@@ -95,7 +98,6 @@ async def check_mail(reddit_instance: Reddit) -> None:
 
         message_subject_lower = message.subject.lower()
         message_body_lower = message.body.lower()
-        main_logger.info(f"Received message from {message.author}, {message_subject_lower}: {message_body_lower}")
 
         if "suggestion" in message_subject_lower:
             forward_msg_task = asyncio.create_task(
@@ -169,6 +171,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
     :returns: True if checks passed and False if checks failed
 
     """
+    main_logger.info(f"Based Comment {comment.body} from: {comment.author.name} to: {parent_info['parent_author']}")
     if comment.author.name == parent_info["parent_author"] or comment.author.name == "basedcount_bot":
         return False
 
@@ -211,7 +214,7 @@ async def read_comments(reddit_instance: Reddit) -> None:
 
     """
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
-    pcm_subreddit = await reddit_instance.subreddit("legacy76")
+    pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
         if comment.author.name in ["basedcount_bot", "flair-checking-bot"]:
             continue
@@ -223,7 +226,9 @@ async def read_comments(reddit_instance: Reddit) -> None:
             parent_info = await get_parent_info(comment)
             # Skip Unflaired scums and low effort based
             if not await has_commands_checks_passed(comment, parent_info):
+                main_logger.info("Checks failed")
                 continue
+            main_logger.info("Checks passed")
 
             pill = None
             first_non_empty_line = next(line for line in comment_body_lower.splitlines() if line)
