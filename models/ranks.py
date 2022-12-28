@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from typing import Optional
 
 import aiofiles
 from attrs import define
@@ -54,8 +55,8 @@ async def rank_name(based_count: int, user: str) -> str:
     raise ValueError("No ranks for the given based count.")
 
 
-async def rank_message(based_count: int) -> str:
-    """Gets the user rank message from their based count.
+async def rank_message(based_count: int) -> Optional[str]:
+    """Gets the user rank message from their based count if they have reached a new rank
 
     :param based_count: user based count
 
@@ -65,10 +66,7 @@ async def rank_message(based_count: int) -> str:
     if not rank_list:
         await load_ranks()
 
-    if based_count >= 10_000:
-        return "You have spent too much time collecting Based counts. Go touch grass or something."
-
     for r in rank_list:
         if based_count == r.value:
             return r.message
-    raise ValueError("No ranks for the given based count.")
+    return None

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import random
 import re
 from contextlib import suppress
@@ -11,19 +12,98 @@ import yaml
 from pymongo import ReturnDocument
 
 from models.user import User
+from models.flairs import get_flair_name
+from models.ranks import rank_name, rank_message
 from utility_functions import get_mongo_collection
 
 
-async def based_and_pilled(username: str, flair_css_class: str, pill: Optional[dict[str, str | int]]) -> str:
-    return "replyMessage"
+async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]]) -> Optional[str]:
+    add_based_count_task = asyncio.create_task(add_based_count(user_name, flair_css_class))
+    add_pils_task = asyncio.create_task(add_pils(user_name, pill))
+    await add_based_count_task
+    await add_pils_task
+
+    data_based = await get_mongo_collection(collection_name="users")
+    profile = await data_based.find_one({"name": re.compile(rf"^{user_name}", re.I)})
+    user = User.from_data(profile)
+    rank = await rank_name(user.based_count, user_name)
+    rank_up = await rank_message(user.based_count)
+
+    if user.based_count == 1:
+        return (
+            f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
+            f"Rank: {rank}\n\n"
+            f"Pills: {user.format_pills()}\n\n"
+            f"Compass: {user.format_compass()}\n\n"
+            f"I am a bot. Reply /info for more info."
+        )
+    elif user.based_count % 5 == 0:
+        if rank_up is not None:
+            # Reply if user reaches a new rank
+            return (
+                f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
+                f"Congratulations, u/{user_name}! You have ranked up to {rank}! {rank_up}"
+                f"Pills: {user.format_pills()}\n\n"
+                f"Compass: {user.format_compass()}\n\n"
+                f"I am a bot. Reply /info for more info."
+            )
+        # normal reply
+        return (
+            f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
+            f"Rank: {rank}\n\n"
+            f"Pills: {user.format_pills()}\n\n"
+            f"Compass: {user.format_compass()}\n\n"
+            f"I am a bot. Reply /info for more info."
+        )
+    return None
 
 
-async def add_based_count(username: str) -> None:
-    ...
+async def add_based_count(user_name: str, flair_css_class: str) -> None:
+    """Increases the based count of user by one
+
+    :param user_name: user whose based count will be increased
+    :param flair_css_class: the flair class of the user
+
+    :returns: None
+
+    """
+    data_based = await get_mongo_collection(collection_name="users")
+    flair_name = await get_flair_name(flair_css_class)
+    await data_based.find_one_and_update(
+        {"name": user_name},
+        {"$set": {"flair": flair_name}, "$inc": {"count": 1}, "$setOnInsert": {"pills": [], "compass": [], "sapply": []}},
+        upsert=True,
+        return_document=ReturnDocument.AFTER,
+    )
 
 
-async def add_pils(username: str, pill: dict[str, str]) -> None:
-    ...
+async def add_to_based_history(user_name: str, parent_author: str) -> None:
+    """Adds the based count record to based history database, so it can be sent to mods for cheating report
+
+    :param user_name: user who gave the based and pills
+    :param parent_author: user who received the based
+
+    :returns: None
+
+    """
+    based_history = await get_mongo_collection(collection_name="users")
+    await based_history.find_one_and_update({"name": user_name}, {"$inc": {parent_author: 1}}, upsert=True)
+
+
+async def add_pils(user_name: str, pill: Optional[dict[str, str | int]]) -> None:
+    """Add the pill to the user database
+
+    :param user_name: The user's whose pill will be added
+    :param pill: pill that will be added
+
+    :returns: None
+
+    """
+    if pill is None:
+        return None
+
+    data_based = await get_mongo_collection(collection_name="users")
+    await data_based.find_one_and_update({"name": user_name, "pills.name": {"$ne": pill["name"]}}, {"$push": {"pills": pill}})
 
 
 async def most_based() -> str:

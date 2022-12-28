@@ -12,20 +12,6 @@ info_message: |
 
   **Commands: /info | /mybasedcount | /basedcount username | /mostbased | /removepill pill | /mycompass politicalcompass.org or sapplyvalues.github.io url**
 
-political_compass_variations:
-  - "https://www.politicalcompass.org/yourpoliticalcompass?ec="
-  - "https://politicalcompass.org/yourpoliticalcompass?ec="
-  - "https://www.politicalcompass.org/analysis2?ec="
-  - "https://politicalcompass.org/analysis2?ec="
-  - "politicalcompass.org/analysis2?ec="
-  - "politicalcompass.org/yourpoliticalcompass?ec="
-  - "www.politicalcompass.org/analysis2?ec="
-  - "www.politicalcompass.org/yourpoliticalcompass?ec="
-
-sapply_compass_variations:
-  - "https://sapplyvalues.github.io/results.html?right="
-  - "sapplyvalues.github.io/results.html?right="
-
 my_based_no_user_reply:
   - "Hmm... I don't see you in my records, as it appears you aren't very based. I guess nobody's perfect."
   - "[mybasedcount_clever_response_1](https://www.youtube.com/watch?v=YzKM5g_FwYU&ab_channel=TheMar%C3%ADas)"

@@ -11,7 +11,7 @@ from asyncprawcore.exceptions import AsyncPrawcoreException
 from dotenv import load_dotenv
 from yaml import safe_load
 
-from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill
+from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
 from utility_functions import create_logger, create_reddit_instance, send_message_to_admin
 
 load_dotenv()
@@ -180,7 +180,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
     if parent_info["parent_body"].startswith(BASED_VARIATION) and len(parent_info["parent_body"]) < 50:
         return False
 
-    # TODO: Register the comment in based count history database
+    asyncio.create_task(add_to_based_history(comment.author.name, parent_info["parent_author"]))
     return True
 
 
@@ -219,8 +219,7 @@ async def read_comments(reddit_instance: Reddit) -> None:
         # Reddit fancy pants editor inserts the &#x200b; (Zero-width space) characters.
         # This can cause issue for pill extraction, if there is a bunch of space at the start of comment.
         comment_body_lower = comment.body.lower().replace("&#x200b;", "")
-        comment_body_single_line = comment_body_lower.replace("\n", "")
-        if re.match(BASED_REGEX, comment_body_single_line):
+        if re.match(BASED_REGEX, comment_body_lower.replace("\n", "")):
             parent_info = await get_parent_info(comment)
             # Skip Unflaired scums and low effort based
             if not await has_commands_checks_passed(comment, parent_info):
@@ -236,7 +235,8 @@ async def read_comments(reddit_instance: Reddit) -> None:
                         pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
             reply_message = based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill)
-            comment.reply(reply_message)
+            if reply_message is not None:
+                comment.reply(reply_message)
         else:
             await bot_commands(comment, comment_body_lower)
 
