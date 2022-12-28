@@ -49,12 +49,12 @@ async def send_message_to_admin(message_subject: str, message_body: str, author_
     await bot_admin.message(subject=f"{message_subject} from {author_name}", message=message_body)
 
 
-def create_logger() -> logging.Logger:
+def create_logger(logger_name: str) -> logging.Logger:
     """Creates logger and returns an instance of logging object.
 
     :returns: Logging Object.
 
     """
     fileConfig("logging.conf")
-    logger = logging.getLogger("basedcount_bot")
+    logger = logging.getLogger(logger_name)
     return logger

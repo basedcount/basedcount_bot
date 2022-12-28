@@ -254,5 +254,5 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
-    main_logger = create_logger()
+    main_logger = create_logger(__name__)
     asyncio.run(main())

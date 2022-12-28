@@ -16,7 +16,7 @@ from models.flairs import get_flair_name
 from models.ranks import rank_name, rank_message
 from utility_functions import get_mongo_collection, create_logger
 
-bot_commands_logger = create_logger()
+bot_commands_logger = create_logger(__name__)
 
 
 async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]]) -> Optional[str]:
