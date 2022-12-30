@@ -71,9 +71,9 @@ class User:
             user_flair=user_dict["flair"],
             political_compass_values=user_dict["compass"],
             sappy_values=user_dict["sapply"],
-            based_time=user_dict["basedTime"],
+            based_time=user_dict.get("basedTime", []),
             pills=pills,
-            merged_accounts=user_dict["mergedAccounts"],
+            merged_accounts=user_dict.get("mergedAccounts", []),
         )
         return user_instance
 
@@ -97,9 +97,32 @@ class User:
             compass_reply = f"{self.political_compass_type}\n\n"
         if self.sappy_values_type is not None:
             compass_reply += f"{self.sappy_values_type}\n\n"
-        return compass_reply
+        return (
+            compass_reply
+            or "This user does not have a compass on record. "
+            "Add compass to profile by replying with /mycompass politicalcompass.org url or sapplyvalues.github.io url.\n\n"
+        )
 
-    async def get_all_accounts_based_count(self, user_collection: AsyncIOMotorCollection) -> list[tuple[str, int]]:
+    async def combined_formatted_pills(self, user_collection: AsyncIOMotorCollection) -> str:
+        """Formats the pills from all merged accounts into a nice string which is replied back to the user
+
+        :returns: str object with pill count and link to website to view all the pills
+
+        """
+        task_list = []
+        for user_name in self.merged_accounts:
+            task_list.append(user_collection.find_one({"name": user_name}))
+
+        pills = []
+        profile_list = await asyncio.gather(*task_list)
+        for profile in profile_list:
+            pills.extend(profile["pills"])
+
+        combined_pill_count = len(pills) + len(self.pills)
+        pill_str = f"{combined_pill_count:,}" if combined_pill_count > 0 else "None"
+        return f"[{pill_str} | View pills](https://basedcount.com/u/{self.username}/)"
+
+    async def get_all_accounts_based_count(self, user_collection: AsyncIOMotorCollection) -> list[tuple[str, int, int]]:
         """Gets the based count from all the all accounts (main + merged accounts)
 
         :param user_collection: Mongo db collection object which will be used to fetch data
@@ -112,8 +135,8 @@ class User:
         for user_name in self.merged_accounts:
             task_list.append(user_collection.find_one({"name": user_name}))
 
-        based_count_list = [(self.username, self.based_count)]
+        based_count_list = [(self.username, self.based_count, len(self.pills))]
         profile_list = await asyncio.gather(*task_list)
         for profile in profile_list:
-            based_count_list.append((profile["name"], profile["count"]))
+            based_count_list.append((profile["name"], profile["count"], len(profile["pills"])))
         return based_count_list

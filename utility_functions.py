@@ -1,14 +1,15 @@
 from __future__ import annotations
 
-import logging
-from logging.config import fileConfig
+from logging import getLogger, Logger, config
 from os import getenv
 
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+from contextlib import asynccontextmanager
 
 
+@asynccontextmanager
 async def get_mongo_collection(collection_name: str) -> AsyncIOMotorCollection:
     """Returns the user databased from dataBased Cluster from MongoDB
 
@@ -16,8 +17,11 @@ async def get_mongo_collection(collection_name: str) -> AsyncIOMotorCollection:
 
     """
     cluster = AsyncIOMotorClient(getenv("MONGO_PASS"))
-    data_based = cluster["dataBased"]
-    return data_based[collection_name]
+    try:
+        data_based = cluster["dataBased"]
+        yield data_based[collection_name]
+    finally:
+        cluster.close()
 
 
 async def create_reddit_instance() -> Reddit:
@@ -49,12 +53,11 @@ async def send_message_to_admin(message_subject: str, message_body: str, author_
     await bot_admin.message(subject=f"{message_subject} from {author_name}", message=message_body)
 
 
-def create_logger(logger_name: str) -> logging.Logger:
+def create_logger(logger_name: str) -> Logger:
     """Creates logger and returns an instance of logging object.
 
     :returns: Logging Object.
 
     """
-    fileConfig("logging.conf")
-    logger = logging.getLogger(logger_name)
-    return logger
+    config.fileConfig("logging.conf")
+    return getLogger(logger_name)

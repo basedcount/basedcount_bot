@@ -52,24 +52,21 @@ async def bot_commands(command: Message | Comment, command_body_lower: str) -> N
     if command_body_lower.startswith("/"):
         main_logger.info(f"Received {type(command).__name__} from {command.author}, {command_body_lower}")
 
-    if "/info" in command_body_lower:
+    if command_body_lower.startswith("/info"):
         async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
             replies = safe_load(await fp.read())
             await command.reply(replies.get("info_message"))
 
-    elif "/mybasedcount" in command_body_lower:
+    elif command_body_lower.startswith("/mybasedcount"):
         my_based_count = await get_based_count(user_name=command.author.name, is_me=True)
         await command.reply(my_based_count)
 
-    elif "/basedcount" in command_body_lower:
-        if result := re.search(r"/basedcount\s*(u/)?([A-Za-z0-9_-]+)", command.body, re.IGNORECASE):
-            user_name = result.group(2)
-            user_based_count = await get_based_count(user_name=user_name, is_me=False)
-            await command.reply(user_based_count)
-        else:
-            await command.reply("Incorrect use of command. The command needs to be like /basedcount u/basedcount_bot.")
+    elif result := re.match(r"/basedcount\s*(u/)?([A-Za-z0-9_-]+)", command.body, re.IGNORECASE):
+        user_name = result.group(2)
+        user_based_count = await get_based_count(user_name=user_name, is_me=False)
+        await command.reply(user_based_count)
 
-    elif "/mostbased" in command_body_lower:
+    elif command_body_lower.startswith("/mostbased"):
         await command.reply(await most_based())
 
     elif command_body_lower.startswith("/removepill"):
@@ -171,12 +168,12 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
     :returns: True if checks passed and False if checks failed
 
     """
-    main_logger.info(f"Based Comment {comment.body} from: {comment.author.name} to: {parent_info['parent_author']}")
+    main_logger.info(f"Based Comment: {comment.body} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
     if comment.author.name == parent_info["parent_author"] or comment.author.name == "basedcount_bot":
         return False
 
     # check for unflaired users, the author_flair_text is empty str or None
-    if not comment.author_flair_text:
+    if not parent_info["parent_flair"]:
         return False
 
     # Check if people aren't just giving each other low effort based
@@ -239,9 +236,9 @@ async def read_comments(reddit_instance: Reddit) -> None:
                     if len(clean_pill) < 70:
                         pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
-            reply_message = based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill)
+            reply_message = await based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill)
             if reply_message is not None:
-                comment.reply(reply_message)
+                await comment.reply(reply_message)
         else:
             await bot_commands(comment, comment_body_lower)
 
