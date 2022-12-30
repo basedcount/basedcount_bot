@@ -28,7 +28,6 @@ def quadrant_name(compass_value: str, side1: str, side2: str) -> str:
 
 @define(kw_only=True)
 class User:
-    user_id: str
     username: str
     based_count: int
     user_flair: str
@@ -65,7 +64,6 @@ class User:
     def from_data(cls, user_dict: dict[Any, Any]) -> User:
         pills = [Pill.from_data(pill=pill, owner_name=user_dict["name"]) for pill in user_dict["pills"]]
         user_instance = cls(
-            user_id=user_dict["_id"],
             username=user_dict["name"],
             based_count=user_dict["count"],
             user_flair=user_dict["flair"],
@@ -76,15 +74,6 @@ class User:
             merged_accounts=user_dict.get("mergedAccounts", []),
         )
         return user_instance
-
-    def format_pills(self) -> str:
-        """Formats the pills into a nice string which is replied back to the user
-
-        :returns: str object with pill count and link to website to view all the pills
-
-        """
-        pills = f"{len(self.pills):,}" if self.pills else "None"
-        return f"[{pills} | View pills](https://basedcount.com/u/{self.username}/)"
 
     def format_compass(self) -> str:
         """Gets the political compass from the raw value from political compass and sapply values.

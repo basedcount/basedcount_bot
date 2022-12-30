@@ -9,28 +9,29 @@ from asyncpraw import Reddit
 from asyncpraw.models import Message, Comment, Submission
 from asyncprawcore.exceptions import AsyncPrawcoreException
 from dotenv import load_dotenv
+from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
 from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
-from utility_functions import create_logger, create_reddit_instance, send_message_to_admin
+from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client
 
 load_dotenv()
 
 
-def exception_wrapper(func: Callable[[Reddit], Awaitable[None]]) -> Callable[[Reddit], Awaitable[None]]:
+def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[None]]) -> Callable[[Reddit, AsyncIOMotorClient], Awaitable[None]]:
     """Decorator to handle the exceptions and to ensure the code doesn't exit unexpectedly.
 
     :param func: function that needs to be called
 
     :returns: wrapper function
-    :rtype: Callable[[Reddit], Awaitable[None]]
+    :rtype: Callable[[Reddit, AsyncIOMotorClient], Awaitable[None]]
 
     """
 
-    async def wrapper(reddit_instance: Reddit) -> None:
+    async def wrapper(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) -> None:
         while True:
             try:
-                await func(reddit_instance)
+                await func(reddit_instance, mongo_client)
             except AsyncPrawcoreException:
                 main_logger.exception("AsyncPrawcoreException", exc_info=True)
             except Exception:
@@ -39,11 +40,12 @@ def exception_wrapper(func: Callable[[Reddit], Awaitable[None]]) -> Callable[[Re
     return wrapper
 
 
-async def bot_commands(command: Message | Comment, command_body_lower: str) -> None:
+async def bot_commands(command: Message | Comment, command_body_lower: str, mongo_client: AsyncIOMotorClient) -> None:
     """Responsible for the basic based count bot commands
 
     :param command: Reddit post that triggered the command, could be a message or comment
     :param command_body_lower: The body of that message or command
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: None
 
@@ -58,31 +60,32 @@ async def bot_commands(command: Message | Comment, command_body_lower: str) -> N
             await command.reply(replies.get("info_message"))
 
     elif command_body_lower.startswith("/mybasedcount"):
-        my_based_count = await get_based_count(user_name=command.author.name, is_me=True)
+        my_based_count = await get_based_count(user_name=command.author.name, is_me=True, mongo_client=mongo_client)
         await command.reply(my_based_count)
 
     elif result := re.match(r"/basedcount\s*(u/)?([A-Za-z0-9_-]+)", command.body, re.IGNORECASE):
         user_name = result.group(2)
-        user_based_count = await get_based_count(user_name=user_name, is_me=False)
+        user_based_count = await get_based_count(user_name=user_name, is_me=False, mongo_client=mongo_client)
         await command.reply(user_based_count)
 
     elif command_body_lower.startswith("/mostbased"):
         await command.reply(await most_based())
 
     elif command_body_lower.startswith("/removepill"):
-        response = await remove_pill(user_name=command.author.name, pill=command_body_lower.replace("/removepill ", ""))
+        response = await remove_pill(user_name=command.author.name, pill=command_body_lower.replace("/removepill ", ""), mongo_client=mongo_client)
         await command.reply(response)
 
     elif command_body_lower.startswith("/mycompass"):
-        response = await my_compass(user_name=command.author.name, compass=command_body_lower.replace("/mycompass ", ""))
+        response = await my_compass(user_name=command.author.name, compass=command_body_lower.replace("/mycompass ", ""), mongo_client=mongo_client)
         await command.reply(response)
 
 
 @exception_wrapper
-async def check_mail(reddit_instance: Reddit) -> None:
+async def check_mail(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) -> None:
     """Checks the Reddit mail every after and replies to the users.
 
     :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: Nothing is returned
 
@@ -113,7 +116,7 @@ async def check_mail(reddit_instance: Reddit) -> None:
             await forward_msg_task
             await reply_task
         else:
-            await bot_commands(message, message_body_lower)
+            await bot_commands(message, message_body_lower, mongo_client=mongo_client)
 
         await message.mark_read()
     await asyncio.sleep(5)
@@ -159,28 +162,32 @@ BASED_REGEX = re.compile(f"({'|'.join(BASED_VARIATION)})\\b(?!\\s*(on|off))", re
 PILL_REGEX = re.compile("(?<=(and|but))(.+)pilled", re.IGNORECASE)
 
 
-async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, str]) -> bool:
+async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
     """Runs checks for self based/pills, unflaired users, and cheating in general
 
     :param comment: Comment which triggered the bot command
     :param parent_info: The parent comment/submission info.
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: True if checks passed and False if checks failed
 
     """
     main_logger.info(f"Based Comment: {comment.body} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
     if comment.author.name == parent_info["parent_author"] or comment.author.name == "basedcount_bot":
+        main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
 
     # check for unflaired users, the author_flair_text is empty str or None
     if not parent_info["parent_flair"]:
+        main_logger.info("Checks failed, giving based to unflaired user.")
         return False
 
     # Check if people aren't just giving each other low effort based
     if parent_info["parent_body"].startswith(BASED_VARIATION) and len(parent_info["parent_body"]) < 50:
+        main_logger.info("Checks failed, parent comment starts with based and is less than 50 chars long")
         return False
 
-    asyncio.create_task(add_to_based_history(comment.author.name, parent_info["parent_author"]))
+    asyncio.create_task(add_to_based_history(comment.author.name, parent_info["parent_author"], mongo_client=mongo_client))
     return True
 
 
@@ -202,10 +209,11 @@ async def get_parent_info(comment: Comment) -> dict[str, str]:
 
 
 @exception_wrapper
-async def read_comments(reddit_instance: Reddit) -> None:
+async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) -> None:
     """Checks comments as they come on r/PoliticalCompassMemes and performs actions accordingly.
 
     :param reddit_instance: The Reddit Instance from AsyncPraw. Used to make API calls.
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: Nothing is returned
 
@@ -222,8 +230,7 @@ async def read_comments(reddit_instance: Reddit) -> None:
         if re.match(BASED_REGEX, comment_body_lower.replace("\n", "")):
             parent_info = await get_parent_info(comment)
             # Skip Unflaired scums and low effort based
-            if not await has_commands_checks_passed(comment, parent_info):
-                main_logger.info("Checks failed")
+            if not await has_commands_checks_passed(comment, parent_info, mongo_client=mongo_client):
                 continue
             main_logger.info("Checks passed")
 
@@ -236,18 +243,21 @@ async def read_comments(reddit_instance: Reddit) -> None:
                     if len(clean_pill) < 70:
                         pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
-            reply_message = await based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill)
+            reply_message = await based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill, mongo_client=mongo_client)
             if reply_message is not None:
                 await comment.reply(reply_message)
         else:
-            await bot_commands(comment, comment_body_lower)
+            await bot_commands(comment, comment_body_lower, mongo_client=mongo_client)
 
 
 async def main() -> None:
-    await asyncio.gather(
-        check_mail(await create_reddit_instance()),
-        read_comments(await create_reddit_instance()),
-    )
+    async with get_mongo_client() as mongo_client:
+        r1 = await create_reddit_instance()
+        r2 = await create_reddit_instance()
+        await asyncio.gather(
+            check_mail(r1, mongo_client),
+            read_comments(r2, mongo_client),
+        )
 
 
 if __name__ == "__main__":

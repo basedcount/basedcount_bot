@@ -1,27 +1,35 @@
 from __future__ import annotations
 
+from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
 
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-from contextlib import asynccontextmanager
 
 
 @asynccontextmanager
-async def get_mongo_collection(collection_name: str) -> AsyncIOMotorCollection:
+async def get_mongo_client() -> AsyncIOMotorClient:
+    """Returns the MongoDB AsyncIOMotorClient
+
+    :returns: AsyncIOMotorClient object
+
+    """
+    cluster = AsyncIOMotorClient(getenv("MONGO_PASS"))
+    try:
+        yield cluster["dataBased"]
+    finally:
+        cluster.close()
+
+
+async def get_mongo_collection(collection_name: str, mongo_client: AsyncIOMotorClient) -> AsyncIOMotorCollection:
     """Returns the user databased from dataBased Cluster from MongoDB
 
     :returns: Returns a Collection from Mongo DB
 
     """
-    cluster = AsyncIOMotorClient(getenv("MONGO_PASS"))
-    try:
-        data_based = cluster["dataBased"]
-        yield data_based[collection_name]
-    finally:
-        cluster.close()
+    return mongo_client[collection_name]
 
 
 async def create_reddit_instance() -> Reddit:

@@ -4,17 +4,18 @@ import asyncio
 import random
 import re
 from contextlib import suppress
+from time import time
 from typing import Optional, Any
 from urllib.parse import urlsplit, parse_qs
-from time import time
+
 import aiofiles
 import yaml
-from motor.motor_asyncio import AsyncIOMotorCollection
+from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClient
 from pymongo import ReturnDocument
 
-from models.user import User
 from models.flairs import get_flair_name
 from models.ranks import rank_name, rank_message
+from models.user import User
 from utility_functions import get_mongo_collection, create_logger
 
 bot_commands_logger = create_logger(__name__)
@@ -31,33 +32,49 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
     """
     profile: Optional[dict[str, Any]] = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.I)})
     if profile is None:
-        profile = await users_collection.update_one(
+        profile = await users_collection.find_one_and_update(
             {"name": user_name},
-            {"$set": {"flair": "Unflaired", "count": 0, "pills": [], "compass": [], "sapply": [], "basedTime": [], "mergedAccounts": []}},
+            {"$setOnInsert": {"flair": "Unflaired", "count": 0, "pills": [], "compass": [], "sapply": [], "basedTime": [], "mergedAccounts": []}},
             upsert=True,
+            return_document=ReturnDocument.AFTER,
         )
     return profile
 
 
-async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]]) -> Optional[str]:
+async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]], mongo_client: AsyncIOMotorClient) -> Optional[str]:
+    """Increments the based count and adds the pill to a user database in mongo
+
+    :param user_name: user whose based count/pill will be added
+    :param flair_css_class: flair that user has
+    :param pill: name of the pill that will be added
+    :param mongo_client: MongoDB Client used to get the collections
+
+    :returns: Comment response for the user when based count is 1, multiple of 5 and when they reach a new rank
+
+    """
     bot_commands_logger.info(f"based_and_pilled args: u/{user_name}, flair: {flair_css_class}, pill: {pill}")
-    async with get_mongo_collection(collection_name="users") as users_collection:
-        await find_or_create_user_profile(user_name, users_collection)
-        await asyncio.gather(
-            add_based_count(user_name, flair_css_class, users_collection),
-            add_pills(user_name, pill, users_collection),
-        )
-        profile = await find_or_create_user_profile(user_name, users_collection)
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await find_or_create_user_profile(user_name, users_collection)
+    bot_commands_logger.info(f"Based Count before: {profile['count']}")
+    await asyncio.gather(
+        add_based_count(user_name, flair_css_class, users_collection),
+        add_pills(user_name, pill, users_collection),
+    )
+    profile = await find_or_create_user_profile(user_name, users_collection)
+    bot_commands_logger.info(f"Based Count: {profile['count']}")
 
     user = User.from_data(profile)
-    rank = await rank_name(user.based_count, user_name)
-    rank_up = await rank_message(user.based_count)
+    all_based_counts = await user.get_all_accounts_based_count(users_collection)
+    combined_based_count = sum(map(lambda x: x[1], all_based_counts))
+    combined_pills = await user.combined_formatted_pills(users_collection)
+    combined_rank = await rank_name(combined_based_count, user_name)
+    rank_up = await rank_message(combined_based_count)
 
     if user.based_count == 1:
         return (
             f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
-            f"Rank: {rank}\n\n"
-            f"Pills: {user.format_pills()}\n\n"
+            f"Rank: {combined_rank}\n\n"
+            f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
             f"I am a bot. Reply /info for more info."
         )
@@ -66,16 +83,16 @@ async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[
             # Reply if user reaches a new rank
             return (
                 f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
-                f"Congratulations, u/{user_name}! You have ranked up to {rank}! {rank_up}"
-                f"Pills: {user.format_pills()}\n\n"
+                f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}"
+                f"Pills: {combined_pills}\n\n"
                 f"Compass: {user.format_compass()}\n\n"
                 f"I am a bot. Reply /info for more info."
             )
         # normal reply
         return (
             f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
-            f"Rank: {rank}\n\n"
-            f"Pills: {user.format_pills()}\n\n"
+            f"Rank: {combined_rank}\n\n"
+            f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
             f"I am a bot. Reply /info for more info."
         )
@@ -113,17 +130,18 @@ async def add_pills(user_name: str, pill: Optional[dict[str, str | int]], users_
     await users_collection.update_one({"name": user_name, "pills.name": {"$ne": pill["name"]}}, {"$push": {"pills": pill}})
 
 
-async def add_to_based_history(user_name: str, parent_author: str) -> None:
+async def add_to_based_history(user_name: str, parent_author: str, mongo_client: AsyncIOMotorClient) -> None:
     """Adds the based count record to based history database, so it can be sent to mods for cheating report
 
     :param user_name: user who gave the based and pills
     :param parent_author: user who received the based
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: None
 
     """
-    async with get_mongo_collection(collection_name="basedHistory") as based_history_collection:
-        await based_history_collection.update_one({"name": user_name}, {"$inc": {parent_author: 1}}, upsert=True)
+    based_history_collection = await get_mongo_collection(collection_name="basedHistory", mongo_client=mongo_client)
+    await based_history_collection.update_one({"name": user_name}, {"$inc": {parent_author: 1}}, upsert=True)
 
 
 async def most_based() -> str:
@@ -135,103 +153,106 @@ async def most_based() -> str:
     return "See the Based Count Leaderboard at https://basedcount.com/leaderboard"
 
 
-async def get_based_count(user_name: str, is_me: bool = False) -> str:
+async def get_based_count(user_name: str, mongo_client: AsyncIOMotorClient, is_me: bool = False) -> str:
     """Retrieves the Based Count for the given username.
 
     :param user_name: Username whose based count will be retrieved
+    :param mongo_client: MongoDB Client used to get the collections
     :param is_me: Flag to indicate if a user is requesting their own based count
 
     :returns: str object with based count summary of the user
 
     """
-    async with get_mongo_collection(collection_name="users") as users_collection:
-        profile = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.I)})
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.I)})
 
-        if profile is not None:
-            user = User.from_data(profile)
+    if profile is not None:
+        user = User.from_data(profile)
 
-            all_based_counts = await user.get_all_accounts_based_count(users_collection)
-            combined_based_count = sum(map(lambda x: x[1], all_based_counts))
-            combined_pills = await user.combined_formatted_pills(users_collection)
-            combined_rank = await rank_name(combined_based_count, user_name)
+        all_based_counts = await user.get_all_accounts_based_count(users_collection)
+        combined_based_count = sum(map(lambda x: x[1], all_based_counts))
+        combined_pills = await user.combined_formatted_pills(users_collection)
+        combined_rank = await rank_name(combined_based_count, user_name)
 
-            build_username = f"u/{profile['name']}'s"
-            reply_message = (
-                f"{'Your' if is_me else build_username} Based Count is {combined_based_count}\n\n"
-                f"Rank: {combined_rank}\n\n"
-                f"Pills: {combined_pills}\n\n"
-                f"{user.format_compass()}"
-            )
+        build_username = f"u/{profile['name']}'s"
+        reply_message = (
+            f"{'Your' if is_me else build_username} Based Count is {combined_based_count}\n\n"
+            f"Rank: {combined_rank}\n\n"
+            f"Pills: {combined_pills}\n\n"
+            f"{user.format_compass()}"
+        )
 
-            if user.merged_accounts:
-                merged_acc_summary = "\n\n".join([f"- [{x[0]}](https://basedcount.com/u/{x[0]}) {x[1]} based & {x[2]} pills" for x in all_based_counts])
-                merged_account_reply = f"Based and Pill Count breakdown\n\n{merged_acc_summary}"
-                reply_message = f"{reply_message}\n\n{merged_account_reply}"
+        if user.merged_accounts:
+            merged_acc_summary = "\n\n".join([f"- [{x[0]}](https://basedcount.com/u/{x[0]}) {x[1]} based & {x[2]} pills" for x in all_based_counts])
+            merged_account_reply = f"Based and Pill Count breakdown\n\n{merged_acc_summary}"
+            reply_message = f"{reply_message}\n\n{merged_account_reply}"
 
+    else:
+        async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
+            replies = yaml.safe_load(await fp.read())
+        if is_me:
+            reply_message = random.choice(replies.get("my_based_no_user_reply"))
         else:
-            async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
-                replies = yaml.safe_load(await fp.read())
-            if is_me:
-                reply_message = random.choice(replies.get("my_based_no_user_reply"))
-            else:
-                reply_message = random.choice(replies.get("based_count_no_user_reply"))
-        return reply_message
+            reply_message = random.choice(replies.get("based_count_no_user_reply"))
+    return reply_message
 
 
-async def my_compass(user_name: str, compass: str) -> str:
+async def my_compass(user_name: str, compass: str, mongo_client: AsyncIOMotorClient) -> str:
     """Parses the Political Compass/Sapply Values url and saves to compass values in database
 
     :param user_name: User whose compass will be updated
     :param compass: The url given by the user
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: str message from parsed data
 
     """
-    async with get_mongo_collection(collection_name="users") as users_collection:
-        profile = await find_or_create_user_profile(user_name, users_collection)
-        split_url = urlsplit(compass)
-        root_domain = split_url.netloc or split_url.path
-        url_query = parse_qs(split_url.query)
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await find_or_create_user_profile(user_name, users_collection)
+    split_url = urlsplit(compass)
+    root_domain = split_url.netloc or split_url.path
+    url_query = parse_qs(split_url.query)
 
-        with suppress(KeyError):
-            if "sapplyvalues.github.io" in root_domain:
-                sv_eco_type = url_query["right"][0]
-                sv_soc_type = url_query["auth"][0]
-                sv_prog_type = url_query["prog"][0]
-                profile["sapply"] = [sv_prog_type, sv_soc_type, sv_eco_type]
-                bot_commands_logger.info(f"Sapply Values: {profile['sapply']}")
-                await users_collection.update_one({"name": user_name}, {"$set": {"sapply": profile["sapply"]}})
-                user = User.from_data(profile)
-                return f"Your Sapply compass has been updated.\n\n{user.sappy_values_type}"
+    with suppress(KeyError):
+        if "sapplyvalues.github.io" in root_domain:
+            sv_eco_type = url_query["right"][0]
+            sv_soc_type = url_query["auth"][0]
+            sv_prog_type = url_query["prog"][0]
+            profile["sapply"] = [sv_prog_type, sv_soc_type, sv_eco_type]
+            bot_commands_logger.info(f"Sapply Values: {profile['sapply']}")
+            await users_collection.update_one({"name": user_name}, {"$set": {"sapply": profile["sapply"]}})
+            user = User.from_data(profile)
+            return f"Your Sapply compass has been updated.\n\n{user.sappy_values_type}"
 
-            elif "politicalcompass.org" in root_domain:
-                compass_economic_axis = url_query["ec"][0]
-                compass_social_axis = url_query["soc"][0]
-                profile["compass"] = [compass_economic_axis, compass_social_axis]
-                bot_commands_logger.info(f"PCM Values: {profile['compass']}")
-                await users_collection.update_one({"name": user_name}, {"$set": {"compass": profile["compass"]}})
-                user = User.from_data(profile)
-                return f"Your political compass has been updated.\n\n{user.political_compass_type}"
+        elif "politicalcompass.org" in root_domain:
+            compass_economic_axis = url_query["ec"][0]
+            compass_social_axis = url_query["soc"][0]
+            profile["compass"] = [compass_economic_axis, compass_social_axis]
+            bot_commands_logger.info(f"PCM Values: {profile['compass']}")
+            await users_collection.update_one({"name": user_name}, {"$set": {"compass": profile["compass"]}})
+            user = User.from_data(profile)
+            return f"Your political compass has been updated.\n\n{user.political_compass_type}"
 
-        return (
-            "Sorry, but that isn't a valid URL. "
-            "Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
-        )
+    return (
+        "Sorry, but that isn't a valid URL. "
+        "Please copy/paste the entire test result URL from politicalcompass.org or sapplyvalues.github.io, starting with 'https'."
+    )
 
 
-async def remove_pill(user_name: str, pill: str) -> str:
+async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClient) -> str:
     """Removes the pill by adding deleted = True field in the dict obj
 
     :param user_name: The user whose pill is going to be removed
     :param pill: Name of the pill being removed
+    :param mongo_client: MongoDB Client used to get the collections
 
     :returns: Message that is sent back to the user
 
     """
-    async with get_mongo_collection(collection_name="users") as users_collection:
-        res = await users_collection.find_one_and_update(
-            {"name": user_name, "pills.name": pill}, {"$set": {"pills.$.deleted": True}}, return_document=ReturnDocument.AFTER
-        )
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    res = await users_collection.find_one_and_update(
+        {"name": user_name, "pills.name": pill}, {"$set": {"pills.$.deleted": True}}, return_document=ReturnDocument.AFTER
+    )
     if not res:
         return "You do not have that pill!"
     else:
