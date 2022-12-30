@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import asyncio
 import re
+from os import getenv
 from typing import Awaitable, Callable
 
 import aiofiles
@@ -173,7 +174,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
 
     """
     main_logger.info(f"Based Comment: {comment.body} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
-    if comment.author.name == parent_info["parent_author"] or comment.author.name == "basedcount_bot":
+    if comment.author.name == parent_info["parent_author"] or comment.author.name.lower() == getenv("REDDIT_USERNAME", "basedcount_bot").lower():
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
 
@@ -221,7 +222,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
     pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
-        if comment.author.name in ["basedcount_bot", "flair-checking-bot"]:
+        if comment.author.name.lower() in [getenv("REDDIT_USERNAME", "basedcount_bot").lower(), "flair-checking-bot"]:
             continue
 
         # Reddit fancy pants editor inserts the &#x200b; (Zero-width space) characters.
