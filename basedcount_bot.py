@@ -188,7 +188,10 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
         main_logger.info("Checks failed, parent comment starts with based and is less than 50 chars long")
         return False
 
-    asyncio.create_task(add_to_based_history(comment.author.name, parent_info["parent_author"], mongo_client=mongo_client))
+    # fire and forget background tasks
+    task = asyncio.create_task(add_to_based_history(comment.author.name, parent_info["parent_author"], mongo_client=mongo_client))
+    background_tasks.add(task)
+    task.add_done_callback(background_tasks.discard)
     return True
 
 
@@ -263,4 +266,5 @@ async def main() -> None:
 
 if __name__ == "__main__":
     main_logger = create_logger(__name__)
+    background_tasks: set[asyncio.Task[None]] = set()
     asyncio.run(main())

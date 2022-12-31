@@ -136,12 +136,13 @@ async def add_to_based_history(user_name: str, parent_author: str, mongo_client:
     :param user_name: user who gave the based and pills
     :param parent_author: user who received the based
     :param mongo_client: MongoDB Client used to get the collections
+    :type mongo_client: AsyncIOMotorClient
 
     :returns: None
 
     """
     based_history_collection = await get_mongo_collection(collection_name="basedHistory", mongo_client=mongo_client)
-    await based_history_collection.update_one({"name": user_name}, {"$inc": {parent_author: 1}}, upsert=True)
+    await based_history_collection.update_one({"to": parent_author, "from": user_name}, {"$inc": {"count": 1}}, upsert=True)
 
 
 async def most_based() -> str:
