@@ -18,43 +18,42 @@ def get_drive_service() -> Any:
     # The file token.json stores the user's access and refresh tokens, and is
     # created automatically when the authorization flow completes for the first
     # time.
-    if Path('token.json').exists():
-        creds = Credentials.from_authorized_user_file('token.json', SCOPES)
+    if Path("token.json").exists():
+        creds = Credentials.from_authorized_user_file("token.json", SCOPES)
     # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
-            flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+            flow = InstalledAppFlow.from_client_secrets_file("credentials.json", SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.json', 'w') as token:
+        with open("token.json", "w") as token:
             token.write(creds.to_json())
 
-    service = build('drive', 'v3', credentials=creds)
+    service = build("drive", "v3", credentials=creds)
     return service
 
 
 def backup_databased(data_based: list[dict[str, object]]) -> None:
-    print('Downloading data...')
+    print("Downloading data...")
     build_data_based(data_based)
     file_metadata = {
         "name": f"dataBased{datetime.now()}.json",
-        "mimeType": 'application/json',
+        "mimeType": "application/json",
     }
-    print('Preparing File...')
-    media = MediaFileUpload('dataBased.json', mimetype='application/json', resumable=True)
+    print("Preparing File...")
+    media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
     save_file_to_drive(file_metadata, media)
     Path("dataBased.json").unlink(missing_ok=True)
-    print('Finished')
+    print("Finished")
 
 
 def save_file_to_drive(file_metadata: dict[str, str], media: MediaFileUpload) -> None:
-    print('Connecting to Drive...')
+    print("Connecting to Drive...")
     service = get_drive_service()
-    print('Uploading to Google Drive...')
-    db_file = service.files().create(body=file_metadata, media_body=media, fields='id')
+    print("Uploading to Google Drive...")
+    db_file = service.files().create(body=file_metadata, media_body=media, fields="id")
     media.stream()
 
     response = None
@@ -68,5 +67,5 @@ def build_data_based(data_based: list[dict[str, object]]) -> None:
     for user in data_based:
         del user["_id"]
 
-    with open('dataBased.json', 'w') as fp:
+    with open("dataBased.json", "w") as fp:
         ujson.dump(data_based, fp, indent=4)

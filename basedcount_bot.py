@@ -3,6 +3,7 @@ from __future__ import annotations
 import asyncio
 import re
 from os import getenv
+from time import sleep
 from typing import Awaitable, Callable
 
 import aiofiles
@@ -30,11 +31,16 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
     """
 
     async def wrapper(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) -> None:
+        global cool_down_timer
+
         while True:
             try:
                 await func(reddit_instance, mongo_client)
             except AsyncPrawcoreException:
                 main_logger.exception("AsyncPrawcoreException", exc_info=True)
+                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
+                sleep(cool_down_timer)
+                cool_down_timer = (cool_down_timer + 5) % 60
             except Exception:
                 main_logger.critical("Serious Exception", exc_info=True)
 
@@ -265,6 +271,7 @@ async def main() -> None:
 
 
 if __name__ == "__main__":
+    cool_down_timer = 0
     main_logger = create_logger(__name__)
     background_tasks: set[asyncio.Task[None]] = set()
     asyncio.run(main())
