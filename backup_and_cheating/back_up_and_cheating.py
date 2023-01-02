@@ -6,7 +6,7 @@ import aioschedule as schedule
 from dotenv import load_dotenv
 
 from backup_drive import backup_databased
-from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin
+from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance
 
 load_dotenv("../.env")
 
@@ -28,7 +28,8 @@ async def send_cheating_report() -> None:
 
         sorted_transactions.sort(key=lambda x: x[2], reverse=True)
         report = "\n".join(f"- {x[0]} based {x[1]} {x[2]} times" for x in sorted_transactions)
-        await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"))
+        async with create_reddit_instance() as reddit:
+            await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
         await based_history_collection.delete_many({})
 
 

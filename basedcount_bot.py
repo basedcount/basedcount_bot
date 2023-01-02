@@ -59,7 +59,7 @@ async def bot_commands(command: Message | Comment, command_body_lower: str, mong
     """
 
     if command_body_lower.startswith("/"):
-        main_logger.info(f"Received {type(command).__name__} from {command.author}, {command_body_lower}")
+        main_logger.info(f"Received {type(command).__name__} from {command.author}, {command_body_lower!r}")
 
     if command_body_lower.startswith("/info"):
         async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
@@ -108,14 +108,14 @@ async def check_mail(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) 
 
         if "suggestion" in message_subject_lower:
             forward_msg_task = asyncio.create_task(
-                send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name)
+                send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name, reddit=reddit_instance)
             )
             reply_task = asyncio.create_task(message.reply("Thank you for your suggestion. I have forwarded it to a human operator."))
             await forward_msg_task
             await reply_task
         elif "question" in message_subject_lower:
             forward_msg_task = asyncio.create_task(
-                send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name)
+                send_message_to_admin(message_subject=message.subject, message_body=message.body, author_name=message.author.name, reddit=reddit_instance)
             )
             reply_task = asyncio.create_task(
                 message.reply("Thank you for your question. I have forwarded it to a human operator, and I should reply shortly with an answer.")
@@ -179,7 +179,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
     :returns: True if checks passed and False if checks failed
 
     """
-    main_logger.info(f"Based Comment: {comment.body} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
+    main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
     if comment.author.name == parent_info["parent_author"] or comment.author.name.lower() == getenv("REDDIT_USERNAME", "basedcount_bot").lower():
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
@@ -246,12 +246,10 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
 
             pill = None
             first_non_empty_line = next(line for line in comment_body_lower.splitlines() if line)
-            if "pilled" in first_non_empty_line.lower():
-                pill_match = re.search(PILL_REGEX, first_non_empty_line)
-                if pill_match is not None:
-                    clean_pill = pill_match.group(2).strip(" -")  # strips both space and - character
-                    if len(clean_pill) < 70:
-                        pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
+            if pill_match := re.search(PILL_REGEX, first_non_empty_line):
+                clean_pill = pill_match.group(2).strip(" -")  # strips both space and - character
+                if 70 > len(clean_pill) > 0:
+                    pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
             reply_message = await based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill, mongo_client=mongo_client)
             if reply_message is not None:
@@ -261,9 +259,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
 
 
 async def main() -> None:
-    async with get_mongo_client() as mongo_client:
-        r1 = await create_reddit_instance()
-        r2 = await create_reddit_instance()
+    async with get_mongo_client() as mongo_client, create_reddit_instance() as r1, create_reddit_instance() as r2:
         await asyncio.gather(
             check_mail(r1, mongo_client),
             read_comments(r2, mongo_client),
