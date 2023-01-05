@@ -22,10 +22,10 @@ async def load_flairs() -> None:
             flair_dict[key] = value
 
 
-async def get_flair_name(flair_css_class: Optional[str]) -> str:
+async def get_flair_name(user_flair_id: Optional[str]) -> Optional[str]:
     """Gets the flair full name from flair id.
 
-    :param flair_css_class: flair class name used in reddit to show emojis
+    :param user_flair_id: flair id of the user
 
     :returns: flair full name
 
@@ -35,8 +35,7 @@ async def get_flair_name(flair_css_class: Optional[str]) -> str:
         await load_flairs()
 
     # If flair_text is None or Empty String
-    if not flair_css_class:
+    if not user_flair_id:
         return "Unflaired"
 
-    # If we can't find the full name for the flair_text, then the flair_text is itself returned
-    return flair_dict.get(flair_css_class) or flair_css_class
+    return flair_dict.get(user_flair_id)

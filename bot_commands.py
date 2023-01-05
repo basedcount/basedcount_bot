@@ -41,23 +41,28 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
     return profile
 
 
-async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[dict[str, str | int]], mongo_client: AsyncIOMotorClient) -> Optional[str]:
+async def based_and_pilled(
+    user_name: str, user_flair_id: str, user_flair_text: str, pill: Optional[dict[str, str | int]], mongo_client: AsyncIOMotorClient
+) -> Optional[str]:
     """Increments the based count and adds the pill to a user database in mongo
 
-    :param user_name: user whose based count/pill will be added
-    :param flair_css_class: flair that user has
-    :param pill: name of the pill that will be added
-    :param mongo_client: MongoDB Client used to get the collections
+    :param user_name: user whose based count/pill will be added.
+    :param user_flair_id: flair id of the user.
+    :param user_flair_text: flair text as it appears on Reddit
+    :param pill: name of the pill that will be added.
+    :param mongo_client: MongoDB Client used to get the collections.
 
     :returns: Comment response for the user when based count is 1, multiple of 5 and when they reach a new rank
 
     """
-    bot_commands_logger.info(f"based_and_pilled args: u/{user_name}, flair: {flair_css_class}, pill: {pill}")
+    bot_commands_logger.info(f"based_and_pilled args: u/{user_name}, flair: {user_flair_id}, pill: {pill}")
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
     profile = await find_or_create_user_profile(user_name, users_collection)
+    flair_name = await get_flair_name(user_flair_id) or user_flair_text
+    bot_commands_logger.info(f"Flair class: {user_flair_id} -> Flair name: {flair_name}")
     bot_commands_logger.info(f"Based Count before: {profile['count']}")
     await asyncio.gather(
-        add_based_count(user_name, flair_css_class, users_collection),
+        add_based_count(user_name, flair_name, users_collection),
         add_pills(user_name, pill, users_collection),
     )
     profile = await find_or_create_user_profile(user_name, users_collection)
@@ -99,18 +104,16 @@ async def based_and_pilled(user_name: str, flair_css_class: str, pill: Optional[
     return None
 
 
-async def add_based_count(user_name: str, flair_css_class: str, users_collection: AsyncIOMotorCollection) -> None:
+async def add_based_count(user_name: str, flair_name: str, users_collection: AsyncIOMotorCollection) -> None:
     """Increases the based count of user by one
 
     :param user_name: user whose based count will be increased
-    :param flair_css_class: the flair class of the user
+    :param flair_name: flair of the user.
     :param users_collection: The collection in which the profile will be updated
 
     :returns: None
 
     """
-    flair_name = await get_flair_name(flair_css_class)
-    bot_commands_logger.info(f"Flair class: {flair_css_class} -> Flair name: {flair_name}")
     await users_collection.update_one({"name": user_name}, {"$set": {"flair": flair_name}, "$inc": {"count": 1}, "$push": {"basedTime": int(time())}})
 
 

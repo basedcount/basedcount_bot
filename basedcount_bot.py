@@ -179,13 +179,13 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
     :returns: True if checks passed and False if checks failed
 
     """
-    main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']}")
+    main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']} <{parent_info['parent_flair_text']}>")
     if comment.author.name == parent_info["parent_author"] or comment.author.name.lower() == getenv("REDDIT_USERNAME", "basedcount_bot").lower():
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
 
     # check for unflaired users, the author_flair_text is empty str or None
-    if not parent_info["parent_flair"]:
+    if not parent_info["parent_flair_id"]:
         main_logger.info("Checks failed, giving based to unflaired user.")
         return False
 
@@ -213,9 +213,16 @@ async def get_parent_info(comment: Comment) -> dict[str, str]:
     await parent_post.load()
     parent_author = parent_post.author.name
     parent_body = "submission" if isinstance(parent_post, Submission) else parent_post.body.lower()
-    parent_flair = parent_post.author_flair_text
+    parent_flair_id = parent_post.author_flair_template_id
+    parent_flair_text = parent_post.author_flair_text
     link = parent_post.permalink
-    return {"parent_author": parent_author, "parent_body": parent_body, "parent_flair": parent_flair, "link": link}
+    return {
+        "parent_author": parent_author,
+        "parent_body": parent_body,
+        "parent_flair_id": parent_flair_id,
+        "parent_flair_text": parent_flair_text,
+        "link": link,
+    }
 
 
 @exception_wrapper
@@ -229,7 +236,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
 
     """
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
-    pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
+    pcm_subreddit = await reddit_instance.subreddit("basedcount_bot")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
         if comment.author.name.lower() in [getenv("REDDIT_USERNAME", "basedcount_bot").lower(), "flair-checking-bot"]:
             continue
@@ -251,7 +258,9 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
                 if 70 > len(clean_pill) > 0:
                     pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
-            reply_message = await based_and_pilled(parent_info["parent_author"], parent_info["parent_flair"], pill, mongo_client=mongo_client)
+            reply_message = await based_and_pilled(
+                parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
+            )
             if reply_message is not None:
                 await comment.reply(reply_message)
         else:
