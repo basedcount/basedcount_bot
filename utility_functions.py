@@ -3,10 +3,15 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
+from pathlib import Path
 
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
+from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+
+Path("logs").mkdir(exist_ok=True)
+config.fileConfig("logging.conf")
 
 
 @asynccontextmanager
@@ -75,5 +80,10 @@ def create_logger(logger_name: str) -> Logger:
     :returns: Logging Object.
 
     """
-    config.fileConfig("logging.conf")
+
+    log_format = "%(log_color)s[%(asctime)s] %(levelname)s [%(filename)s.%(funcName)s:%(lineno)d] %(message)s"
+    logger = getLogger(logger_name)
+    for handler in logger.handlers:
+        handler.setFormatter(ColoredFormatter(log_format))
+
     return getLogger(logger_name)
