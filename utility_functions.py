@@ -3,12 +3,14 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
+from pathlib import Path
 
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
 from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
+Path("logs").mkdir(exist_ok=True)
 config.fileConfig("logging.conf")
 
 
