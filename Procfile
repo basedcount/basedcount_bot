@@ -1,1 +1,0 @@
-worker: python basedcount_bot.py 

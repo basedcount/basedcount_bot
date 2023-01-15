@@ -1,36 +1,21 @@
+from __future__ import annotations
 
-from typing import TYPE_CHECKING, Optional
+from typing import Any
+
+from attrs import define
 
 
-class Pill(object):
-    if TYPE_CHECKING:
-        from .user import User
+@define(frozen=True, kw_only=True)
+class Pill:
+    name: str
+    comment_id: str
+    from_user: str
+    date: int
+    amount: int
+    owner_name: str
 
-        name: str
-        comment_id: Optional[str]
-        from_user: Optional[str] #TODO: make userRef object
-        date: Optional[int] # TODO: impl better date parsing 
-        amount: int
-        owner: User
-
-    def __init__(self, *, state, user: "User", data: dict):
-        self._state = state 
-
-        self.owner = user
-        
-        self._from_data(data)
-    
-    def __repr__(self):
-        return f"Pill(name='{self.name}', comment_id='{self.comment_id}')"
-
-    def _from_data(self, pill: dict):
-        self.name = pill['name']
-        self.comment_id = pill.get("commentID")
-        self.from_user = pill.get("fromUser")
-        
-        if date := pill.get("date"):
-            self.date = int(date)
-        else:
-            self.date = None
-
-        self.amount = pill.get('amount', 1)
+    @classmethod
+    def from_data(cls, pill: dict[Any, Any], owner_name: str) -> Pill:
+        return cls(
+            name=pill["name"], comment_id=pill["commentID"], from_user=pill["fromUser"], date=pill["date"], amount=pill.get("amount", 1), owner_name=owner_name
+        )
