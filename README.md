@@ -28,3 +28,4 @@ https://reddit.com/r/basedcount_bot/comments/iwhkcg/basedcount_bot_info_and_faq/
 - CodapopKSP
 - Squidtoon99
 - isFakeAccount
+- Atalocke
