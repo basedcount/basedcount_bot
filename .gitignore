@@ -10,4 +10,4 @@ venv
 .ruff_cache
 dataBased.json
 logs/*
-__pycache__
+
