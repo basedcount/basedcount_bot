@@ -1,10 +1,12 @@
 import asyncio
+import json
 import time
 from datetime import datetime
 from os import getenv
-from traceback import print_exc
+from traceback import print_exc, format_exc
 
 import aioschedule as schedule
+from aiohttp import ClientSession
 from dotenv import load_dotenv
 
 from backup_drive import backup_databased
@@ -13,13 +15,28 @@ from helper_functions import get_mongo_client, get_mongo_collection, send_messag
 load_dotenv("../.env")
 
 
+async def send_message_to_discord(msg: str) -> None:
+    """Sends the message to discord channel via webhook url.
+
+    :param msg: message content
+
+    :returns: None
+
+    """
+
+    webhook = getenv("DISCORD_WEBHOOK", "deadass")
+    data = {"content": msg, "username": "BasedCountBot"}
+    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
+        async with session.post(url=webhook, data=json.dumps(data)):
+            pass
+
+
 async def send_cheating_report() -> None:
     """Sends the based history records to bot admin if a user has given another user more than 5 based
 
     :returns: None
 
     """
-    ValueError("dfs")
     async with get_mongo_client() as mongo_client:
         based_history_collection = await get_mongo_collection("basedHistory", mongo_client=mongo_client)
         based_history = await based_history_collection.find({}).to_list(length=None)
@@ -57,6 +74,7 @@ async def task_scheduler() -> None:
         await backup_task
     except Exception:
         print_exc()
+        await send_message_to_discord(format_exc()[:2000])
 
 
 def main() -> None:
