@@ -1,12 +1,14 @@
 import asyncio
 import time
+from datetime import datetime
 from os import getenv
+from traceback import print_exc
 
 import aioschedule as schedule
 from dotenv import load_dotenv
 
 from backup_drive import backup_databased
-from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance
+from helper_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance
 
 load_dotenv("../.env")
 
@@ -17,6 +19,7 @@ async def send_cheating_report() -> None:
     :returns: None
 
     """
+    ValueError("dfs")
     async with get_mongo_client() as mongo_client:
         based_history_collection = await get_mongo_collection("basedHistory", mongo_client=mongo_client)
         based_history = await based_history_collection.find({}).to_list(length=None)
@@ -46,10 +49,14 @@ async def backup() -> None:
 
 
 async def task_scheduler() -> None:
-    cheating_report_task = asyncio.create_task(send_cheating_report())
-    backup_task = asyncio.create_task(backup())
-    await cheating_report_task
-    await backup_task
+    print(f"Running Scheduled Task: {datetime.now():%Y-%m-%d %I:%M:%S %p}")
+    try:
+        cheating_report_task = asyncio.create_task(send_cheating_report())
+        backup_task = asyncio.create_task(backup())
+        await cheating_report_task
+        await backup_task
+    except Exception:
+        print_exc()
 
 
 def main() -> None:

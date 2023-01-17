@@ -36,23 +36,23 @@ def get_drive_service() -> Any:
 
 
 def backup_databased(data_based: list[dict[str, object]]) -> None:
-    print("Downloading data...")
+    print("Downloading data...", flush=True)
     build_data_based(data_based)
     file_metadata = {
         "name": f"dataBased{datetime.now()}.json",
         "mimeType": "application/json",
     }
-    print("Preparing File...")
+    print("Preparing File...", flush=True)
     media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
     save_file_to_drive(file_metadata, media)
     Path("dataBased.json").unlink(missing_ok=True)
-    print("Finished")
+    print("Finished", flush=True)
 
 
 def save_file_to_drive(file_metadata: dict[str, str], media: MediaFileUpload) -> None:
-    print("Connecting to Drive...")
+    print("Connecting to Drive...", flush=True)
     service = get_drive_service()
-    print("Uploading to Google Drive...")
+    print("Uploading to Google Drive...", flush=True)
     db_file = service.files().create(body=file_metadata, media_body=media, fields="id")
     media.stream()
 
@@ -60,7 +60,7 @@ def save_file_to_drive(file_metadata: dict[str, str], media: MediaFileUpload) ->
     while response is None:
         status, response = db_file.next_chunk()
         if status:
-            print(f"Uploaded {status.progress() * 100}")
+            print(f"Uploaded {status.progress() * 100}", flush=True)
 
 
 def build_data_based(data_based: list[dict[str, object]]) -> None:
