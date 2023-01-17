@@ -25,7 +25,7 @@ async def send_message_to_discord(msg: str) -> None:
     """
 
     webhook = getenv("DISCORD_WEBHOOK", "deadass")
-    data = {"content": msg, "username": "BasedCountBot"}
+    data = {"content": msg, "username": "BasedCountBot_Backup"}
     async with ClientSession(headers={"Content-Type": "application/json"}) as session:
         async with session.post(url=webhook, data=json.dumps(data)):
             pass

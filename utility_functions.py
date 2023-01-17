@@ -1,10 +1,12 @@
 from __future__ import annotations
 
+import json
 from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
 from pathlib import Path
 
+from aiohttp import ClientSession
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
 from colorlog import ColoredFormatter
@@ -12,6 +14,22 @@ from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 Path("logs").mkdir(exist_ok=True)
 config.fileConfig("logging.conf")
+
+
+async def send_message_to_discord(msg: str) -> None:
+    """Sends the message to discord channel via webhook url.
+
+    :param msg: message content
+
+    :returns: None
+
+    """
+
+    webhook = getenv("DISCORD_WEBHOOK", "deadass")
+    data = {"content": msg, "username": "BasedCountBot"}
+    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
+        async with session.post(url=webhook, data=json.dumps(data)):
+            pass
 
 
 @asynccontextmanager
