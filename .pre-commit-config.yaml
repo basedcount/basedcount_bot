@@ -22,7 +22,7 @@ repos:
         language_version: python3
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev:  v0.0.209
+    rev:  v0.0.223
     hooks:
       - id: ruff
         args: [ --line-length=160 ]

@@ -15,7 +15,8 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
 from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
-from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client
+from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client, send_message_to_discord
+from traceback import format_exc
 
 load_dotenv()
 
@@ -38,11 +39,16 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
                 await func(reddit_instance, mongo_client)
             except AsyncPrawcoreException:
                 main_logger.exception("AsyncPrawcoreException", exc_info=True)
-                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
+                await send_message_to_discord(format_exc()[:2000])
                 sleep(cool_down_timer)
-                cool_down_timer = (cool_down_timer + 5) % 60
+                cool_down_timer = (cool_down_timer + 30) % 360
+                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
             except Exception:
                 main_logger.critical("Serious Exception", exc_info=True)
+                await send_message_to_discord(format_exc()[:2000])
+                sleep(cool_down_timer)
+                cool_down_timer = (cool_down_timer + 30) % 360
+                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
 
     return wrapper
 

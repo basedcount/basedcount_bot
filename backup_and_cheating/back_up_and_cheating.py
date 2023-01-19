@@ -1,14 +1,34 @@
 import asyncio
+import json
 import time
+from datetime import datetime
 from os import getenv
+from traceback import print_exc, format_exc
 
 import aioschedule as schedule
+from aiohttp import ClientSession
 from dotenv import load_dotenv
 
 from backup_drive import backup_databased
-from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance
+from helper_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance
 
 load_dotenv("../.env")
+
+
+async def send_message_to_discord(msg: str) -> None:
+    """Sends the message to discord channel via webhook url.
+
+    :param msg: message content
+
+    :returns: None
+
+    """
+
+    webhook = getenv("DISCORD_WEBHOOK", "deadass")
+    data = {"content": msg, "username": "BasedCountBot_Backup"}
+    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
+        async with session.post(url=webhook, data=json.dumps(data)):
+            pass
 
 
 async def send_cheating_report() -> None:
@@ -46,10 +66,15 @@ async def backup() -> None:
 
 
 async def task_scheduler() -> None:
-    cheating_report_task = asyncio.create_task(send_cheating_report())
-    backup_task = asyncio.create_task(backup())
-    await cheating_report_task
-    await backup_task
+    print(f"Running Scheduled Task: {datetime.now():%Y-%m-%d %I:%M:%S %p}")
+    try:
+        cheating_report_task = asyncio.create_task(send_cheating_report())
+        backup_task = asyncio.create_task(backup())
+        await cheating_report_task
+        await backup_task
+    except Exception:
+        print_exc()
+        await send_message_to_discord(format_exc()[:2000])
 
 
 def main() -> None:

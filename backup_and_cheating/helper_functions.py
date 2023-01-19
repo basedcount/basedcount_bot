@@ -1,35 +1,11 @@
 from __future__ import annotations
 
-import json
 from contextlib import asynccontextmanager
-from logging import getLogger, Logger, config
 from os import getenv
-from pathlib import Path
 
-from aiohttp import ClientSession
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
-from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
-
-Path("logs").mkdir(exist_ok=True)
-config.fileConfig("logging.conf")
-
-
-async def send_message_to_discord(msg: str) -> None:
-    """Sends the message to discord channel via webhook url.
-
-    :param msg: message content
-
-    :returns: None
-
-    """
-
-    webhook = getenv("DISCORD_WEBHOOK", "deadass")
-    data = {"content": msg, "username": "BasedCountBot"}
-    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
-        async with session.post(url=webhook, data=json.dumps(data)):
-            pass
 
 
 @asynccontextmanager
@@ -89,19 +65,4 @@ async def send_message_to_admin(message_subject: str, message_body: str, author_
 
     """
     bot_admin: Redditor = await reddit.redditor(getenv("BOT_ADMIN"))
-    await bot_admin.message(subject=f"{message_subject} from {author_name}", message=message_body)
-
-
-def create_logger(logger_name: str) -> Logger:
-    """Creates logger and returns an instance of logging object.
-
-    :returns: Logging Object.
-
-    """
-
-    log_format = "%(log_color)s[%(asctime)s] %(levelname)s [%(filename)s.%(funcName)s:%(lineno)d] %(message)s"
-    logger = getLogger(logger_name)
-    for handler in logger.handlers:
-        handler.setFormatter(ColoredFormatter(log_format))
-
-    return getLogger(logger_name)
+    await bot_admin.message(subject=f"{message_subject} from {author_name}", message="No user gave more than 5 based" if not message_body else message_body)
