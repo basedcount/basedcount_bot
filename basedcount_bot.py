@@ -262,7 +262,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
             if pill_match := re.search(PILL_REGEX, first_non_empty_line):
                 clean_pill = pill_match.group(2).strip(" -")  # strips both space and - character
                 if 70 > len(clean_pill) > 0:
-                    pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
+                    pill = {"name": clean_pill, "commentID": comment.permalink, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
             reply_message = await based_and_pilled(
                 parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
