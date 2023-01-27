@@ -244,6 +244,10 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
     pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
+        # Skipping over comments from users that have blocked basedcount_bot
+        if comment.author is None:
+            continue
+
         if comment.author.name.lower() in [getenv("REDDIT_USERNAME", "basedcount_bot").lower(), "flair-checking-bot"]:
             continue
 
