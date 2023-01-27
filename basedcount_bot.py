@@ -175,7 +175,7 @@ BASED_REGEX = re.compile(f"({'|'.join(BASED_VARIATION)})\\b(?!\\s*(on|off))", re
 PILL_REGEX = re.compile("(?<=(and|but))(.+)pilled", re.IGNORECASE)
 
 
-async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
+async def is_valid_comment(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
     """Runs checks for self based/pills, unflaired users, and cheating in general
 
     :param comment: Comment which triggered the bot command
@@ -253,7 +253,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
         if re.match(BASED_REGEX, comment_body_lower.replace("\n", "")):
             parent_info = await get_parent_info(comment)
             # Skip Unflaired scums and low effort based
-            if not await has_commands_checks_passed(comment, parent_info, mongo_client=mongo_client):
+            if not await is_valid_comment(comment, parent_info, mongo_client=mongo_client):
                 continue
             main_logger.info("Checks passed")
 
