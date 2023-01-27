@@ -78,7 +78,8 @@ async def task_scheduler() -> None:
 
 
 def main() -> None:
-    schedule.every(1).days.do(task_scheduler)
+    print(f"{datetime.now()} Started backup and cheating task...")
+    schedule.every().day.at("00:00").do(task_scheduler)
     while True:
         asyncio.run(schedule.run_pending())
         time.sleep(0.1)
