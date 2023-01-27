@@ -1,0 +1,14 @@
+aioschedule
+asyncpraw
+colorlog
+google-api-python-client
+google-auth-httplib2
+google-auth-oauthlib
+motor
+mypy
+pre-commit
+python-dotenv
+types-aiofiles
+types-PyYAML
+types-ujson
+ujson
