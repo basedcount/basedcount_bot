@@ -186,7 +186,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
 
     """
     main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']} <{parent_info['parent_flair_text']}>")
-    if comment.author.name == parent_info["parent_author"] or parent_info["parent_author"].lower() == getenv("REDDIT_USERNAME", "basedcount_bot").lower():
+    if parent_info["parent_author"].lower() in [comment.author.name.lower(), getenv("REDDIT_USERNAME", "basedcount_bot").lower()]:
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
 
