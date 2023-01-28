@@ -4,6 +4,7 @@ import asyncio
 import re
 from os import getenv
 from time import sleep
+from traceback import format_exc
 from typing import Awaitable, Callable
 
 import aiofiles
@@ -15,8 +16,14 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
 from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
-from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client, send_message_to_discord
-from traceback import format_exc
+from utility_functions import (
+    load_config,
+    create_logger,
+    create_reddit_instance,
+    send_message_to_admin,
+    get_mongo_client,
+    send_traceback_to_discord,
+)
 
 load_dotenv()
 
@@ -37,15 +44,17 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
         while True:
             try:
                 await func(reddit_instance, mongo_client)
-            except AsyncPrawcoreException:
+            except AsyncPrawcoreException as asyncpraw_exc:
                 main_logger.exception("AsyncPrawcoreException", exc_info=True)
-                await send_message_to_discord(format_exc()[:2000])
+                await send_traceback_to_discord(exception_name=type(asyncpraw_exc).__name__, exception_message=str(asyncpraw_exc), exception_body=format_exc())
+
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
                 main_logger.info(f"Cooldown: {cool_down_timer} seconds")
-            except Exception:
+            except Exception as general_exc:
                 main_logger.critical("Serious Exception", exc_info=True)
-                await send_message_to_discord(format_exc()[:2000])
+                await send_traceback_to_discord(exception_name=type(general_exc).__name__, exception_message=str(general_exc), exception_body=format_exc())
+
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
                 main_logger.info(f"Cooldown: {cool_down_timer} seconds")
@@ -287,6 +296,7 @@ async def main() -> None:
 
 if __name__ == "__main__":
     cool_down_timer = 0
+    load_config()
     main_logger = create_logger(__name__)
     background_tasks: set[asyncio.Task[None]] = set()
     asyncio.run(main())

@@ -25,4 +25,4 @@ repos:
     rev:  v0.0.235
     hooks:
       - id: ruff
-        args: [ --line-length=160 ]
+        args: [ --config=./pyproject.toml ]
