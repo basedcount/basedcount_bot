@@ -1,0 +1,54 @@
+[2023-01-28 19:18:45,894] INFO [back_up_and_cheating.py.main:70] Started backup and cheating task...
+[2023-01-28 19:18:45,894] INFO [back_up_and_cheating.py.task_scheduler:58] Running Scheduled Task
+[2023-01-28 19:18:47,913] ERROR [back_up_and_cheating.py.task_scheduler:65] Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 62, in task_scheduler
+    await cheating_report_task
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 41, in send_cheating_report
+    await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/utility_functions.py", line 132, in send_message_to_admin
+    await bot_admin.message(subject=f"{message_subject} from {author_name}", message=message_body)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/models/reddit/mixins/messageable.py", line 67, in message
+    await self._reddit.post(API_PATH["compose"], data=data)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/util/deprecate_args.py", line 51, in wrapped
+    return await _wrapper(*args, **kwargs)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 936, in post
+    raise last_exception
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 920, in post
+    return await self._objectify_request(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/reddit.py", line 814, in _objectify_request
+    return self._objector.objectify(
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/venv/lib/python3.10/site-packages/asyncpraw/objector.py", line 239, in objectify
+    raise RedditAPIException(errors)
+asyncpraw.exceptions.RedditAPIException: NO_TEXT: 'we need something here' on field 'text'
+[2023-01-28 19:19:30,500] INFO [back_up_and_cheating.py.main:70] Started backup and cheating task...
+[2023-01-28 19:19:30,501] INFO [back_up_and_cheating.py.task_scheduler:58] Running Scheduled Task
+[2023-01-28 19:21:58,129] ERROR [back_up_and_cheating.py.task_scheduler:65] Exception
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 41, in send_cheating_report
+    await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 41, in send_cheating_report
+    await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
+  File "_pydevd_bundle/pydevd_cython.pyx", line 1589, in _pydevd_bundle.pydevd_cython.ThreadTracer.__call__
+  File "_pydevd_bundle/pydevd_cython.pyx", line 929, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle/pydevd_cython.pyx", line 920, in _pydevd_bundle.pydevd_cython.PyDBFrame.trace_dispatch
+  File "_pydevd_bundle/pydevd_cython.pyx", line 317, in _pydevd_bundle.pydevd_cython.PyDBFrame.do_wait_suspend
+  File "/home/kira/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/223.8617.48/plugins/python/helpers/pydev/pydevd.py", line 1160, in do_wait_suspend
+    self._do_wait_suspend(thread, frame, event, arg, suspend_type, from_this_thread)
+  File "/home/kira/.local/share/JetBrains/Toolbox/apps/PyCharm-P/ch-0/223.8617.48/plugins/python/helpers/pydev/pydevd.py", line 1175, in _do_wait_suspend
+    time.sleep(0.01)
+KeyboardInterrupt
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 62, in task_scheduler
+    await cheating_report_task
+  File "/mnt/secondary-ssd/Programming/Pycharm/basedcount_bot/backup_and_cheating/back_up_and_cheating.py", line 29, in send_cheating_report
+    async with get_mongo_client() as mongo_client:
+TypeError: 'async with' received an object from __aexit__ that does not implement __await__: type
+[2023-01-28 19:22:57,789] INFO [back_up_and_cheating.py.main:71] Started backup and cheating task...
+[2023-01-28 19:22:57,789] INFO [back_up_and_cheating.py.task_scheduler:59] Running Scheduled Task
+[2023-01-28 19:23:05,243] INFO [__init__.py.autodetect:49] file_cache is only supported with oauth2client<4.0.0
