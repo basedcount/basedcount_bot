@@ -21,3 +21,4 @@ line-length = 160
 
 [tool.ruff.per-file-ignores]
 "backup_and_cheating/back_up_and_cheating.py" = ["E402"]
+"backup_and_cheating/backup_drive.py" = ["E402"]
