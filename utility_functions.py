@@ -13,10 +13,12 @@ from asyncpraw.reddit import Redditor
 from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
-
-def load_config() -> None:
-    Path("logs").mkdir(exist_ok=True)
-    config.fileConfig("logging.conf")
+Path("logs").mkdir(exist_ok=True)
+conf_file = Path("logging.conf")
+if conf_file.is_file():
+    config.fileConfig(str(conf_file))
+else:
+    config.fileConfig(str(Path(__file__).parent / "logging.conf"))
 
 
 async def post_to_pastebin(title: str, body: str) -> Optional[str]:
@@ -136,7 +138,6 @@ def create_logger(logger_name: str) -> Logger:
     :returns: Logging Object.
 
     """
-
     log_format = "%(log_color)s[%(asctime)s] %(levelname)s [%(filename)s.%(funcName)s:%(lineno)d] %(message)s"
     logger = getLogger(logger_name)
     for handler in logger.handlers:

@@ -3,10 +3,9 @@ from __future__ import annotations
 import asyncio
 import sys
 import time
-from datetime import datetime
 from os import getenv
 from pathlib import Path
-from traceback import print_exc, format_exc
+from traceback import format_exc
 
 import aioschedule as schedule
 from dotenv import load_dotenv
@@ -15,9 +14,10 @@ from backup_drive import backup_databased
 
 sys.path.append(str(Path(sys.argv[0]).absolute().parent.parent))
 
-from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance, send_traceback_to_discord
+from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance, send_traceback_to_discord, create_logger
 
 load_dotenv("../.env")
+backup_cheating_logger = create_logger(__name__)
 
 
 async def send_cheating_report() -> None:
@@ -38,7 +38,8 @@ async def send_cheating_report() -> None:
         sorted_transactions.sort(key=lambda x: x[2], reverse=True)
         report = "\n".join(f"- {x[0]} based {x[1]} {x[2]} times" for x in sorted_transactions)
         async with create_reddit_instance() as reddit:
-            await send_message_to_admin("Cheating Report", report, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
+            msg = "No user gave more than 5 based" if not report else report
+            await send_message_to_admin("Cheating Report", msg, getenv("REDDIT_USERNAME", "basedcount_bot"), reddit=reddit)
         await based_history_collection.delete_many({})
 
 
@@ -55,20 +56,21 @@ async def backup() -> None:
 
 
 async def task_scheduler() -> None:
-    print(f"Running Scheduled Task: {datetime.now():%Y-%m-%d %I:%M:%S %p}")
+    backup_cheating_logger.info("Running Scheduled Task")
     try:
         cheating_report_task = asyncio.create_task(send_cheating_report())
         backup_task = asyncio.create_task(backup())
         await cheating_report_task
         await backup_task
     except Exception as exc:
-        print_exc()
+        backup_cheating_logger.exception("Exception", exc_info=True)
         await send_traceback_to_discord(exception_name=type(exc).__name__, exception_message=str(exc), exception_body=format_exc())
 
 
 def main() -> None:
-    print(f"{datetime.now()} Started backup and cheating task...")
+    backup_cheating_logger.info("Started backup and cheating task...")
     schedule.every().day.at("00:00").do(task_scheduler)
+    asyncio.run(task_scheduler())
     while True:
         asyncio.run(schedule.run_pending())
         time.sleep(0.1)

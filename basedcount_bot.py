@@ -17,7 +17,6 @@ from yaml import safe_load
 
 from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
 from utility_functions import (
-    load_config,
     create_logger,
     create_reddit_instance,
     send_message_to_admin,
@@ -296,7 +295,6 @@ async def main() -> None:
 
 if __name__ == "__main__":
     cool_down_timer = 0
-    load_config()
     main_logger = create_logger(__name__)
     background_tasks: set[asyncio.Task[None]] = set()
     asyncio.run(main())
