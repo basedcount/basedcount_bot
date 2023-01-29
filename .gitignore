@@ -9,4 +9,4 @@ venv
 .mypy_cache
 .ruff_cache
 dataBased.json
-logs/*
+logs/
