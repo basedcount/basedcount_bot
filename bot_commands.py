@@ -263,41 +263,19 @@ async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClien
         return f'"{pill}" pill removed. See your pills at https://basedcount.com/u/{user_name}'
 
 
-async def unsubscribe(user_name: str, mongo_client: AsyncIOMotorClient) -> str:
-    """Sets the user's unsubscribed bool to True
-
-    :param user_name: The user whose pill is going to be removed
+async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncIOMotorClient) -> str:
+    """Sets the user's unsubscribed bool to True or False
+    :param subscribe: Boolean indicating whether to set the status to subscribed or unsubscribed
+    :param user_name: The user whose subscription status is being changed
     :param mongo_client: MongoDB Client used to get the collections
-
     :returns: Message that is sent back to the user
-
     """
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
     profile = await find_or_create_user_profile(user_name, users_collection)
     res = await profile.find_one_and_update(
-        {"name": user_name}, {"$set": {"unsubscribed": True}}, return_document=ReturnDocument.AFTER
+        {"name": user_name}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER
     )
     if res:
-        return "You have unsubscribed from basedcount_bot. If you would like to subscribe again, please message me any time with '/subscribe'."
-    else:
-        return "Error: Please contact the mods."
-    
-
-async def subscribe(user_name: str, mongo_client: AsyncIOMotorClient) -> str:
-    """Sets the user's unsubscribed bool to False
-
-    :param user_name: The user whose pill is going to be removed
-    :param mongo_client: MongoDB Client used to get the collections
-
-    :returns: Message that is sent back to the user
-
-    """
-    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
-    profile = await find_or_create_user_profile(user_name, users_collection)
-    res = await profile.find_one_and_update(
-        {"name": user_name}, {"$set": {"unsubscribed": False}}, return_document=ReturnDocument.AFTER
-    )
-    if res:
-        return "Thank you for subscribing to basedcount_bot!"
+        return "You have unsubscribed from basedcount_bot." if subscribe else "Thank you for subscribing to basedcount_bot!"
     else:
         return "Error: Please contact the mods."
