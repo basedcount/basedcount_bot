@@ -279,3 +279,25 @@ async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncI
         return "You have unsubscribed from basedcount_bot." if subscribe else "Thank you for subscribing to basedcount_bot!"
     else:
         return "Error: Please contact the mods."
+
+
+async def check_unsubscribed(username: str, mongo_client: AsyncIOMotorClient) -> bool:
+    """Check the value of the "unsubscribed" field for a user with the given username in a MongoDB collection.
+
+    If the "unsubscribed" field is missing, add it to the user document and set its value to False.
+
+    :param username: The username to search for in the collection.
+    :param mongo_client: A MotorAsyncIOMotorClient instance representing the MongoDB client.
+
+    :returns: The value of the "unsubscribed" field for the user, or False if the user doesn't exist or the "unsubscribed" field is missing.
+
+    """
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await users_collection.find_one({"username": username})
+
+    if "unsubscribed" in profile:
+        return profile["unsubscribed"]
+    else:
+        # If the "unsubscribed" field is missing, add it and set its value to False
+        await users_collection.update_one({"username": username}, {"$set": {"unsubscribed": False}})
+        return False
