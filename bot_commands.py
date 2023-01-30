@@ -286,9 +286,7 @@ async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncI
     """
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
     profile = await find_or_create_user_profile(user_name, users_collection)
-    res = await users_collection.users_collection.update_one(
-        {"name": profile["name"]}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER
-    )
+    res = await users_collection.update_one({"name": profile["name"]}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER)
     if res:
         return "You have unsubscribed from basedcount_bot." if subscribe else "Thank you for subscribing to basedcount_bot!"
     else:
