@@ -34,7 +34,7 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
     if profile is None:
         profile = await users_collection.find_one_and_update(
             {"name": user_name},
-            {"$setOnInsert": {"flair": "Unflaired", "count": 0, "pills": [], "compass": [], "sapply": [], "basedTime": [], "mergedAccounts": []}},
+            {"$setOnInsert": {"flair": "Unflaired", "count": 0, "pills": [], "compass": [], "sapply": [], "basedTime": [], "mergedAccounts": [], "unsubscribed": False}},
             upsert=True,
             return_document=ReturnDocument.AFTER,
         )
@@ -261,3 +261,43 @@ async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClien
         return "You do not have that pill!"
     else:
         return f'"{pill}" pill removed. See your pills at https://basedcount.com/u/{user_name}'
+
+
+async def unsubscribe(user_name: str, mongo_client: AsyncIOMotorClient) -> str:
+    """Sets the user's unsubscribed bool to True
+
+    :param user_name: The user whose pill is going to be removed
+    :param mongo_client: MongoDB Client used to get the collections
+
+    :returns: Message that is sent back to the user
+
+    """
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await find_or_create_user_profile(user_name, users_collection)
+    res = await profile.find_one_and_update(
+        {"name": user_name}, {"$set": {"unsubscribed": True}}, return_document=ReturnDocument.AFTER
+    )
+    if res:
+        return "You have unsubscribed from basedcount_bot. If you would like to subscribe again, please message me any time with '/subscribe'."
+    else:
+        return "Error: Please contact the mods."
+    
+
+async def subscribe(user_name: str, mongo_client: AsyncIOMotorClient) -> str:
+    """Sets the user's unsubscribed bool to False
+
+    :param user_name: The user whose pill is going to be removed
+    :param mongo_client: MongoDB Client used to get the collections
+
+    :returns: Message that is sent back to the user
+
+    """
+    users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
+    profile = await find_or_create_user_profile(user_name, users_collection)
+    res = await profile.find_one_and_update(
+        {"name": user_name}, {"$set": {"unsubscribed": False}}, return_document=ReturnDocument.AFTER
+    )
+    if res:
+        return "Thank you for subscribing to basedcount_bot!"
+    else:
+        return "Error: Please contact the mods."

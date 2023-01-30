@@ -14,7 +14,7 @@ from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
-from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
+from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history, unsubscribe, subscribe
 from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client, send_message_to_discord
 from traceback import format_exc
 
@@ -90,6 +90,14 @@ async def bot_commands(command: Message | Comment, command_body_lower: str, mong
 
     elif command_body_lower.startswith("/mycompass"):
         response = await my_compass(user_name=command.author.name, compass=command_body_lower.replace("/mycompass ", ""), mongo_client=mongo_client)
+        await command.reply(response)
+    
+    elif command_body_lower.startswith("/unsubscribe"):
+        response = await unsubscribe(user_name=command.author.name, mongo_client=mongo_client)
+        await command.reply(response)
+    
+    elif command_body_lower.startswith("/subscribe"):
+        response = await subscribe(user_name=command.author.name, mongo_client=mongo_client)
         await command.reply(response)
 
 
