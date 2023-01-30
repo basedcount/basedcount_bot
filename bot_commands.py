@@ -34,7 +34,18 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
     if profile is None:
         profile = await users_collection.find_one_and_update(
             {"name": user_name},
-            {"$setOnInsert": {"flair": "Unflaired", "count": 0, "pills": [], "compass": [], "sapply": [], "basedTime": [], "mergedAccounts": [], "unsubscribed": False}},
+            {
+                "$setOnInsert": {
+                    "flair": "Unflaired",
+                    "count": 0,
+                    "pills": [],
+                    "compass": [],
+                    "sapply": [],
+                    "basedTime": [],
+                    "mergedAccounts": [],
+                    "unsubscribed": False,
+                }
+            },
             upsert=True,
             return_document=ReturnDocument.AFTER,
         )
@@ -265,15 +276,18 @@ async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClien
 
 async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncIOMotorClient) -> str:
     """Sets the user's unsubscribed bool to True or False
+
     :param subscribe: Boolean indicating whether to set the status to subscribed or unsubscribed
     :param user_name: The user whose subscription status is being changed
     :param mongo_client: MongoDB Client used to get the collections
+
     :returns: Message that is sent back to the user
+
     """
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
     profile = await find_or_create_user_profile(user_name, users_collection)
-    res = await profile.find_one_and_update(
-        {"name": user_name}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER
+    res = await users_collection.users_collection.update_one(
+        {"name": profile["name"]}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER
     )
     if res:
         return "You have unsubscribed from basedcount_bot." if subscribe else "Thank you for subscribing to basedcount_bot!"

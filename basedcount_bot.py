@@ -91,11 +91,11 @@ async def bot_commands(command: Message | Comment, command_body_lower: str, mong
     elif command_body_lower.startswith("/mycompass"):
         response = await my_compass(user_name=command.author.name, compass=command_body_lower.replace("/mycompass ", ""), mongo_client=mongo_client)
         await command.reply(response)
-    
+
     elif command_body_lower.startswith("/unsubscribe"):
         response = await set_subscription(subscribe=False, user_name=command.author.name, mongo_client=mongo_client)
         await command.reply(response)
-    
+
     elif command_body_lower.startswith("/subscribe"):
         response = await set_subscription(subscribe=True, user_name=command.author.name, mongo_client=mongo_client)
         await command.reply(response)
