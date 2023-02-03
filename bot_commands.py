@@ -305,12 +305,12 @@ async def check_unsubscribed(username: str, mongo_client: AsyncIOMotorClient) ->
 
     """
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
-    profile = await users_collection.find_one({"username": username})
+    profile = await users_collection.find_one({"name": username})
 
     if "unsubscribed" in profile:
         unsub: bool = profile["unsubscribed"]
         return unsub
     else:
         # If the "unsubscribed" field is missing, add it and set its value to False
-        await users_collection.update_one({"username": username}, {"$set": {"unsubscribed": False}})
+        await users_collection.update_one({"name": username}, {"$set": {"unsubscribed": False}})
         return False
