@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
 from pathlib import Path
+from typing import Optional
 
 from aiohttp import ClientSession
 from asyncpraw import Reddit
@@ -13,20 +14,59 @@ from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 Path("logs").mkdir(exist_ok=True)
-config.fileConfig("logging.conf")
+conf_file = Path("logging.conf")
+if conf_file.is_file():
+    config.fileConfig(str(conf_file))
+else:
+    config.fileConfig(str(Path(__file__).parent / "logging.conf"))
 
 
-async def send_message_to_discord(msg: str) -> None:
-    """Sends the message to discord channel via webhook url.
+async def post_to_pastebin(title: str, body: str) -> Optional[str]:
+    """Uploads the text to PasteBin and returns the url of the Paste
 
-    :param msg: message content
+    :param title: Title of the Paste
+    :param body: Body of Paste
 
-    :returns: None
+    :returns: url of Paste
 
     """
+    login_data = {"api_dev_key": getenv("PASTEBIN_DEV_KEY"), "api_user_name": getenv("PASTEBIN_USERNAME"), "api_user_password": getenv("PASTEBIN_PASSWORD")}
+
+    data = {
+        "api_option": "paste",
+        "api_dev_key": getenv("PASTEBIN_DEV_KEY"),
+        "api_paste_code": body,
+        "api_paste_name": title,
+        "api_paste_expire_date": "1W",
+        "api_user_key": None,
+        "api_paste_format": "python",
+    }
+
+    async with ClientSession() as session:
+        login_resp = await session.post("https://pastebin.com/api/api_login.php", data=login_data)
+        if login_resp.status == 200:
+            data["api_user_key"] = await login_resp.text()
+            post_resp = await session.post("https://pastebin.com/api/api_post.php", data=data)
+            if post_resp.status == 200:
+                return await post_resp.text()
+    return None
+
+
+async def send_traceback_to_discord(exception_name: str, exception_message: str, exception_body: str) -> None:
+    """Send the traceback of an exception to a Discord webhook.
+
+    :param exception_name: The name of the exception.
+    :param exception_message: A brief summary of the exception.
+    :param exception_body: The full traceback of the exception.
+
+    """
+    paste_bin_url = await post_to_pastebin(f"{exception_name}: {exception_message}", exception_body)
+
+    if paste_bin_url is None:
+        return
 
     webhook = getenv("DISCORD_WEBHOOK", "deadass")
-    data = {"content": msg, "username": "BasedCountBot"}
+    data = {"content": f"[{exception_name}: {exception_message}]({paste_bin_url})", "username": "BasedCountBot"}
     async with ClientSession(headers={"Content-Type": "application/json"}) as session:
         async with session.post(url=webhook, data=json.dumps(data)):
             pass
@@ -98,7 +138,6 @@ def create_logger(logger_name: str) -> Logger:
     :returns: Logging Object.
 
     """
-
     log_format = "%(log_color)s[%(asctime)s] %(levelname)s [%(filename)s.%(funcName)s:%(lineno)d] %(message)s"
     logger = getLogger(logger_name)
     for handler in logger.handlers:

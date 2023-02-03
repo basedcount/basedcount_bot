@@ -1,3 +1,6 @@
+from __future__ import annotations
+
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Any
@@ -8,6 +11,12 @@ from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
+
+sys.path.append(str(Path(sys.argv[0]).absolute().parent.parent))
+
+from utility_functions import create_logger
+
+backup_drive_logger = create_logger(__name__)
 
 SCOPES = ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/drive.metadata"]
 
@@ -36,23 +45,23 @@ def get_drive_service() -> Any:
 
 
 def backup_databased(data_based: list[dict[str, object]]) -> None:
-    print("Downloading data...", flush=True)
+    backup_drive_logger.info("Downloading data...")
     build_data_based(data_based)
     file_metadata = {
         "name": f"dataBased{datetime.now()}.json",
         "mimeType": "application/json",
     }
-    print("Preparing File...", flush=True)
+    backup_drive_logger.info("Preparing File...")
     media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
     save_file_to_drive(file_metadata, media)
     Path("dataBased.json").unlink(missing_ok=True)
-    print("Finished", flush=True)
+    backup_drive_logger.info("Finished")
 
 
 def save_file_to_drive(file_metadata: dict[str, str], media: MediaFileUpload) -> None:
-    print("Connecting to Drive...", flush=True)
+    backup_drive_logger.info("Connecting to Drive...")
     service = get_drive_service()
-    print("Uploading to Google Drive...", flush=True)
+    backup_drive_logger.info("Uploading to Google Drive...")
     db_file = service.files().create(body=file_metadata, media_body=media, fields="id")
     media.stream()
 
@@ -60,7 +69,7 @@ def save_file_to_drive(file_metadata: dict[str, str], media: MediaFileUpload) ->
     while response is None:
         status, response = db_file.next_chunk()
         if status:
-            print(f"Uploaded {status.progress() * 100}", flush=True)
+            backup_drive_logger.info(f"Uploaded {status.progress() * 100}")
 
 
 def build_data_based(data_based: list[dict[str, object]]) -> None:

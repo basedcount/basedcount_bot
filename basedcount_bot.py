@@ -4,6 +4,7 @@ import asyncio
 import re
 from os import getenv
 from time import sleep
+from traceback import format_exc
 from typing import Awaitable, Callable
 
 import aiofiles
@@ -15,8 +16,13 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
 from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history, set_subscription, check_unsubscribed
-from utility_functions import create_logger, create_reddit_instance, send_message_to_admin, get_mongo_client, send_message_to_discord
-from traceback import format_exc
+from utility_functions import (
+    create_logger,
+    create_reddit_instance,
+    send_message_to_admin,
+    get_mongo_client,
+    send_traceback_to_discord,
+)
 
 load_dotenv()
 
@@ -37,15 +43,17 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
         while True:
             try:
                 await func(reddit_instance, mongo_client)
-            except AsyncPrawcoreException:
+            except AsyncPrawcoreException as asyncpraw_exc:
                 main_logger.exception("AsyncPrawcoreException", exc_info=True)
-                await send_message_to_discord(format_exc()[:2000])
+                await send_traceback_to_discord(exception_name=type(asyncpraw_exc).__name__, exception_message=str(asyncpraw_exc), exception_body=format_exc())
+
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
                 main_logger.info(f"Cooldown: {cool_down_timer} seconds")
-            except Exception:
+            except Exception as general_exc:
                 main_logger.critical("Serious Exception", exc_info=True)
-                await send_message_to_discord(format_exc()[:2000])
+                await send_traceback_to_discord(exception_name=type(general_exc).__name__, exception_message=str(general_exc), exception_body=format_exc())
+
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
                 main_logger.info(f"Cooldown: {cool_down_timer} seconds")
@@ -183,7 +191,7 @@ BASED_REGEX = re.compile(f"({'|'.join(BASED_VARIATION)})\\b(?!\\s*(on|off))", re
 PILL_REGEX = re.compile("(?<=(and|but))(.+)pilled", re.IGNORECASE)
 
 
-async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
+async def is_valid_comment(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
     """Runs checks for self based/pills, unflaired users, and cheating in general
 
     :param comment: Comment which triggered the bot command
@@ -194,7 +202,7 @@ async def has_commands_checks_passed(comment: Comment, parent_info: dict[str, st
 
     """
     main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']} <{parent_info['parent_flair_text']}>")
-    if comment.author.name == parent_info["parent_author"] or comment.author.name.lower() == getenv("REDDIT_USERNAME", "basedcount_bot").lower():
+    if parent_info["parent_author"].lower() in [comment.author.name.lower(), getenv("REDDIT_USERNAME", "basedcount_bot").lower()]:
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
 
@@ -252,6 +260,10 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
     main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
     pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
+        # Skipping over comments from users that have blocked basedcount_bot
+        if comment.author is None:
+            continue
+
         if comment.author.name.lower() in [getenv("REDDIT_USERNAME", "basedcount_bot").lower(), "flair-checking-bot"]:
             continue
 
@@ -261,7 +273,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
         if re.match(BASED_REGEX, comment_body_lower.replace("\n", "")):
             parent_info = await get_parent_info(comment)
             # Skip Unflaired scums and low effort based
-            if not await has_commands_checks_passed(comment, parent_info, mongo_client=mongo_client):
+            if not await is_valid_comment(comment, parent_info, mongo_client=mongo_client):
                 continue
             main_logger.info("Checks passed")
 
@@ -270,7 +282,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
             if pill_match := re.search(PILL_REGEX, first_non_empty_line):
                 clean_pill = pill_match.group(2).strip(" -")  # strips both space and - character
                 if 70 > len(clean_pill) > 0:
-                    pill = {"name": clean_pill, "commentID": comment.id, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
+                    pill = {"name": clean_pill, "commentID": comment.permalink, "fromUser": comment.author.name, "date": comment.created_utc, "amount": 1}
 
             reply_message = await based_and_pilled(
                 parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
