@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
-from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history
+from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history, set_subscription, check_unsubscribed
 from utility_functions import (
     create_logger,
     create_reddit_instance,
@@ -98,6 +98,14 @@ async def bot_commands(command: Message | Comment, command_body_lower: str, mong
 
     elif command_body_lower.startswith("/mycompass"):
         response = await my_compass(user_name=command.author.name, compass=command_body_lower.replace("/mycompass ", ""), mongo_client=mongo_client)
+        await command.reply(response)
+
+    elif command_body_lower.startswith("/unsubscribe"):
+        response = await set_subscription(subscribe=False, user_name=command.author.name, mongo_client=mongo_client)
+        await command.reply(response)
+
+    elif command_body_lower.startswith("/subscribe"):
+        response = await set_subscription(subscribe=True, user_name=command.author.name, mongo_client=mongo_client)
         await command.reply(response)
 
 
@@ -280,6 +288,8 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
                 parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
             )
             if reply_message is not None:
+                if check_unsubscribed(parent_info["parent_author"], mongo_client):
+                    continue
                 await comment.reply(reply_message)
         else:
             await bot_commands(comment, comment_body_lower, mongo_client=mongo_client)
