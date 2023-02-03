@@ -288,7 +288,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
                 parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
             )
             if reply_message is not None:
-                if check_unsubscribed(parent_info["parent_author"], mongo_client):
+                if await check_unsubscribed(parent_info["parent_author"], mongo_client):
                     continue
                 await comment.reply(reply_message)
         else:
