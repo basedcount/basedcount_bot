@@ -86,7 +86,7 @@ async def based_and_pilled(
     combined_rank = await rank_name(combined_based_count, user_name)
     rank_up = await rank_message(combined_based_count)
 
-    msg = f"Oops! Looks like u/{user_name} been based. As you know, only flaired users can have a based count. It'd be a shame if something... happened to it."
+    msg = f"Oops! Looks like u/{user_name} has been based. As you know, only flaired users can have a based count. It'd be a shame if something... happened to it."
     # if user.based_count == 1:
     #     return (
     #         f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
