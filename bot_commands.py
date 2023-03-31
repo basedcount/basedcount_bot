@@ -86,33 +86,34 @@ async def based_and_pilled(
     combined_rank = await rank_name(combined_based_count, user_name)
     rank_up = await rank_message(combined_based_count)
 
-    if user.based_count == 1:
-        return (
-            f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
-            f"Rank: {combined_rank}\n\n"
-            f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
-        )
-    elif user.based_count % 5 == 0:
-        if rank_up is not None:
-            # Reply if user reaches a new rank
-            return (
-                f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
-                f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}"
-                f"Pills: {combined_pills}\n\n"
-                f"Compass: {user.format_compass()}\n\n"
-                f"I am a bot. Reply /info for more info."
-            )
-        # normal reply
-        return (
-            f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
-            f"Rank: {combined_rank}\n\n"
-            f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
-        )
-    return None
+    msg = "Oops! Looks like you've been based. As you know, only flaired users can have a based count. It'd be a shame if something... happened to it."
+    # if user.based_count == 1:
+    #     return (
+    #         f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
+    #         f"Rank: {combined_rank}\n\n"
+    #         f"Pills: {combined_pills}\n\n"
+    #         f"Compass: {user.format_compass()}\n\n"
+    #         f"I am a bot. Reply /info for more info."
+    #     )
+    # elif user.based_count % 5 == 0:
+    #     if rank_up is not None:
+    #         # Reply if user reaches a new rank
+    #         return (
+    #             f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
+    #             f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}"
+    #             f"Pills: {combined_pills}\n\n"
+    #             f"Compass: {user.format_compass()}\n\n"
+    #             f"I am a bot. Reply /info for more info."
+    #         )
+    #     # normal reply
+    #     return (
+    #         f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
+    #         f"Rank: {combined_rank}\n\n"
+    #         f"Pills: {combined_pills}\n\n"
+    #         f"Compass: {user.format_compass()}\n\n"
+    #         f"I am a bot. Reply /info for more info."
+    #     )
+    return msg
 
 
 async def add_based_count(user_name: str, flair_name: str, users_collection: AsyncIOMotorCollection) -> None:
