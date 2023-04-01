@@ -287,6 +287,10 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
             reply_message = await based_and_pilled(
                 parent_info["parent_author"], parent_info["parent_flair_id"], parent_info["parent_flair_text"], pill, mongo_client=mongo_client
             )
+
+            # removed the flair of parent comment
+            await pcm_subreddit.flair.set(parent_info["parent_author"], css_class="", flair_template_id="", text="")
+
             if reply_message is not None:
                 if await check_unsubscribed(parent_info["parent_author"], mongo_client):
                     continue
