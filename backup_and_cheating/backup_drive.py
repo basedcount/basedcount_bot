@@ -34,7 +34,7 @@ def backup_databased(data_based: list[dict[str, object]]) -> None:
     backup_drive_logger.info("Downloading data...")
     build_data_based(data_based)
 
-    folder_ids = get_folder_ids(["BasedCountBackups", "dataBased_backups"])
+    folder_ids = get_folder_ids(["BasedCountBackups", "dataBased_backups", "Backups"])
     for folder_id in folder_ids:
         file_metadata = {"name": f"dataBased{datetime.now()}.json", "mimeType": "application/json", "parents": [folder_id]}
         backup_drive_logger.info("Preparing File...")
