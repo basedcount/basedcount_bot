@@ -12,6 +12,54 @@ class Post:
     def __init__(self):
         self._auth = Authentication()
 
+    def get_latest_comments(
+        self,
+        community_id: int,
+        max_depth: int,
+    ) -> dict:
+        get_comments = {
+            "auth": self._auth.token,
+            #"post_id": post_id,
+            "community_id": community_id,
+            "max_depth": max_depth,
+            #"sort": "New"
+        }
+
+        re = requests.get(f"{self._auth.api_base_url}/comment/list", params=get_comments)
+        comments_data = json.loads(re.content.decode('utf-8'))
+        return comments_data
+    
+        size = len(comments_data["comments"])
+        print("Size of comments_data:", size)
+
+        if "comments" in comments_data:
+            comments = comments_data["comments"]
+
+            # Check if there are any comments in the list
+            for comment in comments:
+
+                # Extract the user and body of the first comment
+                user = comment["creator"]["name"]
+                body = comment["comment"]["content"]
+                published = comment["comment"]["published"]
+                #parent_id = comment["comment"]["parent_id"]
+
+                commentid = comment["comment"]["id"]
+                path = comment["comment"]["path"]
+                path_elements = path.split(".")
+                parent_comment_id = int(path_elements[-2])
+
+
+                # Print the user and body
+                print("User:", user)
+                print("Body:", body)
+                print("Published:", published)
+                print("Comment ID:", commentid)
+                print("Parent Comment ID:", parent_comment_id)
+        else:
+            print("No comments found.")
+
+
     def get(
         self,
         post_id: int,
@@ -33,35 +81,10 @@ class Post:
             "id": post_id,
         }
 
-        get_comments = {
-            "auth": self._auth.token,
-            "post_id": post_id,
-        }
-
         if comment_id is not None:
             get_post["comment_id"] = comment_id
 
         re = requests.get(f"{self._auth.api_base_url}/post", params=get_post)
-        comments_response = requests.get(f"{self._auth.api_base_url}/comment/list", params=get_comments)
-        comments_data = json.loads(comments_response.content.decode('utf-8'))
-        if "comments" in comments_data:
-            comments = comments_data["comments"]
-
-            # Check if there are any comments in the list
-            for comment in comments:
-
-                # Extract the user and body of the first comment
-                user = comment["creator"]["name"]
-                body = comment["comment"]["content"]
-
-                # Print the user and body
-                print("User:", user)
-                print("Body:", body)
-        else:
-            print("No comments found.")
-
-
-
         if not re.ok:
             logger.error(f"Error encountered while getting posts: {re.text}")
             return {}
