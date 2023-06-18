@@ -13,6 +13,7 @@ class Lemmy:
     def __init__(self, api_base_url: str) -> None:
         self._auth = Authentication()
         self._auth.api_base_url = f"{api_base_url}/api/v3"
+        print(self._auth.api_base_url)
         self.post = Post()
 
     def log_in(self, username_or_email: str, password: str) -> bool:

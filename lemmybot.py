@@ -13,11 +13,13 @@ lemmy.log_in(username, password)
 post = Post()
 
 # Retrieve comments from a specific community or post
-community_id = '!pcm'  # Replace with the desired community ID
-comments = post.list(community_id=community_id, type_=ListingType.COMMENTS, sort=SortType.ACTIVITY)
-'''
-# Iterate through the comments
-for comment in comments:
-    if comment["body"].startswith("Based"):
-        # Reply to the comment
-        post.create(community_id, "Your reply message", comment_id=comment["id"])'''
+community_id = 2  # Replace with the desired community ID
+
+
+post = lemmy.post.get(post_id=145)
+
+# Access post information
+print(f"Post ID: {post['post_view']['post']['id']}")
+print(f"Post Title: {post['post_view']['post']['name']}")
+# ...
+

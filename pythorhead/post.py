@@ -2,6 +2,7 @@ from typing import Any, Literal
 
 import requests
 from loguru import logger
+import json
 
 from pythorhead.auth import Authentication
 from pythorhead.types import FeatureType, ListingType, SortType
@@ -22,6 +23,7 @@ class Post:
         Args:
             post_id (int)
             comment_id (int, optional) Defaults to None.
+            include_comments (bool, optional) Defaults to False. Set to True to include comments.
 
         Returns:
             dict: post view
@@ -31,10 +33,35 @@ class Post:
             "id": post_id,
         }
 
+        get_comments = {
+            "auth": self._auth.token,
+            "post_id": post_id,
+        }
+
         if comment_id is not None:
             get_post["comment_id"] = comment_id
 
         re = requests.get(f"{self._auth.api_base_url}/post", params=get_post)
+        comments_response = requests.get(f"{self._auth.api_base_url}/comment/list", params=get_comments)
+        comments_data = json.loads(comments_response.content.decode('utf-8'))
+        if "comments" in comments_data:
+            comments = comments_data["comments"]
+
+            # Check if there are any comments in the list
+            for comment in comments:
+
+                # Extract the user and body of the first comment
+                user = comment["creator"]["name"]
+                body = comment["comment"]["content"]
+
+                # Print the user and body
+                print("User:", user)
+                print("Body:", body)
+        else:
+            print("No comments found.")
+
+
+
         if not re.ok:
             logger.error(f"Error encountered while getting posts: {re.text}")
             return {}
