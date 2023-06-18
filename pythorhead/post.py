@@ -12,11 +12,48 @@ class Post:
     def __init__(self):
         self._auth = Authentication()
 
+    def get_comment(
+        self,
+        post_id: int,
+        comment_id: int | None = None,
+    ) -> dict:
+        """
+        Get a comment.
+
+        Args:
+            post_id (int) - Actually the comment ID, but I didn't name it
+            comment_id (int, optional) Defaults to None. Don't put anything in here
+
+        Returns:
+            dict: comment view
+        """
+        get_post = {
+            "auth": self._auth.token,
+            "id": post_id,
+        }
+
+        if comment_id is not None:
+            get_post["comment_id"] = comment_id
+
+        re = requests.get(f"{self._auth.api_base_url}/comment", params=get_post)
+        if not re.ok:
+            logger.error(f"Error encountered while getting posts: {re.text}")
+            return {}
+        return re.json()
+
     def write_comment(self,
         post_id: int,
         parent_id: int,
         content: str
     ):
+        """
+        Write a comment.
+
+        Args:
+            post_id (int)
+            parent_id (int) - The comment you'd like to reply to
+            content (str)
+        """
         comment_data = {
             "auth": self._auth.token,
             "post_id": post_id,
@@ -26,9 +63,7 @@ class Post:
             "language_id": 0,
             "form_id": ""
         }
-        print(comment_data)
         response = requests.post(f"{self._auth.api_base_url}/comment", json=comment_data)
-        print(response.status_code)
 
 
     def get_latest_comments(
@@ -36,9 +71,18 @@ class Post:
         community_id: int,
         max_depth: int,
     ) -> dict:
+        """
+        Get a list of recent comments.
+
+        Args:
+            community_id (int)
+            max_depth (int, optional)
+
+        Returns:
+            dict: comment list
+        """
         get_comments = {
             "auth": self._auth.token,
-            #"post_id": post_id,
             "community_id": community_id,
             "max_depth": max_depth,
             #"sort": "New"
