@@ -12,6 +12,25 @@ class Post:
     def __init__(self):
         self._auth = Authentication()
 
+    def write_comment(self,
+        post_id: int,
+        parent_id: int,
+        content: str
+    ):
+        comment_data = {
+            "auth": self._auth.token,
+            "post_id": post_id,
+            "parent_id": parent_id,
+            "content": content,
+            "community_id": 2,
+            "language_id": 0,
+            "form_id": ""
+        }
+        print(comment_data)
+        response = requests.post(f"{self._auth.api_base_url}/comment", json=comment_data)
+        print(response.status_code)
+
+
     def get_latest_comments(
         self,
         community_id: int,
@@ -28,37 +47,6 @@ class Post:
         re = requests.get(f"{self._auth.api_base_url}/comment/list", params=get_comments)
         comments_data = json.loads(re.content.decode('utf-8'))
         return comments_data
-    
-        size = len(comments_data["comments"])
-        print("Size of comments_data:", size)
-
-        if "comments" in comments_data:
-            comments = comments_data["comments"]
-
-            # Check if there are any comments in the list
-            for comment in comments:
-
-                # Extract the user and body of the first comment
-                user = comment["creator"]["name"]
-                body = comment["comment"]["content"]
-                published = comment["comment"]["published"]
-                #parent_id = comment["comment"]["parent_id"]
-
-                commentid = comment["comment"]["id"]
-                path = comment["comment"]["path"]
-                path_elements = path.split(".")
-                parent_comment_id = int(path_elements[-2])
-
-
-                # Print the user and body
-                print("User:", user)
-                print("Body:", body)
-                print("Published:", published)
-                print("Comment ID:", commentid)
-                print("Parent Comment ID:", parent_comment_id)
-        else:
-            print("No comments found.")
-
 
     def get(
         self,
