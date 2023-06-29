@@ -92,17 +92,17 @@ async def based_and_pilled(
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
+            f"I am a bot. Reply /info for more info. Please join [official pcm discord server](https://discord.gg/FyaJdAZjC4)."
         )
     elif user.based_count % 5 == 0:
         if rank_up is not None:
             # Reply if user reaches a new rank
             return (
                 f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
-                f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}"
+                f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}\n\n"
                 f"Pills: {combined_pills}\n\n"
                 f"Compass: {user.format_compass()}\n\n"
-                f"I am a bot. Reply /info for more info."
+                f"I am a bot. Reply /info for more info. Please join [official pcm discord server](https://discord.gg/FyaJdAZjC4)."
             )
         # normal reply
         return (
@@ -110,7 +110,7 @@ async def based_and_pilled(
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
+            f"I am a bot. Reply /info for more info. Please join [official pcm discord server](https://discord.gg/FyaJdAZjC4)."
         )
     return None
 
