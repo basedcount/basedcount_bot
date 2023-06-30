@@ -34,12 +34,11 @@ def backup_databased(data_based: list[dict[str, object]]) -> None:
     backup_drive_logger.info("Downloading data...")
     build_data_based(data_based)
 
-    folder_ids = get_folder_ids(["BasedCountBackups", "dataBased_backups", "Backups"])
-    for folder_id in folder_ids:
-        file_metadata = {"name": f"dataBased{datetime.now()}.json", "mimeType": "application/json", "parents": [folder_id]}
-        backup_drive_logger.info("Preparing File...")
-        media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
-        save_file_to_drive(file_metadata, media)
+    file_metadata = {"name": f"dataBased{datetime.now()}.json", "mimeType": "application/json", "parents": ["BasedCountBackups"]}
+    backup_drive_logger.info("Preparing File...")
+    media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
+    save_file_to_drive(file_metadata, media)
+
     Path("dataBased.json").unlink(missing_ok=True)
     backup_drive_logger.info("Finished")
 
