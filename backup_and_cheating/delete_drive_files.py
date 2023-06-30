@@ -7,7 +7,7 @@ from backup_drive import get_drive_service
 
 def list_files(service: Any) -> list[dict[Any, Any]]:
     results = service.files().list(pageSize=1000).execute()
-    files: list[dict[Any, Any]] = results.get('files', [])
+    files: list[dict[Any, Any]] = results.get("files", [])
     return files
 
 
@@ -23,13 +23,13 @@ def main() -> None:
     service = get_drive_service()
     files = list_files(service)
     if not files:
-        print('No files found.')
+        print("No files found.")
     else:
-        print('Deleting files...')
+        print("Deleting files...")
         for file in files:
-            delete_file(service, file['id'])
+            delete_file(service, file["id"])
             print(f"Deleted file: {file['name']}")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
