@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import bz2
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -34,12 +35,12 @@ def backup_databased(data_based: list[dict[str, object]]) -> None:
     backup_drive_logger.info("Downloading data...")
     build_data_based(data_based)
 
-    file_metadata = {"name": f"dataBased{datetime.now()}.json", "mimeType": "application/json", "parents": get_folder_ids(["BasedCountBackups"])}
+    file_metadata = {"name": f"dataBased{datetime.now()}.bz2", "mimeType": "application/json", "parents": get_folder_ids(["BasedCountBackups"])}
     backup_drive_logger.info("Preparing File...")
-    media = MediaFileUpload("dataBased.json", mimetype="application/json", resumable=True)
+    media = MediaFileUpload("dataBased.bz2", mimetype="application/x-bzip2", resumable=True)
     save_file_to_drive(file_metadata, media)
 
-    Path("dataBased.json").unlink(missing_ok=True)
+    Path("dataBased.bz2").unlink(missing_ok=True)
     backup_drive_logger.info("Finished")
 
 
@@ -76,5 +77,6 @@ def build_data_based(data_based: list[dict[str, object]]) -> None:
     for user in data_based:
         del user["_id"]
 
-    with open("dataBased.json", "w") as fp:
-        ujson.dump(data_based, fp, indent=4)
+    with open("dataBased.bz2", "wb") as fp:
+        compressed_data = bz2.compress(ujson.dumps(data_based).encode("utf-8"))
+        fp.write(compressed_data)
