@@ -37,10 +37,10 @@ def backup_databased(data_based: list[dict[str, object]]) -> None:
 
     file_metadata = {"name": f"dataBased{datetime.now()}.bz2", "mimeType": "application/json", "parents": get_folder_ids(["BasedCountBackups"])}
     backup_drive_logger.info("Preparing File...")
-    media = MediaFileUpload("dataBased.bz2", mimetype="application/x-bzip2", resumable=True)
+    media = MediaFileUpload("dataBased.json.bz2", mimetype="application/x-bzip2", resumable=True)
     save_file_to_drive(file_metadata, media)
 
-    Path("dataBased.bz2").unlink(missing_ok=True)
+    Path("dataBased.json.bz2").unlink(missing_ok=True)
     backup_drive_logger.info("Finished")
 
 
@@ -77,6 +77,5 @@ def build_data_based(data_based: list[dict[str, object]]) -> None:
     for user in data_based:
         del user["_id"]
 
-    with open("dataBased.bz2", "wb") as fp:
-        compressed_data = bz2.compress(ujson.dumps(data_based).encode("utf-8"))
-        fp.write(compressed_data)
+    with bz2.open("dataBased.json.bz2", "wb") as fp:
+        fp.write(ujson.dumps(data_based, indent=4).encode("utf-8"))
