@@ -5,8 +5,10 @@ from contextlib import asynccontextmanager
 from logging import getLogger, Logger, config
 from os import getenv
 from pathlib import Path
+from traceback import print_exc
 from typing import Optional
 
+import aiohttp
 from aiohttp import ClientSession
 from asyncpraw import Reddit
 from asyncpraw.reddit import Redditor
@@ -42,13 +44,16 @@ async def post_to_pastebin(title: str, body: str) -> Optional[str]:
         "api_paste_format": "python",
     }
 
-    async with ClientSession() as session:
-        login_resp = await session.post("https://pastebin.com/api/api_login.php", data=login_data)
-        if login_resp.status == 200:
-            data["api_user_key"] = await login_resp.text()
-            post_resp = await session.post("https://pastebin.com/api/api_post.php", data=data)
-            if post_resp.status == 200:
-                return await post_resp.text()
+    try:
+        async with ClientSession() as session:
+            login_resp = await session.post("https://pastebin.com/api/api_login.php", data=login_data)
+            if login_resp.status == 200:
+                data["api_user_key"] = await login_resp.text()
+                post_resp = await session.post("https://pastebin.com/api/api_post.php", data=data)
+                if post_resp.status == 200:
+                    return await post_resp.text()
+    except aiohttp.ClientError:
+        print_exc()
     return None
 
 

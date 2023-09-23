@@ -1,5 +1,6 @@
 aioschedule
 asyncpraw
+black
 colorlog
 google-api-python-client
 google-auth-httplib2
@@ -9,7 +10,7 @@ mypy
 pip-tools
 pre-commit
 python-dotenv
-types-aiofiles
 types-PyYAML
+types-aiofiles
 types-ujson
 ujson

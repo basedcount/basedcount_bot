@@ -35,6 +35,7 @@ def run_static() -> bool:
     """
     success = True
     success &= do_process(["pre-commit", "run", "--all-files"])
+    success &= do_process(["black", "."])
     success &= do_process(["mypy", "."])
     return success
 
