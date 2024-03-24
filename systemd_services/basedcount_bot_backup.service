@@ -1,0 +1,12 @@
+[Unit]
+Description=Runs basedcount_bot backup and cheating
+After=network-online.target
+Requires=network-online.target 
+
+[Service]
+Type=oneshot
+WorkingDirectory=/root/Bots/basedcount_bot/backup_and_cheating
+ExecStart=/root/Bots/basedcount_bot/backup_and_cheating/back_up_and_cheating.py
+
+[Install]
+WantedBy=default.target

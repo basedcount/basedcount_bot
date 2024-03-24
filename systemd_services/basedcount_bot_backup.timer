@@ -1,0 +1,10 @@
+[Unit]
+Description=Timer for basedcount_bot backup and cheating
+
+[Timer]
+OnBootSec=15m
+OnCalendar=daily
+Persistent=true
+
+[Install]
+WantedBy=timers.target
