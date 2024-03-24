@@ -2,6 +2,7 @@ passwords.py
 creds.json
 __pycache__/*
 venv
+.venv
 *.json
 *.ipynb
 .idea
