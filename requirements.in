@@ -12,5 +12,3 @@ pre-commit
 python-dotenv
 types-PyYAML
 types-aiofiles
-types-ujson
-ujson

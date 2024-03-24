@@ -6,7 +6,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Sequence
 
-import ujson
+import json
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
@@ -78,4 +78,4 @@ def build_data_based(data_based: list[dict[str, object]]) -> None:
         del user["_id"]
 
     with bz2.open("dataBased.json.bz2", "wb") as fp:
-        fp.write(ujson.dumps(data_based, indent=4).encode("utf-8"))
+        fp.write(json.dumps(data_based, indent=4).encode("utf-8"))
