@@ -2,7 +2,7 @@
 Description=Runs basedcount_bot
 Wants=basedcount_bot_backup.service
 After=network-online.target
-Requires=network-online.target 
+Requires=network-online.target
 
 [Service]
 Type=simple
