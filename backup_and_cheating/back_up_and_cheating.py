@@ -5,12 +5,10 @@ import asyncio
 import concurrent.futures
 import functools
 import sys
-import time
 from os import getenv
 from pathlib import Path
 from traceback import format_exc
 
-import aioschedule as schedule
 from backup_drive import backup_databased
 from dotenv import load_dotenv
 
@@ -61,13 +59,12 @@ async def backup() -> None:
             await loop.run_in_executor(pool, func_call)
 
 
-async def task_scheduler() -> None:
+async def backup_and_cheating_runner() -> None:
     backup_cheating_logger.info("Running Scheduled Task")
     try:
-        cheating_report_task = asyncio.create_task(send_cheating_report())
-        backup_task = asyncio.create_task(backup())
-        await cheating_report_task
-        await backup_task
+        async with asyncio.TaskGroup() as tg:
+            tg.create_task(send_cheating_report())
+            tg.create_task(backup())
     except Exception as exc:
         backup_cheating_logger.exception("Exception", exc_info=True)
         await send_traceback_to_discord(exception_name=type(exc).__name__, exception_message=str(exc), exception_body=format_exc())
@@ -75,11 +72,7 @@ async def task_scheduler() -> None:
 
 def main() -> None:
     backup_cheating_logger.info("Started backup and cheating task...")
-    schedule.every().day.at("00:00").do(task_scheduler)
-    asyncio.run(task_scheduler())
-    while True:
-        asyncio.run(schedule.run_pending())
-        time.sleep(0.1)
+    asyncio.run(backup_and_cheating_runner())
 
 
 if __name__ == "__main__":
