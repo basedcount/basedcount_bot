@@ -146,10 +146,14 @@ types-aiofiles==23.2.0.20240311
     # via -r requirements.in
 types-pyyaml==6.0.12.20240311
     # via -r requirements.in
+types-ujson==5.9.0.0
+    # via -r requirements.in
 typing-extensions==4.10.0
     # via
     #   aiosqlite
     #   mypy
+ujson==5.9.0
+    # via -r requirements.in
 update-checker==0.18.0
     # via asyncpraw
 uritemplate==4.1.1

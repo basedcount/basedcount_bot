@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import asyncio
+import concurrent.futures
+import functools
 import sys
 import time
 from os import getenv
@@ -9,13 +11,12 @@ from pathlib import Path
 from traceback import format_exc
 
 import aioschedule as schedule
-from dotenv import load_dotenv
-
 from backup_drive import backup_databased
+from dotenv import load_dotenv
 
 sys.path.append(str(Path(sys.argv[0]).absolute().parent.parent))
 
-from utility_functions import get_mongo_client, get_mongo_collection, send_message_to_admin, create_reddit_instance, send_traceback_to_discord, create_logger
+from utility_functions import create_logger, create_reddit_instance, get_mongo_client, get_mongo_collection, send_message_to_admin, send_traceback_to_discord
 
 load_dotenv("../.env")
 backup_cheating_logger = create_logger(__name__)
@@ -53,7 +54,11 @@ async def backup() -> None:
     async with get_mongo_client() as mongo_client:
         users_collection = await get_mongo_collection("users", mongo_client=mongo_client)
         users = await users_collection.find({}).to_list(length=None)
-        await asyncio.to_thread(backup_databased, users)
+
+        loop = asyncio.get_running_loop()
+        func_call = functools.partial(backup_databased, users)
+        with concurrent.futures.ThreadPoolExecutor(max_workers=1) as pool:
+            await loop.run_in_executor(pool, func_call)
 
 
 async def task_scheduler() -> None:
