@@ -1,7 +1,6 @@
 [Unit]
 Description=Runs basedcount_bot backup and cheating
-After=network-online.target
-Requires=network-online.target
+After=default.target
 
 [Service]
 Type=oneshot
