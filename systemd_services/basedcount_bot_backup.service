@@ -5,8 +5,8 @@ Requires=network-online.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=/root/Bots/basedcount_bot/backup_and_cheating
-ExecStart=/root/Bots/basedcount_bot/backup_and_cheating/back_up_and_cheating.py
+WorkingDirectory=%h/Programming/Bots/basedcount_bot/backup_and_cheating
+ExecStart=%h/Programming/Bots/basedcount_bot/backup_and_cheating/back_up_and_cheating.py
 
 [Install]
 WantedBy=default.target

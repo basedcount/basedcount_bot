@@ -6,8 +6,8 @@ Requires=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/root/Bots/basedcount_bot
-ExecStart=/root/Bots/basedcount_bot/basedcount_bot.py
+WorkingDirectory=%h/Programming/Bots/basedcount_bot
+ExecStart=%h/Programming/Bots/basedcount_bot/basedcount_bot.py
 Restart=always
 RestartSec=15s
 
