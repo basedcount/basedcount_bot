@@ -149,8 +149,7 @@ async def add_to_based_history(user_name: str, parent_author: str, mongo_client:
 
     :param user_name: user who gave the based and pills
     :param parent_author: user who received the based
-    :param mongo_client: MongoDB Client used to get the collections
-    :type mongo_client: AsyncIOMotorClient
+    :param AsyncIOMotorClient mongo_client: MongoDB Client used to get the collections
 
     :returns: None
 

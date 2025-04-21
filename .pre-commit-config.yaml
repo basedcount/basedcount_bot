@@ -1,6 +1,6 @@
 repos:
   - repo: https://github.com/psf/black
-    rev: 23.9.1
+    rev: 25.1.0
     hooks:
       - id: black
         args: [ --safe, --config=./pyproject.toml ]
@@ -10,10 +10,11 @@ repos:
     hooks:
       - id: docstrfmt
         require_serial: true
-    rev: v1.5.1
+        exclude: ".venv"
+    rev: v1.10.0
 
   - repo: https://github.com/pre-commit/pre-commit-hooks
-    rev: v4.3.0
+    rev: v5.0.0
     hooks:
       - id: trailing-whitespace
       - id: end-of-file-fixer
@@ -22,7 +23,7 @@ repos:
         language_version: python3
 
   - repo: https://github.com/charliermarsh/ruff-pre-commit
-    rev:  v0.0.291
+    rev:  v0.11.6
     hooks:
       - id: ruff
         args: [ --config=./pyproject.toml ]
