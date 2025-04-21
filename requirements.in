@@ -6,7 +6,6 @@ google-auth-httplib2
 google-auth-oauthlib
 motor
 mypy
-pip-tools
 pre-commit
 python-dotenv
 types-PyYAML
