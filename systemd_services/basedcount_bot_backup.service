@@ -4,8 +4,8 @@ After=default.target
 
 [Service]
 Type=oneshot
-WorkingDirectory=%h/Programming/Bots/basedcount_bot/backup_and_cheating
-ExecStart=%h/Programming/Bots/basedcount_bot/backup_and_cheating/back_up_and_cheating.py
+WorkingDirectory=%h/Bots/basedcount_bot/backup_and_cheating
+ExecStart=%h/Bots/basedcount_bot/backup_and_cheating/back_up_and_cheating.py
 
 [Install]
 WantedBy=default.target

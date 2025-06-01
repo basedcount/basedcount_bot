@@ -6,10 +6,10 @@ After=default.target
 [Service]
 Type=simple
 ExecStartPre=/bin/sh -c 'until ping -c1 google.com; do sleep 1; done;'
-WorkingDirectory=%h/Programming/Bots/basedcount_bot
-ExecStart=%h/Programming/Bots/basedcount_bot/basedcount_bot.py
+WorkingDirectory=%h/Bots/basedcount_bot
+ExecStart=%h/Bots/basedcount_bot/basedcount_bot.py
 Restart=always
 RestartSec=15s
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
