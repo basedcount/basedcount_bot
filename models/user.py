@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import Any, Optional
+from typing import Any
 
 from attrs import define, field
 from motor.motor_asyncio import AsyncIOMotorCollection
@@ -22,8 +22,7 @@ def quadrant_name(compass_value: str, side1: str, side2: str) -> str:
     if "-" in compass_value:
         compass_value = compass_value.replace("-", "")
         return f"{side1} : {compass_value}"
-    else:
-        return f"{side2} : {compass_value}"
+    return f"{side2} : {compass_value}"
 
 
 @define(kw_only=True)
@@ -38,8 +37,8 @@ class User:
     merged_accounts: list[str] = field(factory=list)
 
     # Post Init stuff
-    political_compass_type: Optional[str] = field(default=None)
-    sappy_values_type: Optional[str] = field(default=None)
+    political_compass_type: str | None = field(default=None)
+    sappy_values_type: str | None = field(default=None)
 
     def __attrs_post_init__(self) -> None:
         if len(self.political_compass_values) >= 2:
@@ -119,7 +118,6 @@ class User:
         :returns: List of tuple containing username and the based count of that account
 
         """
-
         task_list = []
         for user_name in self.merged_accounts:
             task_list.append(user_collection.find_one({"name": user_name}))

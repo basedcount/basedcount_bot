@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-from typing import Optional
 
 import aiofiles
 from attrs import define
@@ -24,7 +23,7 @@ async def load_ranks() -> None:
 
     """
     global rank_list
-    async with aiofiles.open("data_dictionaries/ranks_dict.json", "r") as fp:
+    async with aiofiles.open("data_dictionaries/ranks_dict.json") as fp:
         rank_dict = json.loads(await fp.read())
 
         for key, value in rank_dict.items():
@@ -48,14 +47,14 @@ async def rank_name(based_count: int, user: str) -> str:
 
     for rank_index, rank in enumerate(rank_list):
         if based_count == rank.value:
-            return rank_list[rank_index].name
-        elif based_count < rank.value:
+            return rank.name
+        if based_count < rank.value:
             return rank_list[rank_index - 1].name
 
     raise ValueError("No ranks for the given based count.")
 
 
-async def rank_message(based_count: int) -> Optional[str]:
+async def rank_message(based_count: int) -> str | None:
     """Gets the user rank message from their based count if they have reached a new rank
 
     :param based_count: user based count

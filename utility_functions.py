@@ -2,18 +2,22 @@ from __future__ import annotations
 
 import json
 from contextlib import asynccontextmanager
-from logging import getLogger, Logger, config
+from logging import Logger, config, getLogger
 from os import getenv
 from pathlib import Path
 from traceback import print_exc
-from typing import Optional
+from typing import TYPE_CHECKING
 
 import aiohttp
 from aiohttp import ClientSession
 from asyncpraw import Reddit
-from asyncpraw.reddit import Redditor
 from colorlog import ColoredFormatter
 from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
+
+    from asyncpraw.reddit import Redditor
 
 Path("logs").mkdir(exist_ok=True)
 conf_file = Path("logging.conf")
@@ -23,8 +27,8 @@ else:
     config.fileConfig(str(Path(__file__).parent / "logging.conf"))
 
 
-async def post_to_pastebin(title: str, body: str) -> Optional[str]:
-    """Uploads the text to PasteBin and returns the url of the Paste
+async def post_to_pastebin(title: str, body: str) -> str | None:
+    """Uploads the text to PasteBin and returns the url of the Paste.
 
     :param title: Title of the Paste
     :param body: Body of Paste
@@ -72,14 +76,13 @@ async def send_traceback_to_discord(exception_name: str, exception_message: str,
 
     webhook = getenv("DISCORD_WEBHOOK", "deadass")
     data = {"content": f"[{exception_name}: {exception_message}]({paste_bin_url})", "username": "BasedCountBot"}
-    async with ClientSession(headers={"Content-Type": "application/json"}) as session:
-        async with session.post(url=webhook, data=json.dumps(data)):
-            pass
+    async with ClientSession(headers={"Content-Type": "application/json"}) as session, session.post(url=webhook, data=json.dumps(data)):
+        pass
 
 
 @asynccontextmanager
-async def get_mongo_client() -> AsyncIOMotorClient:
-    """Returns the MongoDB AsyncIOMotorClient
+async def get_mongo_client() -> AsyncGenerator[AsyncIOMotorClient]:
+    """Returns the MongoDB AsyncIOMotorClient.
 
     :returns: AsyncIOMotorClient object
     :rtype: AsyncIOMotorClient
@@ -93,7 +96,7 @@ async def get_mongo_client() -> AsyncIOMotorClient:
 
 
 async def get_mongo_collection(collection_name: str, mongo_client: AsyncIOMotorClient) -> AsyncIOMotorCollection:
-    """Returns the user databased from dataBased Cluster from MongoDB
+    """Returns the user databased from dataBased Cluster from MongoDB.
 
     :returns: Returns a Collection from Mongo DB
 
@@ -103,7 +106,7 @@ async def get_mongo_collection(collection_name: str, mongo_client: AsyncIOMotorC
 
 @asynccontextmanager
 async def create_reddit_instance() -> Reddit:
-    """Creates Reddit instance and returns the object
+    """Creates Reddit instance and returns the object.
 
     :returns: Reddit instance object.
 
@@ -123,7 +126,7 @@ async def create_reddit_instance() -> Reddit:
 
 
 async def send_message_to_admin(message_subject: str, message_body: str, author_name: str, reddit: Reddit) -> None:
-    """Forwards the message to the bot admin specified in the environment variable
+    """Forwards the message to the bot admin specified in the environment variable.
 
     :param message_subject: Subject of message
     :param message_body: Body of message

@@ -5,24 +5,26 @@ import random
 import re
 from contextlib import suppress
 from time import time
-from typing import Optional, Any
-from urllib.parse import urlsplit, parse_qs
+from typing import TYPE_CHECKING, Any
+from urllib.parse import parse_qs, urlsplit
 
 import aiofiles
 import yaml
-from motor.motor_asyncio import AsyncIOMotorCollection, AsyncIOMotorClient
 from pymongo import ReturnDocument
 
 from models.flairs import get_flair_name
-from models.ranks import rank_name, rank_message
+from models.ranks import rank_message, rank_name
 from models.user import User
-from utility_functions import get_mongo_collection, create_logger
+from utility_functions import create_logger, get_mongo_collection
+
+if TYPE_CHECKING:
+    from motor.motor_asyncio import AsyncIOMotorClient, AsyncIOMotorCollection
 
 bot_commands_logger = create_logger(__name__)
 
 
 async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOMotorCollection) -> dict[str, Any]:
-    """Finds the user in the users_collection, or creates one if it doesn't exist using default values
+    """Finds the user in the users_collection, or creates one if it doesn't exist using default values.
 
     :param user_name: The user whose profile to find or create
     :param users_collection: The collection in which the profile will be searched or inserted
@@ -30,7 +32,7 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
     :returns: Dict object with user profile info
 
     """
-    profile: Optional[dict[str, Any]] = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.I)})
+    profile: dict[str, Any] | None = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.IGNORECASE)})
     if profile is None:
         profile = await users_collection.find_one_and_update(
             {"name": user_name},
@@ -53,9 +55,9 @@ async def find_or_create_user_profile(user_name: str, users_collection: AsyncIOM
 
 
 async def based_and_pilled(
-    user_name: str, user_flair_id: str, user_flair_text: str, pill: Optional[dict[str, str | int]], mongo_client: AsyncIOMotorClient
-) -> Optional[str]:
-    """Increments the based count and adds the pill to a user database in mongo
+    user_name: str, user_flair_id: str, user_flair_text: str, pill: dict[str, str | int] | None, mongo_client: AsyncIOMotorClient
+) -> str | None:
+    """Increments the based count and adds the pill to a user database in mongo.
 
     :param user_name: user whose based count/pill will be added.
     :param user_flair_id: flair id of the user.
@@ -66,22 +68,22 @@ async def based_and_pilled(
     :returns: Comment response for the user when based count is 1, multiple of 5 and when they reach a new rank
 
     """
-    bot_commands_logger.info(f"based_and_pilled args: u/{user_name}, flair: {user_flair_id}, pill: {pill}")
+    bot_commands_logger.info("based_and_pilled args: u/%s, flair: %s, pill: %s", user_name, user_flair_id, pill)
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
     profile = await find_or_create_user_profile(user_name, users_collection)
     flair_name = await get_flair_name(user_flair_id) or user_flair_text
-    bot_commands_logger.info(f"Flair class: {user_flair_id} -> Flair name: {flair_name}")
-    bot_commands_logger.info(f"Based Count before: {profile['count']}")
+    bot_commands_logger.info("Flair class: %s -> Flair name: %s", user_flair_id, flair_name)
+    bot_commands_logger.info("Based Count before: %s", profile["count"])
     await asyncio.gather(
         add_based_count(user_name, flair_name, users_collection),
         add_pills(user_name, pill, users_collection),
     )
     profile = await find_or_create_user_profile(user_name, users_collection)
-    bot_commands_logger.info(f"Based Count: {profile['count']}")
+    bot_commands_logger.info("Based Count: %s", profile["count"])
 
     user = User.from_data(profile)
     all_based_counts = await user.get_all_accounts_based_count(users_collection)
-    combined_based_count = sum(map(lambda x: x[1], all_based_counts))
+    combined_based_count = sum(x[1] for x in all_based_counts)
     combined_pills = await user.combined_formatted_pills(users_collection)
     combined_rank = await rank_name(combined_based_count, user_name)
     rank_up = await rank_message(combined_based_count)
@@ -91,32 +93,41 @@ async def based_and_pilled(
             f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
+            f"Compass: {user.format_compass()}\n\n"(
+                "I am a bot. Reply /info for more info. "
+                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+                "or our discord server (link is on our subreddit)"
+            )
         )
-    elif user.based_count % 5 == 0:
+    if user.based_count % 5 == 0:
         if rank_up is not None:
             # Reply if user reaches a new rank
             return (
                 f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
                 f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}\n\n"
                 f"Pills: {combined_pills}\n\n"
-                f"Compass: {user.format_compass()}\n\n"
-                f"I am a bot. Reply /info for more info."
+                f"Compass: {user.format_compass()}\n\n"(
+                    "I am a bot. Reply /info for more info. "
+                    "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+                    "or our discord server (link is on our subreddit)"
+                )
             )
         # normal reply
         return (
             f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"
-            f"I am a bot. Reply /info for more info."
+            f"Compass: {user.format_compass()}\n\n"(
+                "I am a bot. Reply /info for more info. "
+                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+                "or our discord server (link is on our subreddit)"
+            )
         )
     return None
 
 
 async def add_based_count(user_name: str, flair_name: str, users_collection: AsyncIOMotorCollection) -> None:
-    """Increases the based count of user by one
+    """Increases the based count of user by one.
 
     :param user_name: user whose based count will be increased
     :param flair_name: flair of the user.
@@ -128,8 +139,8 @@ async def add_based_count(user_name: str, flair_name: str, users_collection: Asy
     await users_collection.update_one({"name": user_name}, {"$set": {"flair": flair_name}, "$inc": {"count": 1}, "$push": {"basedTime": int(time())}})
 
 
-async def add_pills(user_name: str, pill: Optional[dict[str, str | int]], users_collection: AsyncIOMotorCollection) -> None:
-    """Add the pill to the user database
+async def add_pills(user_name: str, pill: dict[str, str | int] | None, users_collection: AsyncIOMotorCollection) -> None:
+    """Add the pill to the user database.
 
     :param user_name: The user's whose pill will be added
     :param pill: pill that will be added
@@ -139,13 +150,13 @@ async def add_pills(user_name: str, pill: Optional[dict[str, str | int]], users_
 
     """
     if pill is None:
-        return None
+        return
 
     await users_collection.update_one({"name": user_name, "pills.name": {"$ne": pill["name"]}}, {"$push": {"pills": pill}})
 
 
 async def add_to_based_history(user_name: str, parent_author: str, mongo_client: AsyncIOMotorClient) -> None:
-    """Adds the based count record to based history database, so it can be sent to mods for cheating report
+    """Adds the based count record to based history database, so it can be sent to mods for cheating report.
 
     :param user_name: user who gave the based and pills
     :param parent_author: user who received the based
@@ -178,13 +189,13 @@ async def get_based_count(user_name: str, mongo_client: AsyncIOMotorClient, is_m
 
     """
     users_collection = await get_mongo_collection(collection_name="users", mongo_client=mongo_client)
-    profile = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.I)})
+    profile = await users_collection.find_one({"name": re.compile(rf"^{user_name}$", re.IGNORECASE)})
 
     if profile is not None:
         user = User.from_data(profile)
 
         all_based_counts = await user.get_all_accounts_based_count(users_collection)
-        combined_based_count = sum(map(lambda x: x[1], all_based_counts))
+        combined_based_count = sum(x[1] for x in all_based_counts)
         combined_pills = await user.combined_formatted_pills(users_collection)
         combined_rank = await rank_name(combined_based_count, user_name)
 
@@ -202,17 +213,14 @@ async def get_based_count(user_name: str, mongo_client: AsyncIOMotorClient, is_m
             reply_message = f"{reply_message}\n\n{merged_account_reply}"
 
     else:
-        async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
+        async with aiofiles.open("data_dictionaries/bot_replies.yaml") as fp:
             replies = yaml.safe_load(await fp.read())
-        if is_me:
-            reply_message = random.choice(replies.get("my_based_no_user_reply"))
-        else:
-            reply_message = random.choice(replies.get("based_count_no_user_reply"))
+        reply_message = random.choice(replies.get("my_based_no_user_reply")) if is_me else random.choice(replies.get("based_count_no_user_reply"))
     return reply_message
 
 
 async def my_compass(user_name: str, compass: str, mongo_client: AsyncIOMotorClient) -> str:
-    """Parses the Political Compass/Sapply Values url and saves to compass values in database
+    """Parses the Political Compass/Sapply Values url and saves to compass values in database.
 
     :param user_name: User whose compass will be updated
     :param compass: The url given by the user
@@ -233,16 +241,16 @@ async def my_compass(user_name: str, compass: str, mongo_client: AsyncIOMotorCli
             sv_soc_type = url_query["auth"][0]
             sv_prog_type = url_query["prog"][0]
             profile["sapply"] = [sv_prog_type, sv_soc_type, sv_eco_type]
-            bot_commands_logger.info(f"Sapply Values: {profile['sapply']}")
+            bot_commands_logger.info("Sapply Values: %s", profile["sapply"])
             await users_collection.update_one({"name": user_name}, {"$set": {"sapply": profile["sapply"]}})
             user = User.from_data(profile)
             return f"Your Sapply compass has been updated.\n\n{user.sappy_values_type}"
 
-        elif "politicalcompass.org" in root_domain:
+        if "politicalcompass.org" in root_domain:
             compass_economic_axis = url_query["ec"][0]
             compass_social_axis = url_query["soc"][0]
             profile["compass"] = [compass_economic_axis, compass_social_axis]
-            bot_commands_logger.info(f"PCM Values: {profile['compass']}")
+            bot_commands_logger.info("PCM Values: %s", profile["compass"])
             await users_collection.update_one({"name": user_name}, {"$set": {"compass": profile["compass"]}})
             user = User.from_data(profile)
             return f"Your political compass has been updated.\n\n{user.political_compass_type}"
@@ -254,7 +262,7 @@ async def my_compass(user_name: str, compass: str, mongo_client: AsyncIOMotorCli
 
 
 async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClient) -> str:
-    """Removes the pill by adding deleted = True field in the dict obj
+    """Removes the pill by adding deleted = True field in the dict obj.
 
     :param user_name: The user whose pill is going to be removed
     :param pill: Name of the pill being removed
@@ -269,12 +277,11 @@ async def remove_pill(user_name: str, pill: str, mongo_client: AsyncIOMotorClien
     )
     if not res:
         return "You do not have that pill!"
-    else:
-        return f'"{pill}" pill removed. See your pills at https://basedcount.com/u/{user_name}'
+    return f'"{pill}" pill removed. See your pills at https://basedcount.com/u/{user_name}'
 
 
 async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncIOMotorClient) -> str:
-    """Sets the user's unsubscribed bool to True or False
+    """Sets the user's unsubscribed bool to True or False.
 
     :param subscribe: Boolean indicating whether to set the status to subscribed or unsubscribed
     :param user_name: The user whose subscription status is being changed
@@ -288,8 +295,7 @@ async def set_subscription(subscribe: bool, user_name: str, mongo_client: AsyncI
     res = await users_collection.update_one({"name": profile["name"]}, {"$set": {"unsubscribed": not subscribe}}, return_document=ReturnDocument.AFTER)
     if res:
         return "You have unsubscribed from basedcount_bot." if subscribe else "Thank you for subscribing to basedcount_bot!"
-    else:
-        return "Error: Please contact the mods."
+    return "Error: Please contact the mods."
 
 
 async def check_unsubscribed(username: str, mongo_client: AsyncIOMotorClient) -> bool:
@@ -309,7 +315,6 @@ async def check_unsubscribed(username: str, mongo_client: AsyncIOMotorClient) ->
     if "unsubscribed" in profile:
         unsub: bool = profile["unsubscribed"]
         return unsub
-    else:
-        # If the "unsubscribed" field is missing, add it and set its value to False
-        await users_collection.update_one({"name": username}, {"$set": {"unsubscribed": False}})
-        return False
+    # If the "unsubscribed" field is missing, add it and set its value to False
+    await users_collection.update_one({"name": username}, {"$set": {"unsubscribed": False}})
+    return False

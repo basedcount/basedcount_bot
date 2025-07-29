@@ -6,24 +6,28 @@ import re
 from os import getenv
 from time import sleep
 from traceback import format_exc
-from typing import Awaitable, Callable
+from typing import TYPE_CHECKING
 
 import aiofiles
-from asyncpraw import Reddit
-from asyncpraw.models import Message, Comment, Submission
+from asyncpraw.models import Comment, Message, Submission
 from asyncprawcore.exceptions import AsyncPrawcoreException
 from dotenv import load_dotenv
-from motor.motor_asyncio import AsyncIOMotorClient
 from yaml import safe_load
 
-from bot_commands import get_based_count, most_based, based_and_pilled, my_compass, remove_pill, add_to_based_history, set_subscription, check_unsubscribed
+from bot_commands import add_to_based_history, based_and_pilled, check_unsubscribed, get_based_count, most_based, my_compass, remove_pill, set_subscription
 from utility_functions import (
     create_logger,
     create_reddit_instance,
-    send_message_to_admin,
     get_mongo_client,
+    send_message_to_admin,
     send_traceback_to_discord,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
+
+    from asyncpraw import Reddit
+    from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
 
@@ -39,7 +43,7 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
     """
 
     async def wrapper(reddit_instance: Reddit, mongo_client: AsyncIOMotorClient) -> None:
-        global cool_down_timer
+        global cool_down_timer  # noqa: PLW0603
 
         while True:
             try:
@@ -50,20 +54,20 @@ def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[Non
 
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
-                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
+                main_logger.info("Cooldown: %s seconds", cool_down_timer)
             except Exception as general_exc:
                 main_logger.critical("Serious Exception", exc_info=True)
                 await send_traceback_to_discord(exception_name=type(general_exc).__name__, exception_message=str(general_exc), exception_body=format_exc())
 
                 sleep(cool_down_timer)
                 cool_down_timer = (cool_down_timer + 30) % 360
-                main_logger.info(f"Cooldown: {cool_down_timer} seconds")
+                main_logger.info("Cooldown: %s seconds", cool_down_timer)
 
     return wrapper
 
 
 async def bot_commands(command: Message | Comment, command_body_lower: str, mongo_client: AsyncIOMotorClient) -> None:
-    """Responsible for the basic based count bot commands
+    """Responsible for the basic based count bot commands.
 
     :param command: Reddit post that triggered the command, could be a message or comment
     :param command_body_lower: The body of that message or command
@@ -72,12 +76,16 @@ async def bot_commands(command: Message | Comment, command_body_lower: str, mong
     :returns: None
 
     """
-
     if command_body_lower.startswith("/"):
-        main_logger.info(f"Received {type(command).__name__} from {command.author}, {command_body_lower!r}")
+        main_logger.info(
+            "Received %s from %s, %r",
+            type(command).__name__,
+            command.author,
+            command_body_lower,
+        )
 
     if command_body_lower.startswith("/info"):
-        async with aiofiles.open("data_dictionaries/bot_replies.yaml", "r") as fp:
+        async with aiofiles.open("data_dictionaries/bot_replies.yaml") as fp:
             replies = safe_load(await fp.read())
             await command.reply(replies.get("info_message"))
 
@@ -193,7 +201,7 @@ PILL_REGEX = re.compile("(?<=(and|but))(.+)pilled", re.IGNORECASE)
 
 
 async def is_valid_comment(comment: Comment, parent_info: dict[str, str], mongo_client: AsyncIOMotorClient) -> bool:
-    """Runs checks for self based/pills, unflaired users, and cheating in general
+    """Runs checks for self based/pills, unflaired users, and cheating in general.
 
     :param comment: Comment which triggered the bot command
     :param parent_info: The parent comment/submission info.
@@ -202,7 +210,13 @@ async def is_valid_comment(comment: Comment, parent_info: dict[str, str], mongo_
     :returns: True if checks passed and False if checks failed
 
     """
-    main_logger.info(f"Based Comment: {comment.body!r} from: u/{comment.author.name} to: u/{parent_info['parent_author']} <{parent_info['parent_flair_text']}>")
+    main_logger.info(
+        "Based Comment: %r from: u/%s to: u/%s <%s>",
+        comment.body,
+        comment.author.name,
+        parent_info["parent_author"],
+        parent_info["parent_flair_text"],
+    )
     if parent_info["parent_author"].lower() in [comment.author.name.lower(), getenv("REDDIT_USERNAME", "basedcount_bot").lower()]:
         main_logger.info("Checks failed, self based or giving basedcount_bot based.")
         return False
@@ -258,7 +272,7 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
     :returns: Nothing is returned
 
     """
-    main_logger.info(f"Logged into {await reddit_instance.user.me()} Account.")
+    main_logger.info("Logged into %s Account.", await reddit_instance.user.me())
     pcm_subreddit = await reddit_instance.subreddit("PoliticalCompassMemes")
     async for comment in pcm_subreddit.stream.comments(skip_existing=True):  # Comment
         # Skipping over comments from users that have blocked basedcount_bot
@@ -297,6 +311,11 @@ async def read_comments(reddit_instance: Reddit, mongo_client: AsyncIOMotorClien
 
 
 async def main() -> None:
+    """Run the main bot logic by concurrently checking mail and reading comments.
+
+    This function initializes MongoDB and Reddit clients, then starts
+    asynchronous tasks for mail checking and comment reading.
+    """
     async with get_mongo_client() as mongo_client, create_reddit_instance() as r1, create_reddit_instance() as r2:
         await asyncio.gather(
             check_mail(r1, mongo_client),

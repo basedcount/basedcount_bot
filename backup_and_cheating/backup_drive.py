@@ -2,9 +2,10 @@ from __future__ import annotations
 
 import bz2
 import sys
+from collections.abc import Sequence
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any
 
 import ujson
 from google.oauth2 import service_account
