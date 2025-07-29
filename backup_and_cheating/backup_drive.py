@@ -14,8 +14,9 @@ from googleapiclient.http import MediaFileUpload
 
 sys.path.append(str(Path(sys.argv[0]).absolute().parent.parent))
 
-from utility_functions import create_logger
+from utility_functions import create_logger, setup_logging
 
+setup_logging(str(Path(__file__).parent / "logging_config.json"))
 backup_drive_logger = create_logger(__name__)
 
 SCOPES = ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/drive.metadata"]
@@ -71,7 +72,7 @@ def save_file_to_drive(file_metadata: dict[str, Sequence[str]], media: MediaFile
     while response is None:
         status, response = db_file.next_chunk()
         if status:
-            backup_drive_logger.info(f"Uploaded {status.progress() * 100}")
+            backup_drive_logger.info("Uploaded %.2f", status.progress() * 100)
 
 
 def build_data_based(data_based: list[dict[str, object]]) -> None:

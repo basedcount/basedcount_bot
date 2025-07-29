@@ -1,0 +1,63 @@
+{
+    "version":1,
+    "disable_existing_loggers":false,
+    "formatters":{
+        "my_formatter":{
+            "format":"[%(asctime)s] %(levelname)s [%(filename)s.%(funcName)s:%(lineno)d] %(message)s"
+        }
+    },
+    "handlers":{
+        "console_handler":{
+            "class":"logging.StreamHandler",
+            "level":"INFO",
+            "formatter":"my_formatter",
+            "stream":"ext://sys.stdout"
+        },
+        "timed_rotating_file_handler":{
+            "class":"logging.handlers.TimedRotatingFileHandler",
+            "level":"INFO",
+            "formatter":"my_formatter",
+            "filename":"logs/basedcount_bot.log",
+            "when":"D",
+            "interval":1,
+            "backupCount":15
+        }
+    },
+    "loggers":{
+        "basedcount_bot":{
+            "level":"DEBUG",
+            "handlers":[
+                
+            ],
+            "propagate":true
+        },
+        "bot_commands":{
+            "level":"DEBUG",
+            "handlers":[
+                
+            ],
+            "propagate":true
+        },
+        "back_up_and_cheating":{
+            "level":"DEBUG",
+            "handlers":[
+                
+            ],
+            "propagate":true
+        },
+        "backup_drive":{
+            "level":"DEBUG",
+            "handlers":[
+                
+            ],
+            "propagate":true
+        }
+    },
+    "root":{
+        "level":"DEBUG",
+        "handlers":[
+            "console_handler",
+            "timed_rotating_file_handler"
+        ]
+    }
+}

@@ -19,12 +19,19 @@ if TYPE_CHECKING:
 
     from asyncpraw.reddit import Redditor
 
-Path("logs").mkdir(exist_ok=True)
-conf_file = Path("logging.conf")
-if conf_file.is_file():
-    config.fileConfig(str(conf_file))
-else:
-    config.fileConfig(str(Path(__file__).parent / "logging.conf"))
+
+def setup_logging(config_path: str = "logging_config.json") -> None:
+    """Setup logging from a JSON config file."""
+    conf_file = Path(config_path)
+    if conf_file:
+        with conf_file.open("r") as f:
+            logging_config = json.load(f)
+        config.dictConfig(logging_config)
+    else:
+        raise FileNotFoundError(f"Logging config file not found: {config_path}")
+
+
+setup_logging()
 
 
 async def post_to_pastebin(title: str, body: str) -> str | None:

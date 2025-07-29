@@ -96,7 +96,7 @@ async def based_and_pilled(
             f"Compass: {user.format_compass()}\n\n"
             "I am a bot. Reply /info for more info. "
             "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-            "or our discord server (link is on our subreddit"
+            "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
         )
     if user.based_count % 5 == 0:
         if rank_up is not None:
@@ -108,7 +108,7 @@ async def based_and_pilled(
                 f"Compass: {user.format_compass()}\n\n"
                 "I am a bot. Reply /info for more info. "
                 "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-                "or our discord server (link is on our subreddit)"
+                "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
             )
         # normal reply
         return (
@@ -118,7 +118,7 @@ async def based_and_pilled(
             f"Compass: {user.format_compass()}\n\n"
             "I am a bot. Reply /info for more info. "
             "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-            "or our discord server (link is on our subreddit)"
+            "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
         )
     return None
 
