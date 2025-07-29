@@ -11,6 +11,15 @@
             "program": "${workspaceFolder}/basedcount_bot.py",
             "console": "integratedTerminal",
             "justMyCode": false
+        },
+        {
+            "name": "back_up_and_cheating.py",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "${workspaceFolder}/backup_and_cheating/back_up_and_cheating.py",
+            "cwd": "${workspaceFolder}/backup_and_cheating",
+            "console": "integratedTerminal",
+            "justMyCode": false
         }
     ]
 }

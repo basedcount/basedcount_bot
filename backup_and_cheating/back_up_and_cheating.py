@@ -25,7 +25,7 @@ from utility_functions import (
 )
 
 load_dotenv("../.env")
-setup_logging(str(Path(__file__).parent / "logging_config.json"))
+setup_logging(str(Path(__file__).parent.parent / "logging_config.json"))
 backup_cheating_logger = create_logger(__name__)
 
 

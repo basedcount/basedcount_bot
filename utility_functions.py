@@ -31,9 +31,6 @@ def setup_logging(config_path: str = "logging_config.json") -> None:
         raise FileNotFoundError(f"Logging config file not found: {config_path}")
 
 
-setup_logging()
-
-
 async def post_to_pastebin(title: str, body: str) -> str | None:
     """Uploads the text to PasteBin and returns the url of the Paste.
 

@@ -15,13 +15,7 @@ from dotenv import load_dotenv
 from yaml import safe_load
 
 from bot_commands import add_to_based_history, based_and_pilled, check_unsubscribed, get_based_count, most_based, my_compass, remove_pill, set_subscription
-from utility_functions import (
-    create_logger,
-    create_reddit_instance,
-    get_mongo_client,
-    send_message_to_admin,
-    send_traceback_to_discord,
-)
+from utility_functions import create_logger, create_reddit_instance, get_mongo_client, send_message_to_admin, send_traceback_to_discord, setup_logging
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -30,7 +24,7 @@ if TYPE_CHECKING:
     from motor.motor_asyncio import AsyncIOMotorClient
 
 load_dotenv()
-
+setup_logging()
 
 def exception_wrapper(func: Callable[[Reddit, AsyncIOMotorClient], Awaitable[None]]) -> Callable[[Reddit, AsyncIOMotorClient], Awaitable[None]]:
     """Decorator to handle the exceptions and to ensure the code doesn't exit unexpectedly.

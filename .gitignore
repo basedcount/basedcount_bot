@@ -1,6 +1,7 @@
 service_account.json
 flairs_dict.json
 ranks_dict.json
+logs/ 
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

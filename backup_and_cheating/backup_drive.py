@@ -16,7 +16,7 @@ sys.path.append(str(Path(sys.argv[0]).absolute().parent.parent))
 
 from utility_functions import create_logger, setup_logging
 
-setup_logging(str(Path(__file__).parent / "logging_config.json"))
+setup_logging(str(Path(__file__).parent.parent / "logging_config.json"))
 backup_drive_logger = create_logger(__name__)
 
 SCOPES = ["https://www.googleapis.com/auth/drive.file", "https://www.googleapis.com/auth/drive", "https://www.googleapis.com/auth/drive.metadata"]
