@@ -95,7 +95,7 @@ async def based_and_pilled(
             f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
             "I am a bot. Reply /info for more info. "
-            "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+            "If you have any suggestions, questions, or just want to hang out and chat with the devs, please visit subreddit r/basedcount_bot "
             "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
         )
     if user.based_count % 5 == 0:
@@ -107,7 +107,7 @@ async def based_and_pilled(
                 f"Pills: {combined_pills}\n\n"
                 f"Compass: {user.format_compass()}\n\n"
                 "I am a bot. Reply /info for more info. "
-                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+                "If you have any suggestions, questions, or just want to hang out and chat with the devs, please visit subreddit r/basedcount_bot "
                 "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
             )
         # normal reply
@@ -117,7 +117,7 @@ async def based_and_pilled(
             f"Pills: {combined_pills}\n\n"
             f"Compass: {user.format_compass()}\n\n"
             "I am a bot. Reply /info for more info. "
-            "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+            "If you have any suggestions, questions, or just want to hang out and chat with the devs, please visit subreddit r/basedcount_bot "
             "or our discord server (https://www.reddit.com/r/basedcount_bot/s/K8ae6nRbOF)"
         )
     return None
