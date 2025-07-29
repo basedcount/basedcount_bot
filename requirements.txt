@@ -89,6 +89,8 @@ pyparsing==3.2.0
     # via httplib2
 python-dotenv==1.1.1
     # via basedcount-bot (pyproject.toml)
+pyyaml==6.0.2
+    # via basedcount-bot (pyproject.toml)
 requests==2.32.3
     # via
     #   google-api-core
