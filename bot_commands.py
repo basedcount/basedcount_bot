@@ -93,11 +93,10 @@ async def based_and_pilled(
             f"u/{user_name} is officially based! Their Based Count is now 1.\n\n"
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"(
-                "I am a bot. Reply /info for more info. "
-                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-                "or our discord server (link is on our subreddit)"
-            )
+            f"Compass: {user.format_compass()}\n\n"
+            "I am a bot. Reply /info for more info. "
+            "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+            "or our discord server (link is on our subreddit"
         )
     if user.based_count % 5 == 0:
         if rank_up is not None:
@@ -106,22 +105,20 @@ async def based_and_pilled(
                 f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
                 f"Congratulations, u/{user_name}! You have ranked up to {combined_rank}! {rank_up}\n\n"
                 f"Pills: {combined_pills}\n\n"
-                f"Compass: {user.format_compass()}\n\n"(
-                    "I am a bot. Reply /info for more info. "
-                    "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-                    "or our discord server (link is on our subreddit)"
-                )
+                f"Compass: {user.format_compass()}\n\n"
+                "I am a bot. Reply /info for more info. "
+                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+                "or our discord server (link is on our subreddit)"
             )
         # normal reply
         return (
             f"u/{user_name}'s Based Count has increased by 1. Their Based Count is now {user.based_count}.\n\n"
             f"Rank: {combined_rank}\n\n"
             f"Pills: {combined_pills}\n\n"
-            f"Compass: {user.format_compass()}\n\n"(
-                "I am a bot. Reply /info for more info. "
-                "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
-                "or our discord server (link is on our subreddit)"
-            )
+            f"Compass: {user.format_compass()}\n\n"
+            "I am a bot. Reply /info for more info. "
+            "If you have any suggestions or questions, please visit subreddit r/basedcount_bot "
+            "or our discord server (link is on our subreddit)"
         )
     return None
 
