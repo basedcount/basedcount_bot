@@ -29,12 +29,15 @@ remove-user-systemd:
     systemctl --user daemon-reload
     ls -alF ~/.config/systemd/user
 
+# Check the status of the main service and backup timer
+status:
+    systemctl --user status basedcount_bot.service basedcount_bot_backup.timer
+
 # Reload daemon, enable the main service and backup timer, and start them
 start-all-services:
     systemctl --user daemon-reload
     systemctl --user enable --now basedcount_bot.service
     systemctl --user enable --now basedcount_bot_backup.timer
-    systemctl --user status basedcount_bot.service basedcount_bot_backup.timer
 
 # Stop the main service and backup timer
 stop-all-services:
@@ -45,7 +48,6 @@ stop-all-services:
 restart-all-services:
     systemctl --user restart basedcount_bot.service
     systemctl --user restart basedcount_bot_backup.timer
-    systemctl --user status basedcount_bot.service basedcount_bot_backup.timer
 
 # Stop and disable the main service and backup timer from starting on boot
 disable-all-services:
