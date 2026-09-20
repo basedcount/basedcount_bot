@@ -21,22 +21,33 @@ symlink-to-user-systemd:
     systemctl --user daemon-reload
     ls -alF ~/.config/systemd/user
 
-# Reload daemon, enable, and start all services and timers
+# Remove symlinked service and timer files from the systemd user directory
+remove-user-systemd:
+    rm -f ~/.config/systemd/user/basedcount_bot_backup.service
+    rm -f ~/.config/systemd/user/basedcount_bot_backup.timer
+    rm -f ~/.config/systemd/user/basedcount_bot.service
+    systemctl --user daemon-reload
+    ls -alF ~/.config/systemd/user
+
+# Reload daemon, enable the main service and backup timer, and start them
 start-all-services:
     systemctl --user daemon-reload
     systemctl --user enable --now basedcount_bot.service
     systemctl --user enable --now basedcount_bot_backup.timer
-    systemctl --user enable --now basedcount_bot_backup.service
     systemctl --user status basedcount_bot.service basedcount_bot_backup.timer
 
-# Stop all running services and timers
+# Stop the main service and backup timer
 stop-all-services:
     systemctl --user stop basedcount_bot.service
     systemctl --user stop basedcount_bot_backup.timer
-    systemctl --user stop basedcount_bot_backup.service
 
-# Stop and disable all services and timers from starting on boot
+# Restart the main service and backup timer
+restart-all-services:
+    systemctl --user restart basedcount_bot.service
+    systemctl --user restart basedcount_bot_backup.timer
+    systemctl --user status basedcount_bot.service basedcount_bot_backup.timer
+
+# Stop and disable the main service and backup timer from starting on boot
 disable-all-services:
     systemctl --user disable --now basedcount_bot.service
     systemctl --user disable --now basedcount_bot_backup.timer
-    systemctl --user disable --now basedcount_bot_backup.service
